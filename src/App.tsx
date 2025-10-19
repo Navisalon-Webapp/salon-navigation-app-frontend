@@ -1,9 +1,12 @@
-import { NavLink, Routes, Route, Navigate } from 'react-router-dom'
+import { NavLink, Routes, Route} from 'react-router-dom'
 import Page1 from './pages/Page1'
 import Page2 from './pages/Page2'
 import Page3 from './pages/Page3'
+import SignIn from './pages/Auth/SignIn'
+import SignUp from './pages/Auth/Signup'
 
-export default function App() {
+// Layout component with header
+function MainLayout() {
   return (
     <>
       {/* Header */}
@@ -16,7 +19,7 @@ export default function App() {
 
             <nav style={{ display: 'flex', gap: 30 }}>
               <NavLink
-                to="/"
+                to="/home/Page1"
                 style={({ isActive }) => ({
                   color: isActive ? '#DE9E48' : '#FFFFFF',
                   textDecoration: 'none',
@@ -28,7 +31,7 @@ export default function App() {
                 Page 1
               </NavLink>
               <NavLink
-                to="/Page2"
+                to="/home/Page2"
                 style={({ isActive }) => ({
                   color: isActive ? '#DE9E48' : '#FFFFFF',
                   textDecoration: 'none',
@@ -39,7 +42,7 @@ export default function App() {
                 Page 2
               </NavLink>
               <NavLink
-                to="/Page3"
+                to="/home/Page3"
                 style={({ isActive }) => ({
                   color: isActive ? '#DE9E48' : '#FFFFFF',
                   textDecoration: 'none',
@@ -57,11 +60,21 @@ export default function App() {
       {/* Page content */}
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 20px' }}>
         <Routes>
-          <Route path="/" element={<Page1 />} />
+          <Route path="/Page1" element={<Page1 />} />
           <Route path="/Page2" element={<Page2 />} />
           <Route path="/Page3" element={<Page3 />} />
         </Routes>
       </div>
     </>
+  )
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<SignIn />} />
+      <Route path="/SignUp" element={<SignUp />} />
+      <Route path="/home/*" element={<MainLayout />} />
+    </Routes>
   )
 }
