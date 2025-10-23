@@ -1,9 +1,10 @@
-import { NavLink, Routes, Route} from 'react-router-dom'
-import Page1 from './pages/Page1'
-import Page2 from './pages/Page2'
-import Page3 from './pages/Page3'
-import SignIn from './pages/Auth/SignIn'
-import SignUp from './pages/Auth/Signup'
+import { NavLink, Routes, Route } from "react-router-dom";
+import Page1 from "./pages/Page1";
+import Page2 from "./pages/Page2";
+import Page3 from "./pages/Page3";
+import SignIn from "./pages/Auth/Signin";
+import SignUp from "./pages/Auth/SignUp";
+import ManageAvailability from "./pages/Worker/ManageAvailability";
 
 // Layout component with header
 function MainLayout() {
@@ -63,6 +64,11 @@ function MainLayout() {
           <Route path="/Page1" element={<Page1 />} />
           <Route path="/Page2" element={<Page2 />} />
           <Route path="/Page3" element={<Page3 />} />
+          {/* Worker-only: Manage Availability (isolated to this branch) */}
+          <Route
+            path="/worker/ManageAvailability"
+            element={<ManageAvailability />}
+          />
         </Routes>
       </div>
     </>
