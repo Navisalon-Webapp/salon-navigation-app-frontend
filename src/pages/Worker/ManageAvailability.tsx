@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 type DayKey = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
 
@@ -9,47 +9,6 @@ type DayAvailability = {
 };
 
 type WeeklyAvailability = Record<DayKey, DayAvailability>;
-
-const sectionStyle: React.CSSProperties = {
-  backgroundColor: "#372C2E",
-  border: "1px solid #7A431D",
-  borderRadius: "0.5rem",
-  padding: "1rem",
-  color: "#FFFFFF",
-};
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.6rem 0.8rem",
-  borderRadius: "0.5rem",
-  backgroundColor: "#563727",
-  border: "1px solid #7A431D",
-  color: "#FFFFFF",
-  outline: "none",
-  transition: "all 0.2s",
-};
-
-const buttonPrimary: React.CSSProperties = {
-  padding: "0.6rem 1rem",
-  fontWeight: 600,
-  borderRadius: "0.5rem",
-  backgroundColor: "#DE9E48",
-  color: "#372C2E",
-  border: "none",
-  cursor: "pointer",
-  transition: "all 0.2s",
-};
-
-const buttonGhost: React.CSSProperties = {
-  padding: "0.6rem 1rem",
-  fontWeight: 600,
-  borderRadius: "0.5rem",
-  backgroundColor: "transparent",
-  color: "#FFFFFF",
-  border: "1px solid #7A431D",
-  cursor: "pointer",
-  transition: "all 0.2s",
-};
 
 const days: DayKey[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -67,25 +26,6 @@ function getDefaultWeek(): WeeklyAvailability {
 }
 
 const ManageAvailability: React.FC = () => {
-  // Page-scoped dark background, similar to other worker pages
-  useEffect(() => {
-    const docEl = document.documentElement;
-    const prevHtmlBg = docEl.style.background;
-    const prevHtmlColor = docEl.style.color;
-    const prevBodyBg = document.body.style.background;
-    const prevBodyColor = document.body.style.color;
-    docEl.style.background = "#372C2E";
-    docEl.style.color = "#FFFFFF";
-    document.body.style.background = "#372C2E";
-    document.body.style.color = "#FFFFFF";
-    return () => {
-      docEl.style.background = prevHtmlBg;
-      docEl.style.color = prevHtmlColor;
-      document.body.style.background = prevBodyBg;
-      document.body.style.color = prevBodyColor;
-    };
-  }, []);
-
   const [week, setWeek] = useState<WeeklyAvailability>(() => getDefaultWeek());
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -111,8 +51,7 @@ const ManageAvailability: React.FC = () => {
     setSaving(true);
     setMessage(null);
     try {
-      // Replace with real API call, e.g.:
-      // await fetch('/api/worker/availability', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ week })});
+      // Replace with real API call
       await new Promise((r) => setTimeout(r, 500));
       setMessage("Availability saved successfully.");
       console.log("Saved availability", { week });
@@ -123,91 +62,186 @@ const ManageAvailability: React.FC = () => {
     }
   };
 
-  // const anyDayEnabled = useMemo(() => days.some((d) => week[d].enabled), [week]);
-
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-      {/* Header */}
-      <div style={sectionStyle}>
-        <h2 style={{ margin: 0 }}>Manage Availability</h2>
-        <p style={{ opacity: 0.9, marginTop: 8 }}>Set your weekly schedule.</p>
-      </div>
-
-      {/* Weekly schedule */}
-      <div style={sectionStyle}>
+    <div
+      className="flex items-center justify-center p-4"
+      style={{
+        background: "#372C2E",
+        minHeight: "100vh",
+        width: "100%",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}
+    >
+      <div style={{ width: "100%", maxWidth: "400px", margin: "0 auto" }}>
+        {/* Header */}
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "140px 140px 140px 1fr",
-            gap: "0.75rem",
-            alignItems: "center",
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "2rem",
+            marginTop: "2rem",
           }}
         >
-          <div style={{ color: "#DE9E48", fontWeight: 700 }}>Day</div>
-          <div style={{ color: "#DE9E48", fontWeight: 700 }}>Start</div>
-          <div style={{ color: "#DE9E48", fontWeight: 700 }}>End</div>
-          <div />
+          <h1
+            style={{
+              fontSize: "1.875rem",
+              fontWeight: 600,
+              textAlign: "center",
+              color: "#FFFFFF",
+              margin: 0,
+            }}
+          >
+            Manage Availability
+          </h1>
+        </div>
+
+        {/* Simple weekly list */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {days.map((d) => (
-            <React.Fragment key={d}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <input
-                  type="checkbox"
-                  checked={week[d].enabled}
-                  onChange={(e) => handleDayToggle(d, e.target.checked)}
-                />
-                <span style={{ width: 60 }}>{d}</span>
+            <div
+              key={d}
+              style={{
+                backgroundColor: "#372C2E",
+                border: "1px solid #7A431D",
+                borderRadius: "0.5rem",
+                padding: "1rem",
+                color: "#FFFFFF",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "0.75rem",
+                }}
+              >
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={week[d].enabled}
+                    onChange={(e) => handleDayToggle(d, e.target.checked)}
+                  />
+                  <span style={{ color: "#DE9E48", fontWeight: 600 }}>{d}</span>
+                </label>
+                <span style={{ opacity: 0.9 }}>
+                  {week[d].enabled ? "Available" : "Unavailable"}
+                </span>
               </div>
-              <div>
-                <input
-                  type="time"
-                  value={week[d].start}
-                  onChange={(e) => handleTimeChange(d, "start", e.target.value)}
-                  style={{ ...inputStyle, opacity: week[d].enabled ? 1 : 0.5 }}
-                  disabled={!week[d].enabled}
-                />
-              </div>
-              <div>
-                <input
-                  type="time"
-                  value={week[d].end}
-                  onChange={(e) => handleTimeChange(d, "end", e.target.value)}
-                  style={{ ...inputStyle, opacity: week[d].enabled ? 1 : 0.5 }}
-                  disabled={!week[d].enabled}
-                />
-              </div>
-              <div style={{ opacity: 0.85 }}>
-                {week[d].enabled ? "Available" : "Unavailable"}
-              </div>
-            </React.Fragment>
+
+              {week[d].enabled && (
+                <div style={{ display: "flex", gap: "0.75rem" }}>
+                  <input
+                    type="time"
+                    value={week[d].start}
+                    onChange={(e) =>
+                      handleTimeChange(d, "start", e.target.value)
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "1rem 1.5rem",
+                      borderRadius: "0.5rem",
+                      backgroundColor: "#563727",
+                      border: "1px solid #7A431D",
+                      color: "#FFFFFF",
+                      outline: "none",
+                      transition: "all 0.2s",
+                    }}
+                  />
+                  <input
+                    type="time"
+                    value={week[d].end}
+                    onChange={(e) => handleTimeChange(d, "end", e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "1rem 1.5rem",
+                      borderRadius: "0.5rem",
+                      backgroundColor: "#563727",
+                      border: "1px solid #7A431D",
+                      color: "#FFFFFF",
+                      outline: "none",
+                      transition: "all 0.2s",
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           ))}
         </div>
-      </div>
 
-      {/* Actions */}
-      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-        <button
-          onClick={saveAvailability}
-          style={buttonPrimary}
-          disabled={saving}
-        >
-          {saving ? "Saving…" : "Save Changes"}
-        </button>
-        <button onClick={resetToDefaults} style={buttonGhost}>
-          Reset to Defaults
-        </button>
-      </div>
-
-      {/* Message */}
-      {message && (
+        {/* Actions */}
         <div
           style={{
-            ...sectionStyle,
-            backgroundColor: "#2f2527",
+            display: "flex",
+            justifyContent: "center",
+            gap: "0.75rem",
+            marginTop: "1.5rem",
           }}
         >
-          {message}
+          <button
+            onClick={saveAvailability}
+            disabled={saving}
+            style={{
+              padding: "0.75rem 2rem",
+              fontWeight: 600,
+              borderRadius: "0.5rem",
+              backgroundColor: "#DE9E48",
+              color: "#372C2E",
+              border: "none",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            {saving ? "Saving…" : "Save"}
+          </button>
+          <button
+            onClick={resetToDefaults}
+            style={{
+              padding: "0.75rem 2rem",
+              fontWeight: 600,
+              borderRadius: "0.5rem",
+              backgroundColor: "transparent",
+              border: "1px solid #7A431D",
+              color: "#FFFFFF",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            Reset
+          </button>
         </div>
-      )}
+
+        {/* Message */}
+        {message && (
+          <div
+            style={{
+              marginTop: "1rem",
+              padding: "1rem",
+              borderRadius: "0.5rem",
+              backgroundColor: "#2f2527",
+              color: "#FFFFFF",
+              border: "1px solid #7A431D",
+            }}
+          >
+            {message}
+          </div>
+        )}
+
+        <style>{`
+          input::placeholder { color: rgba(255, 255, 255, 0.5); }
+          input:focus { border-color: #DE9E48 !important; }
+        `}</style>
+      </div>
     </div>
   );
 };
