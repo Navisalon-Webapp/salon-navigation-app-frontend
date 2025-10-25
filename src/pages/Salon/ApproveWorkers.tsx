@@ -1,257 +1,202 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-interface PendingWorker {
+type Worker = {
   id: string;
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
-  phone?: string;
   specialty?: string;
-  requestedAt: string; // ISO date string
-}
-
-const cardStyle: React.CSSProperties = {
-  backgroundColor: "#563727",
-  border: "1px solid #7A431D",
-  borderRadius: "0.5rem",
-  padding: "1rem",
-  color: "#FFFFFF",
-};
-
-const pillStyleBase: React.CSSProperties = {
-  display: "inline-block",
-  padding: "0.15rem 0.5rem",
-  borderRadius: "999px",
-  fontSize: "0.75rem",
-  border: "1px solid #7A431D",
-  color: "#FFFFFF",
-  backgroundColor: "#563727",
 };
 
 const ApproveWorkers: React.FC = () => {
-  const [query, setQuery] = useState("");
-  const [pending, setPending] = useState<PendingWorker[]>([
-    {
-      id: "w1",
-      firstName: "Alex",
-      lastName: "Nguyen",
-      email: "alex@example.com",
-      phone: "(555) 201-4455",
-      specialty: "Hair Stylist",
-      requestedAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-    },
-    {
-      id: "w2",
-      firstName: "Priya",
-      lastName: "Patel",
-      email: "priya@example.com",
-      phone: "(555) 777-9021",
-      specialty: "Nail Technician",
-      requestedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    },
-  ]);
-  const [actionLog, setActionLog] = useState<string[]>([]);
+  const [workers, setWorkers] = useState<Worker[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const filtered = useMemo(() => {
-    const q = query.toLowerCase().trim();
-    if (!q) return pending;
-    return pending.filter(
-      (w) =>
-        `${w.firstName} ${w.lastName}`.toLowerCase().includes(q) ||
-        (w.specialty || "").toLowerCase().includes(q) ||
-        w.email.toLowerCase().includes(q)
-    );
-  }, [pending, query]);
-
-  const approve = (id: string) => {
-    const w = pending.find((p) => p.id === id);
-    setPending((list) => list.filter((p) => p.id !== id));
-    setActionLog((log) => [
-      `${new Date().toLocaleTimeString()}: Approved ${w?.firstName} ${
-        w?.lastName
-      }`,
-      ...log,
-    ]);
-    // TODO: Call backend API to approve worker
+  // Simple loader with mock data for now
+  const loadPendingWorkers = async () => {
+    setLoading(true);
+    try {
+      // TODO: Replace with backend call, e.g.:
+      // const res = await fetch('/api/workers/pending');
+      // const data = await res.json();
+      // setWorkers(data);
+      setWorkers([
+        {
+          id: "1",
+          name: "Alex Williams",
+          email: "alex@example.com",
+          specialty: "Hair Stylist",
+        },
+        {
+          id: "2",
+          name: "Smith Johnson",
+          email: "a@example.com",
+          specialty: "Nail Technician",
+        },
+      ]);
+    } catch (e) {
+      console.error("Failed to load pending workers", e);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const reject = (id: string) => {
-    const w = pending.find((p) => p.id === id);
-    setPending((list) => list.filter((p) => p.id !== id));
-    setActionLog((log) => [
-      `${new Date().toLocaleTimeString()}: Rejected ${w?.firstName} ${
-        w?.lastName
-      }`,
-      ...log,
-    ]);
-    // TODO: Call backend API to reject worker
+  useEffect(() => {
+    loadPendingWorkers();
+  }, []);
+
+  const handleApprove = async (id: string) => {
+    const w = workers.find((x) => x.id === id);
+    console.log("Approve worker", w);
+    // TODO: await fetch(`/api/workers/${id}/approve`, { method: 'POST' })
+    setWorkers((list) => list.filter((x) => x.id !== id));
+  };
+
+  const handleReject = async (id: string) => {
+    const w = workers.find((x) => x.id === id);
+    console.log("Reject worker", w);
+    // TODO: await fetch(`/api/workers/${id}/reject`, { method: 'POST' })
+    setWorkers((list) => list.filter((x) => x.id !== id));
   };
 
   return (
-    <div style={{ position: "relative" }}>
-      {/* Page-only background layer (do not apply globally) */}
-      <div
-        aria-hidden
-        style={{
-          position: "fixed",
-          inset: 0,
-          background: "#372C2E",
-          zIndex: -1,
-        }}
-      />
-
-      <h1
-        style={{
-          color: "#FFFFFF",
-          fontSize: "1.75rem",
-          fontWeight: 600,
-          marginBottom: "1rem",
-        }}
-      >
-        Approve Worker Requests
-      </h1>
-
-      {/* Toolbar */}
-      <div
-        style={{
-          display: "flex",
-          gap: "0.75rem",
-          marginBottom: "1rem",
-          alignItems: "center",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Search by name, specialty, or email"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+    <div
+      className="flex items-center justify-center p-4"
+      style={{
+        background: "#372C2E",
+        minHeight: "100vh",
+        width: "100%",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}
+    >
+      <div style={{ width: "100%", maxWidth: "700px", margin: "0 auto" }}>
+        <h1
           style={{
-            flex: 1,
-            padding: "0.75rem 1rem",
-            borderRadius: "0.5rem",
-            backgroundColor: "#563727",
-            border: "1px solid #7A431D",
+            fontSize: "1.875rem",
+            fontWeight: 600,
+            textAlign: "center",
             color: "#FFFFFF",
-            outline: "none",
+            marginBottom: "1.5rem",
           }}
-        />
-      </div>
+        >
+          Approve Workers
+        </h1>
 
-      {/* List */}
-      <div
-        style={{ display: "grid", gridTemplateColumns: "1fr", gap: "0.75rem" }}
-      >
-        {filtered.map((w) => (
-          <div key={w.id} style={cardStyle}>
+        {/* List */}
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
+        >
+          {loading && (
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: "1rem",
-                flexWrap: "wrap",
+                backgroundColor: "#563727",
+                border: "1px solid #7A431D",
+                borderRadius: "0.5rem",
+                padding: "1rem",
+                color: "#FFFFFF",
+                textAlign: "center",
               }}
             >
+              Loading pending requests...
+            </div>
+          )}
+
+          {!loading && workers.length === 0 && (
+            <div
+              style={{
+                backgroundColor: "#563727",
+                border: "1px solid #7A431D",
+                borderRadius: "0.5rem",
+                padding: "1rem",
+                color: "#FFFFFF",
+                textAlign: "center",
+              }}
+            >
+              No pending requests.
+            </div>
+          )}
+
+          {!loading &&
+            workers.map((w) => (
               <div
+                key={w.id}
                 style={{
+                  backgroundColor: "#563727",
+                  border: "1px solid #7A431D",
+                  borderRadius: "0.5rem",
+                  padding: "1rem",
+                  color: "#FFFFFF",
                   display: "flex",
-                  flexDirection: "column",
-                  gap: "0.35rem",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "1rem",
+                  flexWrap: "wrap",
                 }}
               >
-                <div style={{ fontWeight: 600, fontSize: "1.1rem" }}>
-                  {w.firstName} {w.lastName}
-                </div>
-                <div style={{ opacity: 0.9 }}>
-                  {w.email}
-                  {w.phone ? ` • ${w.phone}` : ""}
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "0.5rem",
-                    alignItems: "center",
-                  }}
-                >
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: "1.1rem" }}>
+                    {w.name}
+                  </div>
+                  <div style={{ opacity: 0.9 }}>{w.email}</div>
                   {w.specialty && (
-                    <span style={pillStyleBase}>{w.specialty}</span>
+                    <div style={{ fontSize: "0.9rem", opacity: 0.9 }}>
+                      {w.specialty}
+                    </div>
                   )}
-                  <span style={{ fontSize: "0.8rem", opacity: 0.8 }}>
-                    Requested {new Date(w.requestedAt).toLocaleString()}
-                  </span>
+                </div>
+
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <button
+                    onClick={() => handleApprove(w.id)}
+                    style={{
+                      padding: "0.6rem 1rem",
+                      fontWeight: 600,
+                      borderRadius: "0.5rem",
+                      backgroundColor: "#DE9E48",
+                      color: "#372C2E",
+                      border: "none",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleReject(w.id)}
+                    style={{
+                      padding: "0.6rem 1rem",
+                      fontWeight: 600,
+                      borderRadius: "0.5rem",
+                      backgroundColor: "transparent",
+                      color: "#FFFFFF",
+                      border: "1px solid #7A431D",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Reject
+                  </button>
                 </div>
               </div>
+            ))}
+        </div>
 
-              <div
-                style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}
-              >
-                <button
-                  onClick={() => approve(w.id)}
-                  style={{
-                    padding: "0.6rem 1rem",
-                    fontWeight: 600,
-                    borderRadius: "0.5rem",
-                    backgroundColor: "#DE9E48",
-                    color: "#372C2E",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  Approve
-                </button>
-                <button
-                  onClick={() => reject(w.id)}
-                  style={{
-                    padding: "0.6rem 1rem",
-                    fontWeight: 600,
-                    borderRadius: "0.5rem",
-                    backgroundColor: "transparent",
-                    color: "#FFFFFF",
-                    border: "1px solid #7A431D",
-                    cursor: "pointer",
-                  }}
-                >
-                  Reject
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {filtered.length === 0 && (
-          <div style={{ ...cardStyle, opacity: 0.9 }}>
-            No pending requests match your search.
-          </div>
-        )}
+        <div
+          style={{
+            color: "#FFFFFF",
+            opacity: 0.8,
+            marginTop: "1.25rem",
+            fontSize: "0.9rem",
+          }}
+        >
+          Replace the mock data with backend fetch and wire the two button
+          handlers to POST approve/reject endpoints when ready.
+        </div>
       </div>
 
-      {/* Action log */}
-      {actionLog.length > 0 && (
-        <div style={{ marginTop: "1.5rem" }}>
-          <h2
-            style={{
-              color: "#FFFFFF",
-              fontSize: "1.25rem",
-              fontWeight: 600,
-              marginBottom: "0.5rem",
-            }}
-          >
-            Recent actions
-          </h2>
-          <div style={{ ...cardStyle, maxHeight: 200, overflowY: "auto" }}>
-            <ul style={{ margin: 0, paddingLeft: "1rem" }}>
-              {actionLog.map((l, i) => (
-                <li key={i} style={{ margin: "0.25rem 0" }}>
-                  {l}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
-
       <style>{`
-        input::placeholder { color: rgba(255, 255, 255, 0.5); }
-        input:focus { border-color: #DE9E48 !important; }
+        button:hover { filter: brightness(1.05); }
       `}</style>
     </div>
   );
