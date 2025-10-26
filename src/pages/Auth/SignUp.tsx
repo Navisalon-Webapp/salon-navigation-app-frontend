@@ -11,11 +11,15 @@ const NavisalonSignUp: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [salonName, setSalonName] = useState<string>('');
   const [salonAddress, setSalonAddress] = useState<string>('');
+  const [salonCity, setSalonCity] = useState<string>('');
+  const [salonState, setSalonState] = useState<string>('');
+  const [salonCountry, setSalonCountry] = useState<string>('');
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [specialty, setSpecialty] = useState<string>('');
-  
+  const [salonZipCode, setSalonZipCode] = useState<string>('');
+
   const navigate = useNavigate();
 
   const inputStyle = {
@@ -81,13 +85,44 @@ const NavisalonSignUp: React.FC = () => {
                 style={inputStyle}
               />
             </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <input
+                type="tel"
+                placeholder="Salon Street and Number"
+                value={salonAddress}
+                onChange={(e) => setSalonAddress(e.target.value)}
+                style={inputStyle}
+              />
+                <input
+                type="text"
+                placeholder="Salon City"
+                value={salonCity}
+                onChange={(e) => setSalonCity(e.target.value)}
+                style={inputStyle}
+              />
+            </div><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <input
+                type="tel"
+                placeholder="Salon State"
+                value={salonState}
+                onChange={(e) => setSalonState(e.target.value)}
+                style={inputStyle}
+              />
+                <input
+                type="text"
+                placeholder="Salon Country"
+                value={salonCountry}
+                onChange={(e) => setSalonCountry(e.target.value)}
+                style={inputStyle}
+              />
+            </div>
             <input
-              type="text"
-              placeholder="Salon Address"
-              value={salonAddress}
-              onChange={(e) => setSalonAddress(e.target.value)}
-              style={inputStyle}
-            />
+                type="tel"
+                placeholder="Salon Zip Code"
+                value={salonZipCode}
+                onChange={(e) => setSalonZipCode(e.target.value)}
+                style={inputStyle}
+              />
           </>
         );
       

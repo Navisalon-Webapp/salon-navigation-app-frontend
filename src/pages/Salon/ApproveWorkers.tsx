@@ -59,19 +59,16 @@ const ApproveWorkers: React.FC = () => {
   };
 
   return (
-    <div
-      className="flex items-center justify-center p-4"
-      style={{
-        background: "#372C2E",
-        minHeight: "100vh",
-        width: "100%",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-      }}
-    >
+    <div style={{ position: "relative" }}>
+      <div
+        aria-hidden
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "#372C2E",
+          zIndex: -1,
+        }}
+      />
       <div style={{ width: "100%", maxWidth: "700px", margin: "0 auto" }}>
         <h1
           style={{

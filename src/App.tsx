@@ -1,5 +1,5 @@
 import { NavLink, Routes, Route } from "react-router-dom";
-import Page1 from "./pages/Page1";
+import Home from "./pages/Home";
 import Page2 from "./pages/Page2";
 import Page3 from "./pages/Page3";
 import SignIn from "./pages/Auth/Signin";
@@ -41,7 +41,7 @@ function MainLayout() {
 
             <nav style={{ display: "flex", gap: 30 }}>
               <NavLink
-                to="/home/Page1"
+                to="/home"
                 style={({ isActive }) => ({
                   color: isActive ? "#DE9E48" : "#FFFFFF",
                   textDecoration: "none",
@@ -50,7 +50,7 @@ function MainLayout() {
                 })}
                 end
               >
-                Page 1
+                Home
               </NavLink>
               <NavLink
                 to="/home/Page2"
@@ -137,7 +137,7 @@ function MainLayout() {
       {/* Page content */}
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 20px" }}>
         <Routes>
-          <Route path="/Page1" element={<Page1 />} />
+          <Route path="/" element={<Home />} />
           <Route path="/Page2" element={<Page2 />} />
           <Route path="/Page3" element={<Page3 />} />
           <Route path="/Salon/ApproveWorkers" element={<ApproveWorkers />} />
