@@ -2,13 +2,14 @@ import { NavLink, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Page2 from "./pages/Page2";
 import Page3 from "./pages/Page3";
-import SignIn from "./pages/Auth/Signin";
-import SignUp from "./pages/Auth/SignUp";
+import SignIn from "./pages/Auth/SignIn";
+import SignUp from "./pages/Auth/Signup";
 import ClientReview from "./pages/Salon/ClientReview";
 import Appointment from "./pages/Appointment";
 import ManageServices from "./pages/Salon/ManageServices";
 import OwnerReplyReview from "./pages/Salon/OwnerReplyReview";
 import ApproveWorkers from "./pages/Salon/ApproveWorkers";
+import AppointmentsToday from "./pages/Worker/AppointmentsToday";
 
 function MainLayout() {
   const [open, setOpen] = useState(false)
@@ -186,6 +187,7 @@ function MainLayout() {
           <Route path="/" element={<Home />} />
           <Route path="/Page2" element={<Page2 />} />
           <Route path="/Page3" element={<Page3 />} />
+          <Route path="/worker/AppointmentsToday" element={<AppointmentsToday />} />
           <Route path="/Salon/ApproveWorkers" element={<ApproveWorkers />} />
           <Route path="/Salon/OwnerReplyReview" element={<OwnerReplyReview />} />
           <Route path="/Salon/ManageServices" element={<ManageServices />} />
