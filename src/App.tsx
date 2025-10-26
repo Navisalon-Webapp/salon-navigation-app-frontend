@@ -2,9 +2,13 @@ import { NavLink, Routes, Route } from "react-router-dom";
 import Page1 from "./pages/Page1";
 import Page2 from "./pages/Page2";
 import Page3 from "./pages/Page3";
-import ApproveWorkers from "./pages/Salon/ApproveWorkers";
 import SignIn from "./pages/Auth/Signin";
 import SignUp from "./pages/Auth/SignUp";
+import ClientReview from "./pages/Salon/ClientReview";
+import Appointment from "./pages/Appointment";
+import ManageServices from "./pages/Salon/ManageServices";
+import OwnerReplyReview from "./pages/Salon/OwnerReplyReview";
+import ApproveWorkers from "./pages/Salon/ApproveWorkers";
 
 // Layout component with header
 function MainLayout() {
@@ -71,6 +75,17 @@ function MainLayout() {
                 Page 3
               </NavLink>
               <NavLink
+                to="/home/Salon/ClientReview"
+                style={({ isActive }) => ({
+                  color: isActive ? "#DE9E48" : "#FFFFFF",
+                  textDecoration: "none",
+                  fontWeight: 500,
+                  transition: "color 0.2s",
+                })}
+              >
+                Leave Review
+              </NavLink>
+              <NavLink
                 to="/home/Salon/ApproveWorkers"
                 style={({ isActive }) => ({
                   color: isActive ? "#DE9E48" : "#FFFFFF",
@@ -80,6 +95,39 @@ function MainLayout() {
                 })}
               >
                 Approve Workers
+              </NavLink>
+              <NavLink
+                to="/home/Salon/OwnerReplyReview"
+                style={({ isActive }) => ({
+                  color: isActive ? "#DE9E48" : "#FFFFFF",
+                  textDecoration: "none",
+                  fontWeight: 500,
+                  transition: "color 0.2s",
+                })}
+              >
+                Reply to Reviews
+              </NavLink>
+              <NavLink
+                to="/home/Salon/ManageServices"
+                style={({ isActive }) => ({
+                  color: isActive ? "#DE9E48" : "#FFFFFF",
+                  textDecoration: "none",
+                  fontWeight: 500,
+                  transition: "color 0.2s",
+                })}
+              >
+                Manage Services
+              </NavLink>
+              <NavLink
+                to="/home/Appointment"
+                style={({ isActive }) => ({
+                  color: isActive ? "#DE9E48" : "#FFFFFF",
+                  textDecoration: "none",
+                  fontWeight: 500,
+                  transition: "color 0.2s",
+                })}
+              >
+                Appointment
               </NavLink>
             </nav>
           </div>
@@ -93,6 +141,10 @@ function MainLayout() {
           <Route path="/Page2" element={<Page2 />} />
           <Route path="/Page3" element={<Page3 />} />
           <Route path="/Salon/ApproveWorkers" element={<ApproveWorkers />} />
+          <Route path="/Salon/OwnerReplyReview" element={<OwnerReplyReview />} />
+          <Route path="/Salon/ManageServices" element={<ManageServices />} />
+          <Route path="/Salon/ClientReview" element={<ClientReview />} />
+          <Route path="/Appointment" element={<Appointment />} />
         </Routes>
       </div>
     </>

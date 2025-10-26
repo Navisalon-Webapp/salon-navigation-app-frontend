@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'
 
 type UserRole = 'owner' | 'customer' | 'worker';
 
@@ -38,7 +39,20 @@ const NavisalonSignUp: React.FC = () => {
       ...(selectedRole === 'owner' && { phoneNumber, salonName, salonAddress }),
       ...(selectedRole === 'worker' && { phoneNumber, specialty, salonName })
     });
-    // Handle backend call to update SQL tables here
+    axios.post(`http://localhost:5000/${selectedRole}/signup`, { 
+      role: selectedRole, 
+      firstName,
+      lastName,
+      email, 
+      password,
+      confirmPassword,
+      ...(selectedRole === 'owner' && { phoneNumber, salonName, salonAddress }),
+      ...(selectedRole === 'worker' && { phoneNumber, specialty, salonName })
+    }).then(res => {
+      console.log(res.data);
+    }).catch(err => {
+      console.log(err);
+    });
     navigate('/');
   };
 
