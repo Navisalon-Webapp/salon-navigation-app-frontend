@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import axios from "axios";
 import beforeImg from "../assets/before_example.png";
 import afterImg from "../assets/after_example.png";
 
@@ -15,51 +16,49 @@ export default function BeforeAfterImages({
   const [beforeSrc, setBeforeSrc] = useState<string>(beforeImg);
   const [afterSrc, setAfterSrc] = useState<string>(afterImg);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+ 
+  const [, setError] = useState<string | null>(null);
+
+  const loadImages = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.get(`/api/appointments/${appointmentId}/images`, {
+
+        timeout: 8000,
+
+        headers: { Accept: "application/json" },
+
+        params: { t: Date.now() },
+      });
+
+      const data = res?.data;
+      if (data && typeof data === "object") {
+        const beforeUrl = (data as any).before ?? (data as any).beforeUrl;
+        const afterUrl = (data as any).after ?? (data as any).afterUrl;
+        if (beforeUrl) setBeforeSrc(beforeUrl);
+        if (afterUrl) setAfterSrc(afterUrl);
+      }
+
+    } catch (err: any) {
+
+      setError(err?.message ?? String(err));
+    } finally {
+      setLoading(false);
+    }
+  }, [appointmentId]);
 
   useEffect(() => {
     let mounted = true;
-    const controller = new AbortController();
 
-    async function fetchImages() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`/api/appointments/${appointmentId}/images`, {
-          signal: controller.signal,
-        });
-        if (!res.ok) {
-          return;
-        }
-
-        const contentType = res.headers.get("content-type") || "";
-        if (!contentType.includes("application/json")) {
-          return;
-        }
-
-        const data = await res.json();
-        const beforeUrl = data.before ?? data.beforeUrl;
-        const afterUrl = data.after ?? data.afterUrl;
-        if (mounted) {
-          if (beforeUrl) setBeforeSrc(beforeUrl);
-          if (afterUrl) setAfterSrc(afterUrl);
-        }
-      } catch (err: any) {
-        if (!controller.signal.aborted) {
-          setError(err.message ?? String(err));
-        }
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    }
-
-    fetchImages();
-
+    (async () => {
+      await loadImages();
+      if (!mounted) return;
+    })();
     return () => {
       mounted = false;
-      controller.abort();
     };
-  }, [appointmentId]);
+  }, [loadImages]);
 
   return (
     <div style={{ marginTop: 24 }}>
@@ -69,11 +68,6 @@ export default function BeforeAfterImages({
 
       {loading && (
         <div style={{ color: "#fff", marginBottom: 12 }}>Loading images…</div>
-      )}
-      {error && (
-        <div style={{ color: "#f88", marginBottom: 12 }}>
-          Failed to load images: {error}
-        </div>
       )}
 
       <div style={{ display: "flex", gap: 12 }}>
@@ -114,6 +108,7 @@ export default function BeforeAfterImages({
             After
           </figcaption>
         </figure>
+
       </div>
     </div>
   );
