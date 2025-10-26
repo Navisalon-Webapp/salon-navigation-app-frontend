@@ -6,6 +6,7 @@ import SignIn from "./pages/Auth/Signin";
 import SignUp from "./pages/Auth/SignUp";
 import ClientReview from "./pages/Salon/ClientReview";
 import Appointment from "./pages/Appointment";
+import ManageServices from "./pages/Salon/ManageServices";
 
 // Layout component with header
 function MainLayout() {
@@ -83,6 +84,17 @@ function MainLayout() {
                 Leave Review
               </NavLink>
               <NavLink
+                to="/home/Salon/ManageServices"
+                style={({ isActive }) => ({
+                  color: isActive ? "#DE9E48" : "#FFFFFF",
+                  textDecoration: "none",
+                  fontWeight: 500,
+                  transition: "color 0.2s",
+                })}
+              >
+                Manage Services
+              </NavLink>
+              <NavLink
                 to="/home/Appointment"
                 style={({ isActive }) => ({
                   color: isActive ? "#DE9E48" : "#FFFFFF",
@@ -104,6 +116,7 @@ function MainLayout() {
           <Route path="/Page1" element={<Page1 />} />
           <Route path="/Page2" element={<Page2 />} />
           <Route path="/Page3" element={<Page3 />} />
+          <Route path="/Salon/ManageServices" element={<ManageServices />} />
           <Route path="/Salon/ClientReview" element={<ClientReview />} />
           <Route path="/Appointment" element={<Appointment />} />
         </Routes>
