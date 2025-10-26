@@ -8,7 +8,7 @@ const NavisalonSignIn: React.FC = () => {
 
   const handleSubmit = () => {
     console.log('Login attempted with:', { email, password });
-    navigate('/home/Page1');
+    navigate('/home');
   };
 
   const handleSignUp = () => {
