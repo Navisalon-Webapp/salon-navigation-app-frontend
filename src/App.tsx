@@ -2,8 +2,9 @@ import { NavLink, Routes, Route } from "react-router-dom";
 import Page1 from "./pages/Page1";
 import Page2 from "./pages/Page2";
 import Page3 from "./pages/Page3";
-import SignIn from "./pages/Auth/SignIn";
-import SignUp from "./pages/Auth/Signup";
+import SignIn from "./pages/Auth/Signin";
+import SignUp from "./pages/Auth/SignUp";
+import ClientReview from "./pages/Salon/ClientReview";
 import Appointment from "./pages/Appointment";
 
 // Layout component with header
@@ -71,6 +72,17 @@ function MainLayout() {
                 Page 3
               </NavLink>
               <NavLink
+                to="/home/Salon/ClientReview"
+                style={({ isActive }) => ({
+                  color: isActive ? "#DE9E48" : "#FFFFFF",
+                  textDecoration: "none",
+                  fontWeight: 500,
+                  transition: "color 0.2s",
+                })}
+              >
+                Leave Review
+              </NavLink>
+              <NavLink
                 to="/home/Appointment"
                 style={({ isActive }) => ({
                   color: isActive ? "#DE9E48" : "#FFFFFF",
@@ -92,6 +104,7 @@ function MainLayout() {
           <Route path="/Page1" element={<Page1 />} />
           <Route path="/Page2" element={<Page2 />} />
           <Route path="/Page3" element={<Page3 />} />
+          <Route path="/Salon/ClientReview" element={<ClientReview />} />
           <Route path="/Appointment" element={<Appointment />} />
         </Routes>
       </div>
