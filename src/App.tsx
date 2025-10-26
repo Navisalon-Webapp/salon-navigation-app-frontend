@@ -1,5 +1,6 @@
+import React, { useState, useEffect, useRef } from "react";
 import { NavLink, Routes, Route} from 'react-router-dom'
-import Page1 from './pages/Page1'
+import Home from './pages/Home'
 import Page2 from './pages/Page2'
 import Page3 from './pages/Page3'
 import SignIn from './pages/Auth/Signin'
@@ -36,7 +37,7 @@ function MainLayout() {
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <img src="/navisalon.png" alt="NaviSalon" style={{ height: 80 }} />
             </div>
-            <nav style={{ display: 'flex', gap: 30 }}>
+            <nav style={{ display: "flex", gap: 30 }}>
               <NavLink
                 to="/home"
                 style={({ isActive }) => ({

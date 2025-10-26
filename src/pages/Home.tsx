@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import RewardRing from "../components/Rewards/RewardRing";
 import RewardsPopup from "../components/Rewards/RewardsPopup";
 
