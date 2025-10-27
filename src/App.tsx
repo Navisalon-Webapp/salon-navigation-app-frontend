@@ -1,180 +1,191 @@
-import React, { useState, useEffect, useRef } from "react";
-import { NavLink, Routes, Route} from 'react-router-dom'
-import Home from './pages/Home'
-import Page2 from './pages/Page2'
-import Page3 from './pages/Page3'
-import SignIn from './pages/Auth/Signin'
-import SignUp from './pages/Auth/SignUp'
-import ManageAvailability from './pages/Worker/ManageAvailability'
-import ClientReview from "./pages/Salon/ClientReview";
+import React, { useEffect, useRef, useState } from "react";
+import { Routes, Route, NavLink, Outlet } from "react-router-dom";
+
+// Auth
+import { AuthProvider, useAuth } from "./auth/AuthContext";
+import { RequireAuth, RequireRole } from "./auth/guards";
+
+// Pages
+import SignIn from "./pages/Auth/Signin";
+import SignUp from "./pages/Auth/SignUp";
+
+// CUSTOMER
+import Home from "./pages/Home";
+import Page2 from "./pages/Page2";
+import Page3 from "./pages/Page3";
 import Appointment from "./pages/Appointment";
-import ManageServices from "./pages/Salon/ManageServices";
-import OwnerReplyReview from "./pages/Salon/OwnerReplyReview";
+
+// OWNER
+import ClientReview from "./pages/Salon/ClientReview";
 import ApproveWorkers from "./pages/Salon/ApproveWorkers";
+import OwnerReplyReview from "./pages/Salon/OwnerReplyReview";
+import ManageServices from "./pages/Salon/ManageServices";
+
+// WORKER
+import ManageAvailability from "./pages/Worker/ManageAvailability";
 import AppointmentsToday from "./pages/Worker/AppointmentsToday";
 
+const accBtnStyle: React.CSSProperties = {
+  textAlign: "left",
+  width: "100%",
+  padding: "10px 12px",
+  border: "none",
+  borderRadius: 8,
+  cursor: "pointer",
+  fontWeight: 600,
+};
+
+const navLinkStyle = ({ isActive }: { isActive: boolean }): React.CSSProperties => ({
+  color: isActive ? "#DE9E48" : "#FFFFFF",
+  textDecoration: "none",
+  fontWeight: 500,
+});
+
 function MainLayout() {
-  const [open, setOpen] = useState(false)
-  const wrapperRef = useRef(null)
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
-    function onDocClick(e) {
-      if (!wrapperRef.current) return
-      if (!wrapperRef.current.contains(e.target)) setOpen(false)
-    }
-    document.addEventListener('mousedown', onDocClick)
-    return () => {
-      document.removeEventListener('mousedown', onDocClick)
-    }
-  }, [])
+    const onDocClick = (e: MouseEvent) => {
+      if (!wrapperRef.current) return;
+      if (!wrapperRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
 
   return (
     <>
-      {/* Header */}
-      <div style={{ backgroundColor: '#372C2E', boxShadow: '0 2px 4px rgba(0,0,0,0.3)', borderBottom: '2px solid #DE9E48' }}>
-        <div style={{ padding: '0 20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 64 }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <img src="/navisalon.png" alt="NaviSalon" style={{ height: 80 }} />
-            </div>
+      {/* Header/Nav */}
+      <div
+        style={{
+          backgroundColor: "#372C2E",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+          borderBottom: "2px solid #DE9E48",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+        }}
+      >
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              height: 64,
+            }}
+          >
+            <img src="/navisalon.png" alt="NaviSalon" style={{ height: 80 }} />
+
             <nav style={{ display: "flex", gap: 30 }}>
-              <NavLink
-                to="/home"
-                style={({ isActive }) => ({
-                  color: isActive ? "#DE9E48" : "#FFFFFF",
-                  textDecoration: "none",
-                  fontWeight: 500,
-                  transition: "color 0.2s",
-                })}
-                end
-              >
-                Home
-              </NavLink>
-              <NavLink
-                to="/home/Page2"
-                style={({ isActive }) => ({
-                  color: isActive ? "#DE9E48" : "#FFFFFF",
-                  textDecoration: "none",
-                  fontWeight: 500,
-                  transition: "color 0.2s",
-                })}
-              >
-                Page 2
-              </NavLink>
-              <NavLink
-                to="/home/Page3"
-                style={({ isActive }) => ({
-                  color: isActive ? "#DE9E48" : "#FFFFFF",
-                  textDecoration: "none",
-                  fontWeight: 500,
-                  transition: "color 0.2s",
-                })}
-              >
-                Page 3
-              </NavLink>
-              <NavLink
-                to="/home/Salon/ClientReview"
-                style={({ isActive }) => ({
-                  color: isActive ? "#DE9E48" : "#FFFFFF",
-                  textDecoration: "none",
-                  fontWeight: 500,
-                  transition: "color 0.2s",
-                })}
-              >
-                Leave Review
-              </NavLink>
-              <NavLink
-                to="/home/Salon/ApproveWorkers"
-                style={({ isActive }) => ({
-                  color: isActive ? "#DE9E48" : "#FFFFFF",
-                  textDecoration: "none",
-                  fontWeight: 500,
-                  transition: "color 0.2s",
-                })}
-              >
-                Approve Workers
-              </NavLink>
-              <NavLink
-                to="/home/Salon/OwnerReplyReview"
-                style={({ isActive }) => ({
-                  color: isActive ? "#DE9E48" : "#FFFFFF",
-                  textDecoration: "none",
-                  fontWeight: 500,
-                  transition: "color 0.2s",
-                })}
-              >
-                Reply to Reviews
-              </NavLink>
-              <NavLink
-                to="/home/Salon/ManageServices"
-                style={({ isActive }) => ({
-                  color: isActive ? "#DE9E48" : "#FFFFFF",
-                  textDecoration: "none",
-                  fontWeight: 500,
-                  transition: "color 0.2s",
-                })}
-              >
-                Manage Services
-              </NavLink>
-              <NavLink
-                to="/home/Appointment"
-                style={({ isActive }) => ({
-                  color: isActive ? "#DE9E48" : "#FFFFFF",
-                  textDecoration: "none",
-                  fontWeight: 500,
-                  transition: "color 0.2s",
-                })}
-              >
-                Appointment
-              </NavLink>
+              {/* CUSTOMER NAV */}
+              {user?.role === "customer" && (
+                <>
+                  <NavLink to="/customer/home" style={navLinkStyle}>
+                    Home
+                  </NavLink>
+                  <NavLink to="/customer/page2" style={navLinkStyle}>
+                    Page 2
+                  </NavLink>
+                  <NavLink to="/customer/page3" style={navLinkStyle}>
+                    Page 3
+                  </NavLink>
+                  <NavLink to="/customer/appointment" style={navLinkStyle}>
+                    Appointment
+                  </NavLink>
+                </>
+              )}
+
+              {/* OWNER NAV */}
+              {user?.role === "owner" && (
+                <>
+                  <NavLink to="/owner/home" style={navLinkStyle}>
+                    Dashboard
+                  </NavLink>
+                  <NavLink to="/owner/manage-services" style={navLinkStyle}>
+                    Manage Services
+                  </NavLink>
+                  <NavLink to="/owner/approve-workers" style={navLinkStyle}>
+                    Approve Workers
+                  </NavLink>
+                  <NavLink to="/owner/reply-reviews" style={navLinkStyle}>
+                    Reply Reviews
+                  </NavLink>
+                  <NavLink to="/owner/client-review" style={navLinkStyle}>
+                    Client Reviews
+                  </NavLink>
+                </>
+              )}
+
+              {/* WORKER NAV */}
+              {user?.role === "employee" && (
+                <>
+                  <NavLink to="/worker/home" style={navLinkStyle}>
+                    Dashboard
+                  </NavLink>
+                  <NavLink to="/worker/manage-availability" style={navLinkStyle}>
+                    Manage Availability
+                  </NavLink>
+                  <NavLink to="/worker/appointments-today" style={navLinkStyle}>
+                    Today’s Appointments
+                  </NavLink>
+                </>
+              )}
             </nav>
-            {/* Account button and popup */}
-            <div
-              ref={wrapperRef}
-              style={{ position: 'relative', display: 'flex', justifyContent: 'right', marginTop: '0rem'}}
-            >
+
+            {/* Account dropdown */}
+            <div ref={wrapperRef} style={{ position: "relative" }}>
               <button
-                onClick={() => setOpen(o => !o)}
+                onClick={() => setOpen((o) => !o)}
                 aria-expanded={open}
                 style={{
-                  padding: '0.75rem 4rem',
+                  padding: "0.75rem 2rem",
                   fontWeight: 600,
-                  borderRadius: '0.5rem',
-                  backgroundColor: '#DE9E48',
-                  color: '#372C2E',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  borderRadius: "0.5rem",
+                  backgroundColor: "#DE9E48",
+                  color: "#372C2E",
+                  border: "none",
+                  cursor: "pointer",
                 }}
               >
                 Account
               </button>
 
-              {/* Popup */}
               {open && (
                 <div
                   onClick={(e) => e.stopPropagation()}
                   style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 10px)',
+                    position: "absolute",
+                    top: "calc(100% + 10px)",
                     right: 0,
                     width: 280,
-                    background: '#FFFFFF',
-                    color: '#372C2E',
-                    border: '1px solid #E6E6E6',
+                    background: "#FFFFFF",
+                    color: "#372C2E",
+                    border: "1px solid #E6E6E6",
                     borderRadius: 12,
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
                   }}
                 >
-                  <div style={{ padding: '12px 16px', borderBottom: '1px solid #F2F2F2' }}>
+                  <div
+                    style={{
+                      padding: "12px 16px",
+                      borderBottom: "1px solid #F2F2F2",
+                    }}
+                  >
                     <div style={{ fontWeight: 700 }}>Your Account</div>
-                    <div style={{ fontSize: 12, opacity: 0.7 }}>Signed in as tom</div>
+                    <div style={{ fontSize: 12, opacity: 0.7 }}>
+                      Signed in as {user?.name ?? "—"} ({user?.role ?? "guest"})
+                    </div>
                   </div>
-                  <div style={{ padding: 12, display: 'grid', gap: 8 }}>
+                  <div style={{ padding: 12, display: "grid", gap: 8 }}>
                     <button style={accBtnStyle}>Profile</button>
                     <button style={accBtnStyle}>Transactions</button>
                     <button style={accBtnStyle}>Settings</button>
-                    <button style={{ ...accBtnStyle, color: '#B00020' }}>Sign out</button>
+                    <button onClick={signOut} style={{ ...accBtnStyle, color: "#B00020" }}>
+                      Sign out
+                    </button>
                   </div>
                 </div>
               )}
@@ -183,41 +194,55 @@ function MainLayout() {
         </div>
       </div>
 
-      {/* Page content */}
+      {/* Page content outlet */}
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 20px" }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/Page2" element={<Page2 />} />
-          <Route path="/Page3" element={<Page3 />} />
-          <Route path="/worker/ManageAvailability" element={<ManageAvailability />} />
-          <Route path="/worker/AppointmentsToday" element={<AppointmentsToday />} />
-          <Route path="/Salon/ApproveWorkers" element={<ApproveWorkers />} />
-          <Route path="/Salon/OwnerReplyReview" element={<OwnerReplyReview />} />
-          <Route path="/Salon/ManageServices" element={<ManageServices />} />
-          <Route path="/Salon/ClientReview" element={<ClientReview />} />
-          <Route path="/Appointment" element={<Appointment />} />
-        </Routes>
+        <Outlet />
       </div>
     </>
   );
 }
 
-const accBtnStyle = {
-  textAlign: 'left',
-  width: '100%',
-  padding: '10px 12px',
-  border: 'none',
-  borderRadius: 8,
-  cursor: 'pointer',
-  fontWeight: 600,
-}
-
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<SignIn />} />
-      <Route path="/SignUp" element={<SignUp />} />
-      <Route path="/home/*" element={<MainLayout />} />
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        {/* Public */}
+        <Route path="/" element={<SignIn />} />
+        <Route path="/SignUp" element={<SignUp />} />
+        <Route path="/unauthorized" element={<div>Unauthorized</div>} />
+
+        {/* Private (must be signed in) */}
+        <Route element={<RequireAuth />}>
+          <Route element={<MainLayout />}>
+            {/* CUSTOMER GROUP */}
+            <Route path="/customer" element={<RequireRole allow={["customer"]} />}>
+              <Route path="home" element={<Home />} />
+              <Route path="page2" element={<Page2 />} />
+              <Route path="page3" element={<Page3 />} />
+              <Route path="appointment" element={<Appointment />} />
+            </Route>
+
+            {/* OWNER GROUP */}
+            <Route path="/owner" element={<RequireRole allow={["owner"]} />}>
+              <Route path="home" element={<ManageServices />} />
+              <Route path="manage-services" element={<ManageServices />} />
+              <Route path="approve-workers" element={<ApproveWorkers />} />
+              <Route path="reply-reviews" element={<OwnerReplyReview />} />
+              <Route path="client-review" element={<ClientReview />} />
+            </Route>
+
+            {/* WORKER GROUP */}
+            <Route path="/worker" element={<RequireRole allow={["employee"]} />}>
+              <Route path="home" element={<ManageAvailability />} />
+              <Route path="manage-availability" element={<ManageAvailability />} />
+              <Route path="appointments-today" element={<AppointmentsToday />} />
+            </Route>
+          </Route>
+        </Route>
+
+        {/* 404 */}
+        <Route path="*" element={<div>Not Found</div>} />
+      </Routes>
+    </AuthProvider>
   );
 }
