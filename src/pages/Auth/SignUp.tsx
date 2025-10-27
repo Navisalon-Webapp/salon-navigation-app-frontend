@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
 
-type UserRole = 'owner' | 'customer' | 'worker';
+type UserRole = 'owner' | 'customer' | 'employee';
 
 const NavisalonSignUp: React.FC = () => {
   const [selectedRole, setSelectedRole] = useState<UserRole>('customer');
@@ -21,6 +21,8 @@ const NavisalonSignUp: React.FC = () => {
   const [salonZipCode, setSalonZipCode] = useState<string>('');
 
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const inputStyle = {
     width: '100%',
@@ -33,31 +35,54 @@ const NavisalonSignUp: React.FC = () => {
     transition: 'all 0.2s'
   };
 
-  const handleSubmit = () => {
-    console.log('Signup attempted with:', { 
-      role: selectedRole, 
+  const handleSubmit = async () => {
+    setError(null);
+    setLoading(true);
+
+    const payload: any = {
+      role: selectedRole,
       firstName,
       lastName,
-      email, 
+      email,
       password,
-      ...(selectedRole === 'owner' && { phoneNumber, salonName, salonAddress }),
-      ...(selectedRole === 'worker' && { phoneNumber, specialty, salonName })
-    });
-    axios.post(`http://localhost:5000/${selectedRole}/signup`, { 
-      role: selectedRole, 
-      firstName,
-      lastName,
-      email, 
-      password,
-      confirmPassword,
-      ...(selectedRole === 'owner' && { phoneNumber, salonName, salonAddress }),
-      ...(selectedRole === 'worker' && { phoneNumber, specialty, salonName })
-    }).then(res => {
-      console.log(res.data);
-    }).catch(err => {
-      console.log(err);
-    });
-    navigate('/');
+      confirmPassword, // must be present & match
+    };
+    if (selectedRole === "owner") {
+      Object.assign(payload, {
+        phoneNumber,
+        salonName,
+        salonAddress,
+        salonCity,
+        salonState,
+        salonCountry,
+        salonZipCode,
+      });
+    }
+    if (selectedRole === "employee") {
+      Object.assign(payload, { phoneNumber, specialty, salonName });
+    }
+
+    console.log("Signup attempted with:", payload);
+
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/${selectedRole}/signup`,
+        payload,
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      console.log("Signup success:", res.data);
+      navigate("/");
+    } catch (err: any) {
+      console.error(
+        "Signup error:",
+        err.response?.status,
+        err.response?.data || err.message
+      );
+      setError(err.response?.data?.message || "Sign up failed.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSignIn = () => {
@@ -129,7 +154,7 @@ const NavisalonSignUp: React.FC = () => {
       case 'customer':
         return
       
-      case 'worker':
+      case 'employee':
         return (
           <>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -180,7 +205,6 @@ const NavisalonSignUp: React.FC = () => {
       }}
     >
       <div style={{ width: '100%', maxWidth: '500px', margin: '2rem auto' }}>
-        {/* Logo */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0rem', marginTop: '-1rem' }}>
           <img src="navisalon.png" alt="Navisalon" style={{ height: '120px' }} />
         </div>
@@ -226,13 +250,13 @@ const NavisalonSignUp: React.FC = () => {
             Customer
           </button>
           <button
-            onClick={() => setSelectedRole('worker')}
+            onClick={() => setSelectedRole('employee')}
             style={{
               flex: 1,
               padding: '0.75rem',
               fontWeight: 600,
-              backgroundColor: selectedRole === 'worker' ? '#DE9E48' : '#563727',
-              color: selectedRole === 'worker' ? '#372C2E' : '#FFFFFF',
+              backgroundColor: selectedRole === 'employee' ? '#DE9E48' : '#563727',
+              color: selectedRole === 'employee' ? '#372C2E' : '#FFFFFF',
               border: '1px solid #7A431D',
               cursor: 'pointer',
               transition: 'all 0.2s',
@@ -320,6 +344,18 @@ const NavisalonSignUp: React.FC = () => {
               >
                 Sign Up
               </button>
+              {error && (
+                <p
+                  style={{
+                    color: "#ff7b7b",
+                    textAlign: "center",
+                    marginTop: "1rem",
+                    fontWeight: 500,
+                  }}
+                >
+                  {error}
+                </p>
+              )}
             </div>
           </div>
 
