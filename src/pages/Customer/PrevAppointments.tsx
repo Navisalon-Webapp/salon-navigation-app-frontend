@@ -1,7 +1,7 @@
 //import React from 'react';
 //import { useNavigate } from 'react-router-dom';
-import '../index.css';
-import Appt from '../components/AppointmentCard';
+import "../../index.css";
+import Appt from '../../components/AppointmentCard';
 
 
 

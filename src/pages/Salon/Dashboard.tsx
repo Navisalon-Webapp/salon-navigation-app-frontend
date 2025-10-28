@@ -1,4 +1,4 @@
-export default function Page2() {
+export default function BusinessDashboard() {
   return (
     <div style={{ 
       backgroundColor: '#FFFFFF', 
@@ -14,14 +14,14 @@ export default function Page2() {
         paddingBottom: 16,
         marginBottom: 24
       }}>
-        Page2
+        Dashboard
       </h1>
       <p style={{ 
         color: '#563727',
         fontSize: 16,
         lineHeight: 1.6
       }}>
-        Page2 content goes here
+        Dashboard content goes here
       </p>
     </div>
   );

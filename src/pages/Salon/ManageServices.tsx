@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 type Service = {
   id: string;
@@ -46,32 +46,25 @@ const buttonGhost: React.CSSProperties = {
   cursor: "pointer",
 };
 
-// TODO: Replace with real API later
-function loadInitialServices(): Service[] {
-  return [
-    {
-      id: String(Date.now() - 30000),
-      name: "Women's Haircut",
-      durationMin: 60,
-      priceUsd: 75,
-    },
-    {
-      id: String(Date.now() - 20000),
-      name: "Men's Haircut",
-      durationMin: 45,
-      priceUsd: 45,
-    },
-    {
-      id: String(Date.now() - 10000),
-      name: "Manicure",
-      durationMin: 40,
-      priceUsd: 35,
-    },
-  ];
+async function loadInitialServices(bid: number): Promise<Service[]> {
+  const res = await fetch(`http://localhost:5000/services/`, {
+  credentials: "include",
+});
+  if (!res.ok) throw new Error("Failed to load services");
+  return await res.json();
 }
 
+
 const ManageServices: React.FC = () => {
-  const [services, setServices] = useState<Service[]>(loadInitialServices());
+  const [services, setServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+    const bid = 1;
+    loadInitialServices(bid)
+      .then(setServices)
+      .catch((err) => console.error(err));
+  }, []);
+
 
   // Create form (stacked like Sign Up)
   const [name, setName] = useState("");
@@ -84,18 +77,24 @@ const ManageServices: React.FC = () => {
   const [editDurationMin, setEditDurationMin] = useState("");
   const [editPriceUsd, setEditPriceUsd] = useState("");
 
-  function addService() {
+  const addService = async () => {
     const n = name.trim();
     const d = parseInt(durationMin, 10);
     const p = parseFloat(priceUsd);
     if (!n || isNaN(d) || isNaN(p)) return;
-    const newService: Service = {
-      id: String(Date.now()),
-      name: n,
-      durationMin: d,
-      priceUsd: p,
-    };
-    // TODO: Call backend to create
+
+    const res = await fetch(`http://localhost:5000/services/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ name: n, durationMin: d, priceUsd: p }),
+    });
+
+    if (!res.ok) {
+      console.error(await res.text());
+      return;
+    }
+    const newService = await res.json();
     setServices([newService, ...services]);
     setName("");
     setDurationMin("");
@@ -109,12 +108,19 @@ const ManageServices: React.FC = () => {
     setEditPriceUsd(String(s.priceUsd));
   }
 
-  function saveEdit(id: string) {
+  const saveEdit = async (id: string) => {
     const n = editName.trim();
     const d = parseInt(editDurationMin, 10);
     const p = parseFloat(editPriceUsd);
     if (!n || isNaN(d) || isNaN(p)) return;
-    // TODO: Call backend to update
+    const res = await fetch(`http://localhost:5000/services/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ name: n, durationMin: d, priceUsd: p }),
+  });
+
+  if (res.ok) {
     setServices(
       services.map((s) =>
         s.id === id ? { ...s, name: n, durationMin: d, priceUsd: p } : s
@@ -122,10 +128,15 @@ const ManageServices: React.FC = () => {
     );
     setEditingId(null);
   }
+  }
 
-  function remove(id: string) {
-    // TODO: Call backend to delete
-    setServices(services.filter((s) => s.id !== id));
+  const remove = async (id: string) => {
+    const res = await fetch(`http://localhost:5000/services/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
+  if (res.ok) setServices(services.filter((s) => s.id !== id));
   }
 
   return (

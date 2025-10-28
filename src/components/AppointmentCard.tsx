@@ -1,4 +1,4 @@
-import '../index.css';
+import '..src/index.css';
 //import { useNavigate } from 'react-router-dom';
 import React from 'react';
 import Modal from "react-modal";
@@ -21,6 +21,7 @@ function Appt(props: any){
     function changeAppt(){
         //backend call
     }
+    const isFuture = new Date()<=props.date
     //() => navigate("/home/AppointmentInfo", { state: { id : props.id} })
     return(
     <div>
@@ -41,9 +42,9 @@ function Appt(props: any){
         <span style={{fontSize: '5em',}}>{props.salon}</span><br/>
         <span style={{fontSize: '2em', padding: '10px',}}>{props.date}</span> 
         <span style={{fontSize: '2em', padding: '10px',}}>{props.time}</span> <br/><br></br>
-        <button style={{float: 'right',}} onClick={cancelAppt}>Cancel</button>
-        <button style={{float: 'right',}} onClick={changeAppt}>Reschedule</button>
-        <AppointmentNotes />    
+        {isFuture && <button style={{float: 'right',}} onClick={cancelAppt}>Cancel</button>}
+        {isFuture && <button style={{float: 'right',}} onClick={changeAppt}>Reschedule</button>}
+        <AppointmentNotes />
         </Modal>
         </div>
     );
