@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import AppointmentModal from "../../components/appointment_modal";
 
 interface Salon {
   business_id: number;
@@ -34,6 +35,9 @@ export default function Browse() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalBusinessId, setModalBusinessId] = useState<number | null>(null);
+  const [modalEmployeeId, setModalEmployeeId] = useState<number | null>(null);
 
   const backendBase = "http://localhost:5000";
 
@@ -260,17 +264,11 @@ export default function Browse() {
                   borderRadius: 6,
                   cursor: "pointer",
                 }}
-                onClick={() =>
-                  alert(
-                    `Scheduling with ${
-                      mode === "salons"
-                        ? (item as Salon).name
-                        : `${(item as Worker).employee_first_name} ${
-                            (item as Worker).employee_last_name
-                          }`
-                    }`
-                  )
-                }
+                onClick={() => {
+                  setModalBusinessId(mode === "salons" ? (item as Salon).business_id : (item as Worker).business_id);
+                  setModalEmployeeId(mode === "workers" ? (item as Worker).employee_id : null);
+                  setModalOpen(true);
+                }}
               >
                 Schedule Appointment
               </button>
@@ -278,6 +276,17 @@ export default function Browse() {
           ))}
         </div>
       )}
+      {modalBusinessId !== null && (
+        <AppointmentModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          businessId={modalBusinessId}
+          employeeId={modalEmployeeId}
+          onSuccess={fetchData}
+        />
+      )}
     </div>
+
+    
   );
 }

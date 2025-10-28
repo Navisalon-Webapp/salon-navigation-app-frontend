@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import AppointmentNotes from "../components/AppointmentNotes";
-import AppointmentPlaceholders from "../components/AppointmentPlaceholders";
+import AppointmentPlaceholders from "../components/appointment_modal";
 
 export default function AppointmentPage() {
   useEffect(() => {
