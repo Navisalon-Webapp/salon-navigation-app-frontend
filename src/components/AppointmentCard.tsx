@@ -30,8 +30,12 @@ function Appt(props: any){
         </button>
         <br/>
         <Modal isOpen={modalIsOpen} onRequestClose={closeModal} contentLabel="Example Modal">
-        <h2>Appointment Info</h2>
+        <h1>Appointment Info</h1>
         <button style={{float: 'right',}} onClick={closeModal}>Close</button>
+        <span style={{fontSize: '5em',}}>{props.salon}</span><br/>
+        <span style={{fontSize: '2em', padding: '10px',}}>{props.date}</span> 
+        <span style={{fontSize: '2em', padding: '10px',}}>{props.time}</span> <br/><br></br>
+
         </Modal>
         </div>
     );
