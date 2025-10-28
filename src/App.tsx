@@ -11,12 +11,12 @@ import SignUp from "./pages/Auth/SignUp";
 
 // CUSTOMER
 import Home from "./pages/Customer/Home";
-import Page2 from "./pages/Customer/Page2";
+import Browse from "./pages/Customer/Browse";
 import Page3 from "./pages/Customer/Page3";
 import Appointment from "./pages/Appointment";
-import ClientReview from "./pages/Salon/ClientReview";
 
 // OWNER
+import ClientReview from "./pages/Salon/ClientReview";
 import ApproveWorkers from "./pages/Salon/ApproveWorkers";
 import OwnerReplyReview from "./pages/Salon/OwnerReplyReview";
 import ManageServices from "./pages/Salon/ManageServices";
@@ -25,8 +25,6 @@ import BusinessDashboard from "./pages/Salon/Dashboard";
 // WORKER
 import ManageAvailability from "./pages/Worker/ManageAvailability";
 import AppointmentsToday from "./pages/Worker/AppointmentsToday";
-
-const API = "http://localhost:5000";
 
 const accBtnStyle: React.CSSProperties = {
   textAlign: "left",
@@ -89,17 +87,14 @@ function MainLayout() {
                   <NavLink to="/customer/home" style={navLinkStyle}>
                     Home
                   </NavLink>
-                  <NavLink to="/customer/page2" style={navLinkStyle}>
-                    Page 2
+                  <NavLink to="/customer/browse" style={navLinkStyle}>
+                    Browse
                   </NavLink>
                   <NavLink to="/customer/page3" style={navLinkStyle}>
                     Page 3
                   </NavLink>
                   <NavLink to="/customer/appointment" style={navLinkStyle}>
                     Appointment
-                  </NavLink>
-                  <NavLink to="/customer/client-review" style={navLinkStyle}>
-                    Client Reviews
                   </NavLink>
                 </>
               )}
@@ -118,6 +113,9 @@ function MainLayout() {
                   </NavLink>
                   <NavLink to="/business/reply-reviews" style={navLinkStyle}>
                     Reply Reviews
+                  </NavLink>
+                  <NavLink to="/business/client-review" style={navLinkStyle}>
+                    Client Reviews
                   </NavLink>
                 </>
               )}
@@ -220,10 +218,9 @@ export default function App() {
             {/* CUSTOMER GROUP */}
             <Route path="/customer" element={<RequireRole allow={["customer"]} />}>
               <Route path="home" element={<Home />} />
-              <Route path="page2" element={<Page2 />} />
+              <Route path="browse" element={<Browse />} />
               <Route path="page3" element={<Page3 />} />
               <Route path="appointment" element={<Appointment />} />
-              <Route path="client-review" element={<ClientReview />} />
             </Route>
 
             {/* OWNER GROUP */}
@@ -232,6 +229,7 @@ export default function App() {
               <Route path="manage-services" element={<ManageServices />} />
               <Route path="approve-workers" element={<ApproveWorkers />} />
               <Route path="reply-reviews" element={<OwnerReplyReview />} />
+              <Route path="client-review" element={<ClientReview />} />
             </Route>
 
             {/* WORKER GROUP */}
