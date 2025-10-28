@@ -152,7 +152,17 @@ const NavisalonSignUp: React.FC = () => {
         );
       
       case 'customer':
-        return
+        return (
+          <>
+            <input
+              type="tel"
+              placeholder="Phone Number"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              style={inputStyle}
+            />
+          </>
+        );
       
       case 'employee':
         return (

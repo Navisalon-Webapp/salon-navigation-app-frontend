@@ -10,10 +10,11 @@ type AuthCtx = {
 };
 
 const AuthContext = createContext<AuthCtx | undefined>(undefined);
-const API = "http://127.0.0.1:5000";
+const API = "http://localhost:5000";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -32,6 +33,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch {
         setUser(null);
+      } finally {
+        setLoading(false);
       }
     })();
   }, []);
@@ -47,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
