@@ -3,10 +3,11 @@
 import '../index.css';
 
 export default function AppointmentInfo(){
+    
     return (
         <div>
             <h1>
-                Appointment
+                Appointment Details
             </h1>
             <br/>
             <h2>Info</h2>

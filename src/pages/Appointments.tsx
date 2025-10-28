@@ -3,6 +3,8 @@
 import '../index.css';
 import Appt from '../components/AppointmentCard';
 
+
+
 export default function Appointments(){
     const info = [{
   id: 1,
