@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import AppointmentNotes from "../components/AppointmentNotes";
 import BeforeAfterImages from "../components/BeforeAfterImages";
+import AppointmentPlaceholders from "../components/appointment_modal";
 
 export default function AppointmentPage() {
   const demoAppointmentId = "demo-appointment-1";
