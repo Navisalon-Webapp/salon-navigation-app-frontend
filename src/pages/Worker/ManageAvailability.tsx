@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
+const API = "http://localhost:5000";
 type DayKey = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
 
 type DayAvailability = {
@@ -30,6 +30,53 @@ const ManageAvailability: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+  (async () => {
+    try {
+      // Get current user session
+      const sessionRes = await fetch(`${API}/user-session`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!sessionRes.ok) throw new Error("Failed to fetch user session");
+
+      const sessionData = await sessionRes.json();
+      if (sessionData.role !== "employee") {
+        setMessage("You must be a salon worker to manage availability.");
+        return;
+      }
+
+      // Fetch current availability
+      const availRes = await fetch(`${API}/worker/availability`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!availRes.ok) throw new Error("Failed to load current availability");
+
+      const availData = await availRes.json();
+
+      if (availData.status === "Success" && Array.isArray(availData.query_results)) {
+        const updatedWeek = getDefaultWeek();
+        availData.query_results.forEach((entry: any) => {
+          const day = entry.day as DayKey;
+          updatedWeek[day] = {
+            enabled: true,
+            start: entry.start_time.slice(0, 5),
+            end: entry.finish_time.slice(0, 5),
+          };
+        });
+        setWeek(updatedWeek);
+      } else {
+        setMessage("No existing availability found.");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("Failed to load availability.");
+    }
+  })();
+}, []);
+
   const handleDayToggle = (day: DayKey, enabled: boolean) => {
     setWeek((w) => ({ ...w, [day]: { ...w[day], enabled } }));
   };
@@ -51,12 +98,20 @@ const ManageAvailability: React.FC = () => {
     setSaving(true);
     setMessage(null);
     try {
-      // Replace with real API call
-      await new Promise((r) => setTimeout(r, 500));
-      setMessage("Availability saved successfully.");
-      console.log("Saved availability", { week });
+      const res = await fetch(`${API}/worker/availability`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ week }),
+      });
+      const data = await res.json();
+      if (res.ok && data.status === "Success") {
+        setMessage("Availability saved successfully.");
+      } else {
+        throw new Error(data.message || "Save failed");
+      }
     } catch (e: any) {
-      setMessage(e?.message || "Failed to save availability.");
+      setMessage(e.message || "Failed to save availability.");
     } finally {
       setSaving(false);
     }
