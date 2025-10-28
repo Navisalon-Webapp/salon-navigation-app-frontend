@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
 
@@ -23,6 +23,15 @@ const NavisalonSignUp: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [salons, setSalons] = useState<Array<{ bid: number; name: string }>>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/list-business')
+      .then((res) => res.json())
+      .then((data) => setSalons(data))
+      .catch(() => setSalons([]));
+  }, []);
 
   const inputStyle = {
     width: '100%',
@@ -187,13 +196,14 @@ const NavisalonSignUp: React.FC = () => {
               value={salonName}
               onChange={(e) => setSalonName(e.target.value)}
               style={inputStyle}
-              // Will eventually be populated with salon names from the backend
-              >
+            >
               <option value="">Select Salon</option>
-              <option value="Salon A">Salon A</option>
-              <option value="Salon B">Salon B</option>
-              <option value="Salon C">Salon C</option>
-            </select>
+                {salons.map((s) => (
+                  <option key={s.bid} value={s.name}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
           </>
         );
     }
