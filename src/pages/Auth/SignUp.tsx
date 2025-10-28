@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
 
-type UserRole = 'owner' | 'customer' | 'employee';
+type UserRole = 'business' | 'customer' | 'employee';
 
 const NavisalonSignUp: React.FC = () => {
   const [selectedRole, setSelectedRole] = useState<UserRole>('customer');
@@ -47,7 +47,7 @@ const NavisalonSignUp: React.FC = () => {
       password,
       confirmPassword, // must be present & match
     };
-    if (selectedRole === "owner") {
+    if (selectedRole === "business") {
       Object.assign(payload, {
         phoneNumber,
         salonName,
@@ -91,7 +91,7 @@ const NavisalonSignUp: React.FC = () => {
 
   const renderRoleFields = () => {
     switch (selectedRole) {
-      case 'owner':
+      case 'business':
         return (
           <>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -218,13 +218,13 @@ const NavisalonSignUp: React.FC = () => {
           overflow: 'hidden'
         }}>
           <button
-            onClick={() => setSelectedRole('owner')}
+            onClick={() => setSelectedRole('business')}
             style={{
               flex: 1,
               padding: '0.75rem',
               fontWeight: 600,
-              backgroundColor: selectedRole === 'owner' ? '#DE9E48' : '#563727',
-              color: selectedRole === 'owner' ? '#372C2E' : '#FFFFFF',
+              backgroundColor: selectedRole === 'business' ? '#DE9E48' : '#563727',
+              color: selectedRole === 'business' ? '#372C2E' : '#FFFFFF',
               border: '1px solid #7A431D',
               cursor: 'pointer',
               transition: 'all 0.2s',
@@ -276,7 +276,7 @@ const NavisalonSignUp: React.FC = () => {
             color: '#FFFFFF',
             marginBottom: '2rem'
           }}>
-            Sign Up as {selectedRole === 'owner' ? 'Salon Owner' : selectedRole === 'customer' ? 'Customer' : 'Worker'}
+            Sign Up as {selectedRole === 'business' ? 'Salon Owner' : selectedRole === 'customer' ? 'Customer' : 'Employee'}
           </h1>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
