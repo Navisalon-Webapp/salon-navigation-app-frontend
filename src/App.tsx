@@ -98,22 +98,22 @@ function MainLayout() {
                 </>
               )}
 
-              {/* OWNER NAV */}
-              {user?.role === "owner" && (
+              {/* BUSINESS NAV */}
+              {user?.role === "business" && (
                 <>
-                  <NavLink to="/owner/home" style={navLinkStyle}>
+                  <NavLink to="/business/home" style={navLinkStyle}>
                     Dashboard
                   </NavLink>
-                  <NavLink to="/owner/manage-services" style={navLinkStyle}>
+                  <NavLink to="/business/manage-services" style={navLinkStyle}>
                     Manage Services
                   </NavLink>
-                  <NavLink to="/owner/approve-workers" style={navLinkStyle}>
+                  <NavLink to="/business/approve-workers" style={navLinkStyle}>
                     Approve Workers
                   </NavLink>
-                  <NavLink to="/owner/reply-reviews" style={navLinkStyle}>
+                  <NavLink to="/business/reply-reviews" style={navLinkStyle}>
                     Reply Reviews
                   </NavLink>
-                  <NavLink to="/owner/client-review" style={navLinkStyle}>
+                  <NavLink to="/business/client-review" style={navLinkStyle}>
                     Client Reviews
                   </NavLink>
                 </>
@@ -122,13 +122,13 @@ function MainLayout() {
               {/* WORKER NAV */}
               {user?.role === "employee" && (
                 <>
-                  <NavLink to="/worker/home" style={navLinkStyle}>
+                  <NavLink to="/employee/home" style={navLinkStyle}>
                     Dashboard
                   </NavLink>
-                  <NavLink to="/worker/manage-availability" style={navLinkStyle}>
+                  <NavLink to="/employee/manage-availability" style={navLinkStyle}>
                     Manage Availability
                   </NavLink>
-                  <NavLink to="/worker/appointments-today" style={navLinkStyle}>
+                  <NavLink to="/employee/appointments-today" style={navLinkStyle}>
                     Today’s Appointments
                   </NavLink>
                 </>
@@ -223,7 +223,7 @@ export default function App() {
             </Route>
 
             {/* OWNER GROUP */}
-            <Route path="/owner" element={<RequireRole allow={["owner"]} />}>
+            <Route path="/business" element={<RequireRole allow={["business"]} />}>
               <Route path="home" element={<ManageServices />} />
               <Route path="manage-services" element={<ManageServices />} />
               <Route path="approve-workers" element={<ApproveWorkers />} />
@@ -232,7 +232,7 @@ export default function App() {
             </Route>
 
             {/* WORKER GROUP */}
-            <Route path="/worker" element={<RequireRole allow={["employee"]} />}>
+            <Route path="/employee" element={<RequireRole allow={["employee"]} />}>
               <Route path="home" element={<ManageAvailability />} />
               <Route path="manage-availability" element={<ManageAvailability />} />
               <Route path="appointments-today" element={<AppointmentsToday />} />

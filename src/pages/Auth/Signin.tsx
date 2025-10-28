@@ -32,7 +32,7 @@ const NavisalonSignIn: React.FC = () => {
         return;
       }
 
-      const role: "customer" | "owner" | "employee" | "admin" = data.role;
+      const role: "customer" | "business" | "employee" | "admin" = data.role;
       // Update auth context
       signIn({
         id: String(data.User_ID),
@@ -43,8 +43,8 @@ const NavisalonSignIn: React.FC = () => {
       // Role-based redirect
       const landing: Record<typeof role, string> = {
         customer: "/customer/home",
-        owner: "/owner/home",
-        employee: "/worker/home",
+        business: "/business/home",
+        employee: "/employee/home",
         admin: "/customer/home", // update when we have an admin page
       };
 
