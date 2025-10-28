@@ -15,24 +15,12 @@ const ApproveWorkers: React.FC = () => {
   const loadPendingWorkers = async () => {
     setLoading(true);
     try {
-      // TODO: Replace with backend call, e.g.:
-      // const res = await fetch('/api/workers/pending');
-      // const data = await res.json();
-      // setWorkers(data);
-      setWorkers([
-        {
-          id: "1",
-          name: "Alex Williams",
-          email: "alex@example.com",
-          specialty: "Hair Stylist",
-        },
-        {
-          id: "2",
-          name: "Smith Johnson",
-          email: "a@example.com",
-          specialty: "Nail Technician",
-        },
-      ]);
+      const res = await fetch(`http://localhost:5000/worker/pending/`, {
+        credentials: "include"
+      });
+
+      const data = await res.json();
+      setWorkers(data);
     } catch (e) {
       console.error("Failed to load pending workers", e);
     } finally {
@@ -47,14 +35,20 @@ const ApproveWorkers: React.FC = () => {
   const handleApprove = async (id: string) => {
     const w = workers.find((x) => x.id === id);
     console.log("Approve worker", w);
-    // TODO: await fetch(`/api/workers/${id}/approve`, { method: 'POST' })
+    await fetch(`http://localhost:5000/worker/${id}/approve`, {
+      method: "POST",
+      credentials: "include"
+    });
     setWorkers((list) => list.filter((x) => x.id !== id));
   };
 
   const handleReject = async (id: string) => {
     const w = workers.find((x) => x.id === id);
     console.log("Reject worker", w);
-    // TODO: await fetch(`/api/workers/${id}/reject`, { method: 'POST' })
+    await fetch(`http://localhost:5000/worker/${id}/reject`, {
+      method: "POST",
+      credentials: "include"
+    });
     setWorkers((list) => list.filter((x) => x.id !== id));
   };
 
@@ -187,8 +181,6 @@ const ApproveWorkers: React.FC = () => {
             fontSize: "0.9rem",
           }}
         >
-          Replace the mock data with backend fetch and wire the two button
-          handlers to POST approve/reject endpoints when ready.
         </div>
       </div>
 
