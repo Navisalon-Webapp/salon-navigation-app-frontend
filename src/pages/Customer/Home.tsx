@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import RewardRing from "../components/Rewards/RewardRing";
-import RewardsPopup from "../components/Rewards/RewardsPopup";
+import RewardRing from "../../components/Rewards/RewardRing";
+import RewardsPopup from "../../components/Rewards/RewardsPopup";
 
 export default function Home() {
   const [open, setOpen] = useState(false);

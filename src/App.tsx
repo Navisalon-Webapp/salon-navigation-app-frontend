@@ -3,16 +3,16 @@ import { Routes, Route, NavLink, Outlet } from "react-router-dom";
 
 // Auth
 import { AuthProvider, useAuth } from "./auth/AuthContext";
-import { RequireAuth, RequireRole } from "./auth/guards";
+import { PublicOnly, RequireAuth, RequireRole } from "./auth/guards";
 
 // Pages
 import SignIn from "./pages/Auth/Signin";
 import SignUp from "./pages/Auth/SignUp";
 
 // CUSTOMER
-import Home from "./pages/Home";
-import Page2 from "./pages/Page2";
-import Page3 from "./pages/Page3";
+import Home from "./pages/Customer/Home";
+import Page2 from "./pages/Customer/Page2";
+import Page3 from "./pages/Customer/Page3";
 import Appointment from "./pages/Appointment";
 
 // OWNER
@@ -20,6 +20,7 @@ import ClientReview from "./pages/Salon/ClientReview";
 import ApproveWorkers from "./pages/Salon/ApproveWorkers";
 import OwnerReplyReview from "./pages/Salon/OwnerReplyReview";
 import ManageServices from "./pages/Salon/ManageServices";
+import BusinessDashboard from "./pages/Salon/Dashboard";
 
 // WORKER
 import ManageAvailability from "./pages/Worker/ManageAvailability";
@@ -207,8 +208,8 @@ export default function App() {
     <AuthProvider>
       <Routes>
         {/* Public */}
-        <Route path="/" element={<SignIn />} />
-        <Route path="/SignUp" element={<SignUp />} />
+        <Route path="/" element={<PublicOnly><SignIn /></PublicOnly>} />
+        <Route path="/SignUp" element={<PublicOnly><SignUp /></PublicOnly>} />
         <Route path="/unauthorized" element={<div>Unauthorized</div>} />
 
         {/* Private (must be signed in) */}
@@ -224,7 +225,7 @@ export default function App() {
 
             {/* OWNER GROUP */}
             <Route path="/business" element={<RequireRole allow={["business"]} />}>
-              <Route path="home" element={<ManageServices />} />
+              <Route path="home" element={<BusinessDashboard />} />
               <Route path="manage-services" element={<ManageServices />} />
               <Route path="approve-workers" element={<ApproveWorkers />} />
               <Route path="reply-reviews" element={<OwnerReplyReview />} />

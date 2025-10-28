@@ -17,7 +17,7 @@ const NavisalonSignIn: React.FC = () => {
     console.log("[Signin] submitting", { email });
 
     try {
-      const res = await fetch("http://127.0.0.1:5000/signin", {
+      const res = await fetch("http://localhost:5000/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
