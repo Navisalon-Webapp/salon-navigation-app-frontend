@@ -19,7 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API}/user-session`, { method: "POST", credentials: "include" });
+        const res = await fetch(`${API}/user-session`, { method: "GET", credentials: "include" });
 
         if (res.ok) {
           const data = await res.json();
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      await fetch("/logout", { method: "POST", credentials: "include" });
+      await fetch(`${API}/logout`, { method: "POST", credentials: "include" });
     } finally {
       setUser(null);
     }
