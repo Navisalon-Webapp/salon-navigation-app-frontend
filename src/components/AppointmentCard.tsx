@@ -1,10 +1,11 @@
 import '../index.css';
-import { useNavigate } from 'react-router-dom';
+//import { useNavigate } from 'react-router-dom';
 import React from 'react';
 import Modal from "react-modal";
+import AppointmentNotes from './AppointmentNotes';
 
 function Appt(props: any){
-    const navigate = useNavigate()
+    //const navigate = useNavigate()
     const [modalIsOpen, setIsOpen] = React.useState(false);
 
     function openModal() {
@@ -14,7 +15,12 @@ function Appt(props: any){
     function closeModal() {
     setIsOpen(false);
     }
-
+    function cancelAppt(){
+        //backend call
+    }
+    function changeAppt(){
+        //backend call
+    }
     //() => navigate("/home/AppointmentInfo", { state: { id : props.id} })
     return(
     <div>
@@ -35,7 +41,9 @@ function Appt(props: any){
         <span style={{fontSize: '5em',}}>{props.salon}</span><br/>
         <span style={{fontSize: '2em', padding: '10px',}}>{props.date}</span> 
         <span style={{fontSize: '2em', padding: '10px',}}>{props.time}</span> <br/><br></br>
-
+        <button style={{float: 'right',}} onClick={cancelAppt}>Cancel</button>
+        <button style={{float: 'right',}} onClick={changeAppt}>Reschedule</button>
+        <AppointmentNotes />    
         </Modal>
         </div>
     );
