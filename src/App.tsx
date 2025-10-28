@@ -10,6 +10,7 @@ import ManageServices from "./pages/Salon/ManageServices";
 import OwnerReplyReview from "./pages/Salon/OwnerReplyReview";
 import ApproveWorkers from "./pages/Salon/ApproveWorkers";
 import Appointments from "./pages/Appointments";
+import AppointmentInfo from "./pages/AppointmentInfo";
 
 // Layout component with header
 function MainLayout() {
@@ -159,6 +160,7 @@ function MainLayout() {
           <Route path="/Salon/ClientReview" element={<ClientReview />} />
           <Route path="/Appointment" element={<Appointment />} />
           <Route path="/Appointments" element={<Appointments />} />
+          <Route path="/AppointmentInfo" element={<AppointmentInfo />} />
         </Routes>
       </div>
     </>

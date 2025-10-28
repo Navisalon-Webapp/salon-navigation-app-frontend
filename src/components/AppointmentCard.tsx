@@ -10,11 +10,17 @@ function Appt(props: any){
     const navigate = useNavigate()
     return(
     <div>
-        <button id="cards" onClick={() => navigate("/home/Appointmentprops", { state: { id:props.id} })}>
-            <h2>{props.time} {props.date}</h2>
-            <p>{props.salon}</p>
-            <p>{props.salon}</p>
+        <br/>
+        <button id="cards" onClick={() => navigate("/home/AppointmentInfo", { state: { id:props.id} })}>
+            <div>
+            <span className='left'>{props.time} <br/>
+            {props.date}</span>
+            <span className='right'>{props.name} {/*name is used for worker/client depending on which acct type*/}
+            <br/>
+            {props.salon}</span>
+            </div>
         </button>
+        <br/>
     </div>
     );
 }
