@@ -14,6 +14,7 @@ import Home from "./pages/Customer/Home";
 import Browse from "./pages/Customer/Browse";
 import Page3 from "./pages/Customer/Page3";
 import Appointment from "./pages/Appointment";
+import CustomerSettings from "./pages/Customer/Settings";
 
 // OWNER
 import ClientReview from "./pages/Salon/ClientReview";
@@ -183,7 +184,13 @@ function MainLayout() {
                   <div style={{ padding: 12, display: "grid", gap: 8 }}>
                     <button style={accBtnStyle}>Profile</button>
                     <button style={accBtnStyle}>Transactions</button>
-                    <button style={accBtnStyle}>Settings</button>
+                    {user?.role === "customer" ? (
+                      <NavLink to="/customer/settings" style={{ ...accBtnStyle, display: "block" }} onClick={() => setOpen(false)}>
+                        Settings
+                      </NavLink>
+                    ) : (
+                      <button style={accBtnStyle}>Settings</button>
+                    )}
                     <button onClick={signOut} style={{ ...accBtnStyle, color: "#B00020" }}>
                       Sign out
                     </button>
@@ -221,6 +228,7 @@ export default function App() {
               <Route path="browse" element={<Browse />} />
               <Route path="page3" element={<Page3 />} />
               <Route path="appointment" element={<Appointment />} />
+              <Route path="settings" element={<CustomerSettings />} />
             </Route>
 
             {/* OWNER GROUP */}
