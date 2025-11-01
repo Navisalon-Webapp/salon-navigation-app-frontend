@@ -22,6 +22,7 @@ import ApproveWorkers from "./pages/Salon/ApproveWorkers";
 import OwnerReplyReview from "./pages/Salon/OwnerReplyReview";
 import ManageServices from "./pages/Salon/ManageServices";
 import BusinessDashboard from "./pages/Salon/Dashboard";
+import CreatePromotion from "./pages/Salon/CreatePromotion";
 
 // WORKER
 import ManageAvailability from "./pages/Worker/ManageAvailability";
@@ -117,6 +118,9 @@ function MainLayout() {
                   </NavLink>
                   <NavLink to="/business/client-review" style={navLinkStyle}>
                     Client Reviews
+                  </NavLink>
+                  <NavLink to="/business/promotions" style={navLinkStyle}>
+                    Promotions
                   </NavLink>
                 </>
               )}
@@ -235,6 +239,7 @@ export default function App() {
             <Route path="/business" element={<RequireRole allow={["business"]} />}>
               <Route path="home" element={<BusinessDashboard />} />
               <Route path="manage-services" element={<ManageServices />} />
+              <Route path="promotions" element={<CreatePromotion />} />
               <Route path="approve-workers" element={<ApproveWorkers />} />
               <Route path="reply-reviews" element={<OwnerReplyReview />} />
               <Route path="client-review" element={<ClientReview />} />
