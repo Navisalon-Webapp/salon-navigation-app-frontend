@@ -15,6 +15,7 @@ import Browse from "./pages/Customer/Browse";
 import Page3 from "./pages/Customer/Page3";
 import Appointment from "./pages/Appointment";
 import CustomerSettings from "./pages/Customer/Settings";
+import Cart from "./pages/Customer/Cart";
 
 // OWNER
 import ClientReview from "./pages/Salon/ClientReview";
@@ -141,70 +142,95 @@ function MainLayout() {
               )}
             </nav>
 
-            {/* Account dropdown */}
-            <div ref={wrapperRef} style={{ position: "relative" }}>
-              <button
-                onClick={() => setOpen((o) => !o)}
-                aria-expanded={open}
-                style={{
-                  padding: "0.75rem 2rem",
-                  fontWeight: 600,
-                  borderRadius: "0.5rem",
-                  backgroundColor: "#DE9E48",
-                  color: "#372C2E",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                Account
-              </button>
+            {/* Cart + Account Buttons */}
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              {user?.role === "customer" && (
+                <NavLink to="/customer/cart">
+                  <img
+                    src="/cart.png"
+                    alt="Cart"
+                    style={{
+                      height: 32,
+                      width: 32,
+                      cursor: "pointer",
+                      filter: "invert(0.9)",
+                      transition: "0.2s",
+                    }}
+                    onMouseOver={(e) =>
+                      (e.currentTarget.style.filter =
+                        "invert(60%) sepia(80%) saturate(500%) hue-rotate(10deg) brightness(1.2)")
+                    }
+                    onMouseOut={(e) => (e.currentTarget.style.filter = "invert(0.9)")}
+                  />
+                </NavLink>
+              )}
 
-              {open && (
-                <div
-                  onClick={(e) => e.stopPropagation()}
+              {/* Account Dropdown */}
+              <div ref={wrapperRef} style={{ position: "relative" }}>
+                <button
+                  onClick={() => setOpen((o) => !o)}
+                  aria-expanded={open}
                   style={{
-                    position: "absolute",
-                    top: "calc(100% + 10px)",
-                    right: 0,
-                    width: 280,
-                    background: "#FFFFFF",
+                    padding: "0.75rem 2rem",
+                    fontWeight: 600,
+                    borderRadius: "0.5rem",
+                    backgroundColor: "#DE9E48",
                     color: "#372C2E",
-                    border: "1px solid #E6E6E6",
-                    borderRadius: 12,
-                    boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                    border: "none",
+                    cursor: "pointer",
                   }}
                 >
+                  Account
+                </button>
+
+                {open && (
                   <div
+                    onClick={(e) => e.stopPropagation()}
                     style={{
-                      padding: "12px 16px",
-                      borderBottom: "1px solid #F2F2F2",
+                      position: "absolute",
+                      top: "calc(100% + 10px)",
+                      right: 0,
+                      width: 280,
+                      background: "#FFFFFF",
+                      color: "#372C2E",
+                      border: "1px solid #E6E6E6",
+                      borderRadius: 12,
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
                     }}
                   >
-                    <div style={{ fontWeight: 700 }}>Your Account</div>
-                    <div style={{ fontSize: 12, opacity: 0.7 }}>
-                      Signed in as {user?.name ?? "—"} ({user?.role ?? "guest"})
+                    <div
+                      style={{
+                        padding: "12px 16px",
+                        borderBottom: "1px solid #F2F2F2",
+                      }}
+                    >
+                      <div style={{ fontWeight: 700 }}>Your Account</div>
+                      <div style={{ fontSize: 12, opacity: 0.7 }}>
+                        Signed in as {user?.name ?? "—"} ({user?.role ?? "guest"})
+                      </div>
+                    </div>
+                    <div style={{ padding: 12, display: "grid", gap: 8 }}>
+                      <button style={accBtnStyle}>Profile</button>
+                      <button style={accBtnStyle}>Transactions</button>
+                      {user?.role === "customer" ? (
+                      <NavLink to="/customer/settings" style={{ ...accBtnStyle, display: "block" }} onClick={() => setOpen(false)}>
+                          Settings
+                        </NavLink>
+                      ) : (
+                        <button style={accBtnStyle}>Settings</button>
+                      )}
+                    <button onClick={signOut} style={{ ...accBtnStyle, color: "#B00020" }}>
+                        Sign out
+                      </button>
                     </div>
                   </div>
-                  <div style={{ padding: 12, display: "grid", gap: 8 }}>
-                    <button style={accBtnStyle}>Profile</button>
-                    <button style={accBtnStyle}>Transactions</button>
-                    {user?.role === "customer" ? (
-                      <NavLink to="/customer/settings" style={{ ...accBtnStyle, display: "block" }} onClick={() => setOpen(false)}>
-                        Settings
-                      </NavLink>
-                    ) : (
-                      <button style={accBtnStyle}>Settings</button>
-                    )}
-                    <button onClick={signOut} style={{ ...accBtnStyle, color: "#B00020" }}>
-                      Sign out
-                    </button>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
+
 
       {/* Page content outlet */}
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "40px 20px" }}>
@@ -233,6 +259,7 @@ export default function App() {
               <Route path="page3" element={<Page3 />} />
               <Route path="appointment" element={<Appointment />} />
               <Route path="settings" element={<CustomerSettings />} />
+              <Route path="cart" element={<Cart />} />
             </Route>
 
             {/* OWNER GROUP */}
