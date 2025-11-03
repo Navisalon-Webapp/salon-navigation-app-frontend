@@ -24,6 +24,8 @@ import OwnerReplyReview from "./pages/Salon/OwnerReplyReview";
 import ManageServices from "./pages/Salon/ManageServices";
 import BusinessDashboard from "./pages/Salon/Dashboard";
 import CreatePromotion from "./pages/Salon/CreatePromotion";
+import CreateLoyalty from "./pages/Salon/CreateLoyalty";
+import Marketing from "./pages/Salon/Marketing";
 
 // WORKER
 import ManageAvailability from "./pages/Worker/ManageAvailability";
@@ -120,8 +122,8 @@ function MainLayout() {
                   <NavLink to="/business/client-review" style={navLinkStyle}>
                     Client Reviews
                   </NavLink>
-                  <NavLink to="/business/promotions" style={navLinkStyle}>
-                    Promotions
+                  <NavLink to="/business/marketing" style={navLinkStyle}>
+                    Promotions & Loyalty
                   </NavLink>
                 </>
               )}
@@ -265,8 +267,10 @@ export default function App() {
             {/* OWNER GROUP */}
             <Route path="/business" element={<RequireRole allow={["business"]} />}>
               <Route path="home" element={<BusinessDashboard />} />
+              <Route path="marketing" element={<Marketing />} />
               <Route path="manage-services" element={<ManageServices />} />
               <Route path="promotions" element={<CreatePromotion />} />
+              <Route path="loyalty-programs" element={<CreateLoyalty />} />
               <Route path="approve-workers" element={<ApproveWorkers />} />
               <Route path="reply-reviews" element={<OwnerReplyReview />} />
               <Route path="client-review" element={<ClientReview />} />
