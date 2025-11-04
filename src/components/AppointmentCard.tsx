@@ -3,6 +3,7 @@
 import React from 'react';
 import Modal from "react-modal";
 import AppointmentNotes from './AppointmentNotes';
+import '../index.css';
 /*
 <style>
         #cards {
@@ -60,11 +61,12 @@ function Appt(props: any){
         //backend call
     }
     const isFuture = new Date()<=props.date
+    
     //() => navigate("/home/AppointmentInfo", { state: { id : props.id} })
     return(
     <div>
         <br/>
-        <button id="cards" onClick={openModal}>
+        <button id='cards' onClick={openModal}>
             <div>
             <span className='left'>{props.time} <br/>
             {props.date}</span>
