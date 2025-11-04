@@ -1,11 +1,12 @@
 //import React from 'react';
 //import { useNavigate } from 'react-router-dom';
-import "";
+//import "";
 import Appt from '../../components/AppointmentCard';
 
 
 
 export default function Appointments(){
+  //replace info with call to backend
     const info = [{
   id: 1,
   name: 'Idalina Vater',
@@ -47,6 +48,7 @@ export default function Appointments(){
             <br/>
             <div>{listItems}</div>
             <br/>
+            
         </div>
 
     );

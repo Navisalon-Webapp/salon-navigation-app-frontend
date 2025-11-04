@@ -1,9 +1,47 @@
-import '..src/index.css';
+//import '..src/index.css';
 //import { useNavigate } from 'react-router-dom';
 import React from 'react';
 import Modal from "react-modal";
 import AppointmentNotes from './AppointmentNotes';
+/*
+<style>
+        #cards {
+        padding: 20px;
+        background-color: white;
+        transition: transform .2s; 
+        width: 100%;
+        height: auto;
+        margin: auto auto;
+        border-radius: 10px;
+        border:1px solid #ccc;
+        display: block;
+        color: #563727 !important;
+        z-index: 1;
+        }
 
+        #cards:hover {
+        transform: scale(1.07, 1.1);
+        color: #563727 !important;
+        z-index: 1; 
+        
+        }
+        .left{
+        float: left;
+        padding-left: 20px;
+        padding-bottom: 10px;
+        padding-top: 10px;
+        font-size: x-large;
+        font-weight: bolder;
+        }
+        .right{
+        float: right;
+        padding-right: 20px;
+        padding-bottom: 20px;
+        padding-top: 20px;
+        }
+        </style>
+
+*/
 function Appt(props: any){
     //const navigate = useNavigate()
     const [modalIsOpen, setIsOpen] = React.useState(false);
@@ -46,6 +84,7 @@ function Appt(props: any){
         {isFuture && <button style={{float: 'right',}} onClick={changeAppt}>Reschedule</button>}
         <AppointmentNotes />
         </Modal>
+        
         </div>
     );
 }
