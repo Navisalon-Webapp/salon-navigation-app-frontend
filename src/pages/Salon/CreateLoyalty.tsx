@@ -30,34 +30,40 @@ const buttonPrimary: React.CSSProperties = {
 
 type Props = {};
 
-const CreatePromotion: React.FC<Props> = () => {
-  const [title, setTitle] = useState("");
+const CreateLoyalty: React.FC<Props> = () => {
+  const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [discountPct, setDiscountPct] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [pointsPerDollar, setPointsPerDollar] = useState("");
+  const [pointsToReward, setPointsToReward] = useState("");
+  const [expiryDays, setExpiryDays] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+
   const submit = async () => {
     setMessage(null);
-    const d = parseFloat(discountPct);
-    if (!title.trim() || isNaN(d) || !startDate || !endDate) {
-      setMessage("Please fill required fields and provide a numeric discount.");
+
+    const ppd = parseFloat(pointsPerDollar);
+    const ptr = parseInt(pointsToReward, 10);
+    const exp = expiryDays ? parseInt(expiryDays, 10) : null;
+
+    if (!name.trim() || isNaN(ppd) || isNaN(ptr)) {
+      setMessage("Please provide a name, numeric points per dollar, and points required for reward.");
       return;
     }
 
-    const payload = {
-      title: title.trim(),
+    const payload: any = {
+
+      name: name.trim(),
       description: description.trim(),
-      discount_pct: d,
-      start_date: startDate,
-      end_date: endDate,
+      points_per_dollar: ppd,
+      points_to_reward: ptr,
     };
+    if (exp !== null && !isNaN(exp)) payload.expiry_days = exp;
 
     setBusy(true);
     try {
-      const res = await fetch("http://localhost:5000/owner/promotions", {
+      const res = await fetch("http://localhost:5000/owner/loyalty", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -73,15 +79,15 @@ const CreatePromotion: React.FC<Props> = () => {
           setMessage(text || `Server returned ${res.status}`);
         }
       } else {
-        setMessage("Promotion created successfully.");
-        setTitle("");
+        setMessage("Loyalty program created successfully.");
+        setName("");
         setDescription("");
-        setDiscountPct("");
-        setStartDate("");
-        setEndDate("");
+        setPointsPerDollar("");
+        setPointsToReward("");
+        setExpiryDays("");
       }
     } catch (err) {
-      setMessage("Could not contact backend.");
+      setMessage("Could not contact backend. Frontend form is ready to hook up.");
     } finally {
       setBusy(false);
     }
@@ -92,23 +98,23 @@ const CreatePromotion: React.FC<Props> = () => {
       <div aria-hidden style={{ position: "fixed", inset: 0, background: "#372C2E", zIndex: -1 }} />
 
       <h1 style={{ color: "#FFFFFF", fontSize: "1.75rem", fontWeight: 600, marginBottom: "1rem" }}>
-        Create Promotion
+        Create Loyalty Program
       </h1>
 
       <div style={{ ...cardStyle, marginBottom: "1rem", maxWidth: 760 }}>
-        <h2 style={{ marginTop: 0, marginBottom: "0.75rem", fontSize: "1.1rem" }}>New promotion</h2>
+        <h2 style={{ marginTop: 0, marginBottom: "0.75rem", fontSize: "1.1rem" }}>New loyalty program</h2>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
           <input
             type="text"
-            placeholder="Title "
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Program name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             style={inputStyle}
           />
 
           <textarea
-            placeholder="Description"
+            placeholder="Description (optional)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             style={{ ...inputStyle, minHeight: 100 }}
@@ -116,28 +122,25 @@ const CreatePromotion: React.FC<Props> = () => {
 
           <input
             type="number"
-            placeholder="Discount percent"
-            value={discountPct}
-            onChange={(e) => setDiscountPct(e.target.value)}
+            placeholder="Points per $ spent"
+            value={pointsPerDollar}
+            onChange={(e) => setPointsPerDollar(e.target.value)}
             style={inputStyle}
             min={0}
-            max={100}
           />
 
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: "block", marginBottom: 6, fontSize: 12, color: "#fff" }}>Start date</label>
-              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={inputStyle} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: "block", marginBottom: 6, fontSize: 12, color: "#fff" }}>End date</label>
-              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={inputStyle} />
-            </div>
-          </div>
+          <input
+            type="number"
+            placeholder="Points required for reward"
+            value={pointsToReward}
+            onChange={(e) => setPointsToReward(e.target.value)}
+            style={inputStyle}
+            min={0}
+          />
 
           <div>
             <button onClick={submit} style={buttonPrimary} disabled={busy}>
-              {busy ? "Creating…" : "Create Promotion"}
+              {busy ? "Creating…" : "Create Loyalty Program"}
             </button>
           </div>
 
@@ -153,4 +156,4 @@ const CreatePromotion: React.FC<Props> = () => {
   );
 };
 
-export default CreatePromotion;
+export default CreateLoyalty;
