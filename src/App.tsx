@@ -31,6 +31,9 @@ import Marketing from "./pages/Salon/Marketing";
 import ManageAvailability from "./pages/Worker/ManageAvailability";
 import AppointmentsToday from "./pages/Worker/AppointmentsToday";
 
+// ADMIN
+import Dashboard from "./pages/Admin/Dashboard"
+
 const accBtnStyle: React.CSSProperties = {
   textAlign: "left",
   width: "100%",
@@ -139,6 +142,15 @@ function MainLayout() {
                   </NavLink>
                   <NavLink to="/employee/appointments-today" style={navLinkStyle}>
                     Today’s Appointments
+                  </NavLink>
+                </>
+              )}
+
+              {/* WORKER NAV */}
+              {user?.role === "admin" && (
+                <>
+                  <NavLink to="/admin/home" style={navLinkStyle}>
+                    Dashboard
                   </NavLink>
                 </>
               )}
@@ -281,6 +293,11 @@ export default function App() {
               <Route path="home" element={<ManageAvailability />} />
               <Route path="manage-availability" element={<ManageAvailability />} />
               <Route path="appointments-today" element={<AppointmentsToday />} />
+            </Route>
+
+            {/* ADMIN GROUP */}
+            <Route path="/admin" element={<RequireRole allow={["admin"]} />}>
+              <Route path="home" element={<Dashboard />} />
             </Route>
           </Route>
         </Route>
