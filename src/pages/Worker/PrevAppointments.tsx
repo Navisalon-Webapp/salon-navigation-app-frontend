@@ -5,9 +5,9 @@ import Appt from '../../components/AppointmentCard';
 
 
 
-export default function CustomerAppointments(){
+export default function WorkerAppointments(){
   //replace info  with call to backend
-  //name is name of worker
+  //name is name of client
     const info = [{
   id: 1,
   name: 'Idalina Vater',

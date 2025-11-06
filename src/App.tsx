@@ -16,6 +16,7 @@ import Page3 from "./pages/Customer/Page3";
 import Appointment from "./pages/Appointment";
 import CustomerSettings from "./pages/Customer/Settings";
 import Cart from "./pages/Customer/Cart";
+import CustomerAppointments from "./pages/Customer/PrevAppointments";
 
 // OWNER
 import ClientReview from "./pages/Salon/ClientReview";
@@ -30,6 +31,7 @@ import Marketing from "./pages/Salon/Marketing";
 // WORKER
 import ManageAvailability from "./pages/Worker/ManageAvailability";
 import AppointmentsToday from "./pages/Worker/AppointmentsToday";
+import WorkerAppointments from "./pages/Worker/PrevAppointments";
 
 const accBtnStyle: React.CSSProperties = {
   textAlign: "left",
@@ -101,6 +103,9 @@ function MainLayout() {
                   <NavLink to="/customer/appointment" style={navLinkStyle}>
                     Appointment
                   </NavLink>
+                  <NavLink to="/customer/prev-appointments" style={navLinkStyle}>
+                    Previous Appointments
+                  </NavLink>
                 </>
               )}
 
@@ -139,6 +144,9 @@ function MainLayout() {
                   </NavLink>
                   <NavLink to="/employee/appointments-today" style={navLinkStyle}>
                     Today’s Appointments
+                  </NavLink>
+                  <NavLink to="/employee/prev-appointments" style={navLinkStyle}>
+                    Previous Appointments
                   </NavLink>
                 </>
               )}
@@ -262,6 +270,7 @@ export default function App() {
               <Route path="appointment" element={<Appointment />} />
               <Route path="settings" element={<CustomerSettings />} />
               <Route path="cart" element={<Cart />} />
+              <Route path="prev-appointments" element={<CustomerAppointments />} />
             </Route>
 
             {/* OWNER GROUP */}
@@ -281,6 +290,7 @@ export default function App() {
               <Route path="home" element={<ManageAvailability />} />
               <Route path="manage-availability" element={<ManageAvailability />} />
               <Route path="appointments-today" element={<AppointmentsToday />} />
+              <Route path="prev-appointments" element={<WorkerAppointments />} />
             </Route>
           </Route>
         </Route>
