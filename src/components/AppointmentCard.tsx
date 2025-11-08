@@ -45,8 +45,10 @@ function Appt(props: any){
         //uncomment
         //<AppointmentModal key={info.id} startTime={info.time} date={info.date} />
     }
-    const isFuture = new Date()<=props.date
-    
+    const today = new Date()
+    const inputDate = (props.date).split("/").reverse().join("")
+    const apptdate = new Date(+inputDate.slice(0, 4),+inputDate.slice(6, 8)-1,+inputDate.slice(4, 6), +(props.time).split(":")[0], ((props.time).split(":")[1]).substring(0,2), 0);
+    var isFuture = today <= apptdate
     //() => navigate("/home/AppointmentInfo", { state: { id : props.id} })
     return(
     <div>
