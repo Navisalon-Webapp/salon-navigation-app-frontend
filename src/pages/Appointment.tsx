@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import AppointmentNotes from "../components/AppointmentNotes";
 import BeforeAfterImages from "../components/BeforeAfterImages";
 import AppointmentPlaceholders from "../components/appointment_modal";
+import ReviewForm from "../components/ReviewForm";
 
 export default function AppointmentPage() {
   const demoAppointmentId = "demo-appointment-1";
@@ -13,6 +14,8 @@ export default function AppointmentPage() {
     date: "Oct 15, 2025",
     time: "2:00 PM",
     status: "Completed",
+    employee_id: 1,
+    business_id: 1,
   };
   useEffect(() => {
     const prevBg = document.body.style.background;
@@ -134,6 +137,14 @@ export default function AppointmentPage() {
 
 
           <AppointmentNotes appointmentId={demoAppointmentId} />
+
+
+          {appointmentInfo.status === "Completed" && (
+            <div style={{ marginTop: 12 }}>
+
+              <ReviewForm eid={appointmentInfo.employee_id} />
+            </div>
+          )}
 
         </div>
       </div>
