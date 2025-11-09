@@ -39,9 +39,9 @@ export default function EmailSubscriptions() {
   const { load, save } = useEmailPrefs(user?.id ?? null);
 
   const [prefs, setPrefs] = useState<EmailPrefs>(DEFAULT_PREFS);
-  const [status, setStatus] = useState<"idle" | "saved">("idle");
+  const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
   const [saving, setSaving] = useState(false);
-  const API_BASE = "http://127.0.0.1:5000";
+  const API_BASE = "http://localhost:5000";
 
   useEffect(() => {
     setPrefs(load());
@@ -63,41 +63,56 @@ export default function EmailSubscriptions() {
     try {
       const tasks: Promise<Response>[] = [];
       const cid = user?.id;
+
       if (cid) {
-        if (prefs.marketing === false) {
-          tasks.push(
-            fetch(`${API_BASE}/api/clients/manage-email-subs`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include",
-              body: JSON.stringify({ cid }),
-            })
-          );
-        }
-        if (prefs.appointments === false) {
-          tasks.push(
-            fetch(`${API_BASE}/api/clients/manage-appt-reminder-subs`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include",
-              body: JSON.stringify({ cid }),
-            })
-          );
-        }
+        tasks.push(
+          fetch(`${API_BASE}/api/clients/manage-email-subs`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ promotion: prefs.marketing }),
+          })
+        );
+
+        tasks.push(
+          fetch(`${API_BASE}/api/clients/manage-appt-reminder-subs`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ appointment: prefs.appointments }),
+          })
+        );
       }
 
       if (tasks.length) {
         const results = await Promise.all(tasks);
+
+        for (const r of results) {
+          try {
+            const text = await r.text();
+            console.log("EmailSubscriptions: server response", r.status, text);
+          } catch (err) {
+            console.log("EmailSubscriptions: response read error", err);
+          }
+        }
+
         const bad = results.find((r) => !r.ok);
-        if (bad) throw new Error(`HTTP ${bad.status}`);
+        if (bad) {
+          setStatus("error");
+          throw new Error(`HTTP ${bad.status}`);
+        }
       }
+
       save(prefs);
       setStatus("saved");
       setTimeout(() => setStatus("idle"), 2000);
     } catch (e) {
+      console.error("Failed to save email prefs:", e);
       save(prefs);
-      setStatus("saved");
-      setTimeout(() => setStatus("idle"), 2000);
+      if (status !== "error") {
+        setStatus("saved");
+        setTimeout(() => setStatus("idle"), 2000);
+      }
     } finally {
       setSaving(false);
     }
@@ -205,7 +220,8 @@ export default function EmailSubscriptions() {
         >
           {saving ? "Saving..." : "Save changes"}
         </button>
-        {status === "saved" && <span style={{ color: "#0C7C59" }}>Saved!</span>}
+  {status === "saved" && <span style={{ color: "#0C7C59" }}>Saved!</span>}
+  {status === "error" && <span style={{ color: "#C23B22" }}>Failed to save preferences (server error)</span>}
       </div>
 
       <div style={{ fontSize: 12, color: "#6B6B6B" }}>
