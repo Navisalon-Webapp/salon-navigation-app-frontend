@@ -12,7 +12,7 @@ import SignUp from "./pages/Auth/SignUp";
 // CUSTOMER
 import Home from "./pages/Customer/Home";
 import Browse from "./pages/Customer/Browse";
-import Appointment from "./pages/Appointment";
+import Appointment from "./pages/Customer/Appointment";
 import CustomerSettings from "./pages/Customer/Settings";
 import Cart from "./pages/Customer/Cart";
 import CustomerAppointments from "./pages/Customer/PrevAppointments";
@@ -26,6 +26,7 @@ import BusinessDashboard from "./pages/Salon/Dashboard";
 import CreatePromotion from "./pages/Salon/CreatePromotion";
 import CreateLoyalty from "./pages/Salon/CreateLoyalty";
 import Marketing from "./pages/Salon/Marketing";
+import SalonRevenue from "./pages/Salon/SalonRevenue";
 
 // WORKER
 import ManageAvailability from "./pages/Worker/ManageAvailability";
@@ -99,12 +100,6 @@ function MainLayout() {
                   <NavLink to="/customer/browse" style={navLinkStyle}>
                     Browse
                   </NavLink>
-                  <NavLink to="/customer/page3" style={navLinkStyle}>
-                    Page 3
-                  </NavLink>
-                  <NavLink to="/customer/appointment" style={navLinkStyle}>
-                    Appointment
-                  </NavLink>
                   <NavLink to="/customer/prev-appointments" style={navLinkStyle}>
                     Previous Appointments
                   </NavLink>
@@ -128,6 +123,9 @@ function MainLayout() {
                   </NavLink>
                   <NavLink to="/business/reply-reviews" style={navLinkStyle}>
                     Reply Reviews
+                  </NavLink>
+                  <NavLink to="/business/revenue" style={navLinkStyle}>
+                    Revenue
                   </NavLink>
                   <NavLink to="/business/marketing" style={navLinkStyle}>
                     Promotions & Loyalty
@@ -277,7 +275,7 @@ export default function App() {
             <Route path="/customer" element={<RequireRole allow={["customer"]} />}>
               <Route path="home" element={<Home />} />
               <Route path="browse" element={<Browse />} />
-              <Route path="appointment" element={<Appointment />} />
+              <Route path="appointment/:appointmentId" element={<Appointment />} />
               <Route path="settings" element={<CustomerSettings />} />
               <Route path="cart" element={<Cart />} />
               <Route path="prev-appointments" element={<CustomerAppointments />} />
@@ -294,6 +292,7 @@ export default function App() {
               <Route path="loyalty-programs" element={<CreateLoyalty />} />
               <Route path="approve-workers" element={<ApproveWorkers />} />
               <Route path="reply-reviews" element={<OwnerReplyReview />} />
+              <Route path="revenue" element={<SalonRevenue />} />
             </Route>
 
             {/* WORKER GROUP */}

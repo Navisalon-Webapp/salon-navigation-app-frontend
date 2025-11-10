@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 
+const API = "http://localhost:5000";
+
 interface RevenueModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -21,14 +23,23 @@ export function RevenueModal({ isOpen, onClose }: RevenueModalProps) {
   const fetchRevenue = async () => {
     setLoading(true);
     
-    // Connect backend to fetch weekly and monthly revenue
-    setTimeout(() => {
-      setRevenueData({
-        weekly: 2830.50,
-        monthly: 12450.00
+    try {
+      const res = await fetch(`${API}/api/owner/get-revenue`, {
+        credentials: "include",
       });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setRevenueData({
+          weekly: data.weekly,
+          monthly: data.monthly
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch revenue:", err);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   if (!isOpen) return null;
