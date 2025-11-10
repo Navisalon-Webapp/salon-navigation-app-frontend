@@ -48,16 +48,20 @@ const CreatePromotion: React.FC<Props> = () => {
     }
 
     const payload = {
+      lprog_id: 1,
       title: title.trim(),
       description: description.trim(),
-      discount_pct: d,
       start_date: startDate,
       end_date: endDate,
+      is_recurring: false,
+      recurr_day: null,
+      start_time: "00:00:00",
+      end_time: "23:59:59",
     };
 
     setBusy(true);
     try {
-      const res = await fetch("http://localhost:5000/owner/promotions", {
+      const res = await fetch("http://localhost:5000/api/owner/create-promotion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

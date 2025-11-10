@@ -1,17 +1,52 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import RewardRing from "../../components/Rewards/RewardRing";
 import RewardsPopup from "../../components/Rewards/RewardsPopup";
 
+type Salon = {
+  id: string;
+  bid: number;
+  name: string;
+  points: number;
+  goal: number;
+  address?: string;
+};
+
 export default function Home() {
   const [open, setOpen] = useState(false);
+  const [salons, setSalons] = useState<Salon[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const currentPoints = 80;
-  const goalPoints = 100;
-  const salons = [
-    { id: "s1", name: "Downtown Cuts", points: 80, goal: 100, address: "123 Market St" },
-    { id: "s2", name: "Nail Oasis", points: 45, goal: 80, address: "22 Pine Ave" },
-    { id: "s3", name: "Glow Spa", points: 120, goal: 150, address: "9 River Rd" },
-  ];
+  useEffect(() => {
+    const fetchLoyaltyPoints = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/clients/view-loyalty-points", {
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setSalons(data);
+        } else {
+          console.error("Failed to fetch loyalty points");
+          setSalons([]);
+        }
+      } catch (error) {
+        console.error("Error fetching loyalty points:", error);
+        setSalons([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLoyaltyPoints();
+  }, []);
+
+  const topSalon = salons.length > 0 
+    ? salons.reduce((max, salon) => salon.points > max.points ? salon : max, salons[0])
+    : null;
+
+  const currentPoints = topSalon?.points || 0;
+  const goalPoints = topSalon?.goal || 100;
 
   return (
     <div
@@ -43,15 +78,25 @@ export default function Home() {
           alignItems: "start",
         }}
       >
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-haspopup="dialog"
-          aria-expanded={open}
-          style={{ all: "unset", cursor: "pointer", borderRadius: 12 }}
-        >
-          <RewardRing current={currentPoints} goal={goalPoints} />
-        </button>
+        {loading ? (
+          <div style={{ color: "#372C2E", padding: 20 }}>Loading rewards...</div>
+        ) : salons.length === 0 ? (
+          <div style={{ color: "#372C2E", padding: 20 }}>No loyalty rewards yet. Visit a salon to start earning!</div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            style={{ all: "unset", cursor: "pointer", borderRadius: 12 }}
+          >
+            <RewardRing 
+              current={currentPoints} 
+              goal={goalPoints}
+              salonName={topSalon?.name || "Salon"}
+            />
+          </button>
+        )}
       </div>
 
       <RewardsPopup
