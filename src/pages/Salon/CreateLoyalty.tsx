@@ -31,11 +31,10 @@ const buttonPrimary: React.CSSProperties = {
 type Props = {};
 
 const CreateLoyalty: React.FC<Props> = () => {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [pointsPerDollar, setPointsPerDollar] = useState("");
-  const [pointsToReward, setPointsToReward] = useState("");
-  const [expiryDays, setExpiryDays] = useState("");
+  const [threshold, setThreshold] = useState("");
+  const [programType, setProgramType] = useState("appts_thresh");
+  const [rewardType, setRewardType] = useState("is_discount");
+  const [rewardValue, setRewardValue] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -43,27 +42,25 @@ const CreateLoyalty: React.FC<Props> = () => {
   const submit = async () => {
     setMessage(null);
 
-    const ppd = parseFloat(pointsPerDollar);
-    const ptr = parseInt(pointsToReward, 10);
-    const exp = expiryDays ? parseInt(expiryDays, 10) : null;
+    const thresh = parseInt(threshold, 10);
+    const rwdVal = parseFloat(rewardValue);
 
-    if (!name.trim() || isNaN(ppd) || isNaN(ptr)) {
-      setMessage("Please provide a name, numeric points per dollar, and points required for reward.");
+    if (isNaN(thresh) || isNaN(rwdVal)) {
+      setMessage("Please provide numeric values for threshold and reward value.");
       return;
     }
 
     const payload: any = {
-
-      name: name.trim(),
-      description: description.trim(),
-      points_per_dollar: ppd,
-      points_to_reward: ptr,
+      bid: 1,
+      threshold: thresh,
+      prog_type: programType,
+      reward_type: rewardType,
+      rwd_value: rwdVal,
     };
-    if (exp !== null && !isNaN(exp)) payload.expiry_days = exp;
 
     setBusy(true);
     try {
-      const res = await fetch("http://localhost:5000/owner/loyalty", {
+      const res = await fetch("http://localhost:5000/api/owner/create-loyalty-programs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -80,14 +77,11 @@ const CreateLoyalty: React.FC<Props> = () => {
         }
       } else {
         setMessage("Loyalty program created successfully.");
-        setName("");
-        setDescription("");
-        setPointsPerDollar("");
-        setPointsToReward("");
-        setExpiryDays("");
+        setThreshold("");
+        setRewardValue("");
       }
     } catch (err) {
-      setMessage("Could not contact backend. Frontend form is ready to hook up.");
+      setMessage("Could not contact backend.");
     } finally {
       setBusy(false);
     }
@@ -105,37 +99,44 @@ const CreateLoyalty: React.FC<Props> = () => {
         <h2 style={{ marginTop: 0, marginBottom: "0.75rem", fontSize: "1.1rem" }}>New loyalty program</h2>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-          <input
-            type="text"
-            placeholder="Program name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            style={inputStyle}
-          />
-
-          <textarea
-            placeholder="Description (optional)"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            style={{ ...inputStyle, minHeight: 100 }}
-          />
+          <div>
+            <label style={{ display: "block", marginBottom: 6, fontSize: 12, color: "#fff" }}>Program Type</label>
+            <select value={programType} onChange={(e) => setProgramType(e.target.value)} style={inputStyle}>
+              <option value="appts_thresh">Appointments Threshold</option>
+              <option value="pdct_thresh">Product Threshold</option>
+              <option value="points_thresh">Points Threshold</option>
+              <option value="price_thresh">Price Threshold</option>
+            </select>
+          </div>
 
           <input
             type="number"
-            placeholder="Points per $ spent"
-            value={pointsPerDollar}
-            onChange={(e) => setPointsPerDollar(e.target.value)}
+            placeholder="Threshold (e.g., 10 appointments or 100 points)"
+            value={threshold}
+            onChange={(e) => setThreshold(e.target.value)}
             style={inputStyle}
             min={0}
           />
 
+          <div>
+            <label style={{ display: "block", marginBottom: 6, fontSize: 12, color: "#fff" }}>Reward Type</label>
+            <select value={rewardType} onChange={(e) => setRewardType(e.target.value)} style={inputStyle}>
+              <option value="is_appt">Free Appointment</option>
+              <option value="is_product">Free Product</option>
+              <option value="is_price">Price Off</option>
+              <option value="is_points">Points</option>
+              <option value="is_discount">Discount %</option>
+            </select>
+          </div>
+
           <input
             type="number"
-            placeholder="Points required for reward"
-            value={pointsToReward}
-            onChange={(e) => setPointsToReward(e.target.value)}
+            placeholder="Reward Value (e.g., 10 for 10% off or 50 for $50)"
+            value={rewardValue}
+            onChange={(e) => setRewardValue(e.target.value)}
             style={inputStyle}
             min={0}
+            step="0.01"
           />
 
           <div>

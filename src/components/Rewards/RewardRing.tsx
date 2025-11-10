@@ -1,4 +1,4 @@
-export default function RewardRing({ current, goal }) {
+export default function RewardRing({ current, goal, salonName = "Salon" }) {
   const clamped = Math.max(0, Math.min(current, goal));
   const pct = goal ? clamped / goal : 0;
   const radius = 40;
@@ -25,7 +25,9 @@ export default function RewardRing({ current, goal }) {
       }}
       aria-label={`Rewards progress: ${Math.round(pct * 100)} percent`}
     >
-      <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 18 }}>Rewards at [Highest Salon]</div>
+      <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 18 }}>
+        Rewards at {salonName}
+      </div>
 
       <svg width="150" height="150" viewBox="0 0 110 110">
         {/* Track */}
@@ -66,6 +68,9 @@ export default function RewardRing({ current, goal }) {
           </tspan>
         </text>
       </svg>
+      <div style={{ marginTop: 12, fontSize: 16, fontWeight: 600 }}>
+        {current} / {goal} points
+      </div>
     </div>
   );
 }
