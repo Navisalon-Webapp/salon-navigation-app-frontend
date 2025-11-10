@@ -12,14 +12,13 @@ import SignUp from "./pages/Auth/SignUp";
 // CUSTOMER
 import Home from "./pages/Customer/Home";
 import Browse from "./pages/Customer/Browse";
-import Page3 from "./pages/Customer/Page3";
 import Appointment from "./pages/Appointment";
 import CustomerSettings from "./pages/Customer/Settings";
 import Cart from "./pages/Customer/Cart";
 import CustomerAppointments from "./pages/Customer/PrevAppointments";
+import SalonReview from "./pages/Customer/SalonReview";
 
 // OWNER
-import ClientReview from "./pages/Salon/ClientReview";
 import ApproveWorkers from "./pages/Salon/ApproveWorkers";
 import OwnerReplyReview from "./pages/Salon/OwnerReplyReview";
 import ManageServices from "./pages/Salon/ManageServices";
@@ -109,6 +108,9 @@ function MainLayout() {
                   <NavLink to="/customer/prev-appointments" style={navLinkStyle}>
                     Previous Appointments
                   </NavLink>
+                  <NavLink to="/customer/salon-review" style={navLinkStyle}>
+                    Client Reviews
+                  </NavLink>
                 </>
               )}
 
@@ -126,9 +128,6 @@ function MainLayout() {
                   </NavLink>
                   <NavLink to="/business/reply-reviews" style={navLinkStyle}>
                     Reply Reviews
-                  </NavLink>
-                  <NavLink to="/business/client-review" style={navLinkStyle}>
-                    Client Reviews
                   </NavLink>
                   <NavLink to="/business/marketing" style={navLinkStyle}>
                     Promotions & Loyalty
@@ -278,11 +277,12 @@ export default function App() {
             <Route path="/customer" element={<RequireRole allow={["customer"]} />}>
               <Route path="home" element={<Home />} />
               <Route path="browse" element={<Browse />} />
-              <Route path="page3" element={<Page3 />} />
               <Route path="appointment" element={<Appointment />} />
               <Route path="settings" element={<CustomerSettings />} />
               <Route path="cart" element={<Cart />} />
               <Route path="prev-appointments" element={<CustomerAppointments />} />
+              <Route path="salon-review" element={<SalonReview />} />
+
             </Route>
 
             {/* OWNER GROUP */}
@@ -294,7 +294,6 @@ export default function App() {
               <Route path="loyalty-programs" element={<CreateLoyalty />} />
               <Route path="approve-workers" element={<ApproveWorkers />} />
               <Route path="reply-reviews" element={<OwnerReplyReview />} />
-              <Route path="client-review" element={<ClientReview />} />
             </Route>
 
             {/* WORKER GROUP */}

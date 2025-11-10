@@ -48,42 +48,18 @@ const AppointmentsToday: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [sending, setSending] = useState<string | null>(null);
 
   const loadAppointments = async () => {
     setLoading(true);
     setError(null);
     try {
-      // To connect a backend later, uncomment this block and remove the mock below:
-      // const base = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
-      // const res = await fetch(`${base}/worker/appointments?date=${encodeURIComponent(todayISO)}`, {
-      //   credentials: 'include',
-      // });
-      // if (!res.ok) throw new Error(`Failed to load: ${res.status}`);
-      // const data: Appointment[] = await res.json();
-      // setAppointments(data);
-      // return;
-
-      // Mock data only (no API call)
-      await new Promise((r) => setTimeout(r, 300));
-      setAppointments([
-        {
-          id: "a1",
-          time: "09:00 AM",
-          client: "Alex Johnson",
-          service: "Haircut",
-          durationMins: 45,
-          notes: "Scissors over clippers",
-          status: "scheduled",
-        },
-        {
-          id: "a2",
-          time: "10:15 AM",
-          client: "Maria Lopez",
-          service: "Coloring",
-          durationMins: 90,
-          status: "checked-in",
-        },
-      ]);
+      const res = await fetch(`http://localhost:5000/worker/appointments?date=${encodeURIComponent(todayISO)}`, {
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error(`Failed to load: ${res.status}`);
+      const data: Appointment[] = await res.json();
+      setAppointments(data);
     } catch (e: any) {
       setError(e?.message || "Something went wrong");
       setAppointments([]);
@@ -95,6 +71,33 @@ const AppointmentsToday: React.FC = () => {
   useEffect(() => {
     loadAppointments();
   }, []);
+
+  const handleSendNotification = async (appointmentId: string) => {
+    setSending(appointmentId);
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/employee/send-notification/${appointmentId}`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Notification sent successfully!");
+      } else {
+        alert(`Failed: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error sending notification:", error);
+      alert("Error sending notification");
+    } finally {
+      setSending(null);
+    }
+  };
 
   return (
     <div
@@ -189,6 +192,25 @@ const AppointmentsToday: React.FC = () => {
                     {a.notes}
                   </div>
                 )}
+                <div style={{ marginTop: "0.75rem" }}>
+                  <button
+                    onClick={() => handleSendNotification(a.id)}
+                    disabled={sending === a.id}
+                    style={{
+                      padding: "0.4rem 0.8rem",
+                      fontSize: "0.85rem",
+                      fontWeight: 600,
+                      borderRadius: "0.375rem",
+                      backgroundColor: sending === a.id ? "#7A431D" : "#DE9E48",
+                      color: "#372C2E",
+                      border: "none",
+                      cursor: sending === a.id ? "not-allowed" : "pointer",
+                      opacity: sending === a.id ? 0.6 : 1,
+                    }}
+                  >
+                    {sending === a.id ? "Sending..." : "Notify Client You Are Running Late"}
+                  </button>
+                </div>
               </div>
             ))}
         </div>

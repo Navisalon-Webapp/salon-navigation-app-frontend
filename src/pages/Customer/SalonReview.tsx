@@ -143,4 +143,4 @@ const ClientReview: React.FC = () => {
   );
 };
 
-export default ClientReview;
+export default SalonReview;
