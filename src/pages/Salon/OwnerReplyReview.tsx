@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 
+const API = "http://localhost:5000";
+
 type Review = {
   id: string;
   reviewerName: string;
   rating: number; // 1-5
   comment: string;
-  createdAt: string; // ISO
+  createdAt: string;
   reply?: {
     text: string;
     createdAt: string;
   };
 };
 
-// Simple styles that match the Sign In / Sign Up theme
 const cardStyle: React.CSSProperties = {
   backgroundColor: "#563727",
   border: "1px solid #7A431D",
@@ -31,46 +32,47 @@ const inputStyle: React.CSSProperties = {
   outline: "none",
 };
 
-// TODO: Replace these with real API calls later
-async function getReviews(/* salonId: string */): Promise<Review[]> {
-  return [
-    {
-      id: "r1",
-      reviewerName: "Taylor Swift",
-      rating: 5,
-      comment:
-        "Amazing service! My hair looks fantastic and the staff was so friendly.",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 20).toISOString(),
-      reply: {
-        text: "Thank you so much, Taylor! We loved having you.",
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 10).toISOString(),
-      },
-    },
-    {
-      id: "r2",
-      reviewerName: "Chris Evans",
-      rating: 4,
-      comment: "Great cut and style. Booking process was smooth.",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-    },
-    {
-      id: "r3",
-      reviewerName: "Jordan Peele",
-      rating: 3,
-      comment:
-        "Good overall, but I waited ~15 minutes past my appointment time.",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
-    },
-  ];
+// Fetch reviews from backend
+async function getReviews(): Promise<Review[]> {
+  try {
+    const res = await fetch(`${API}/api/owner/get-business-reviews`, {
+      credentials: "include",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
+    return [];
+  } catch (err) {
+    console.error("Failed to fetch reviews:", err);
+    return [];
+  }
 }
 
-async function postReply(
-  /* salonId: string, */ _reviewId: string,
-  _text: string
-) {
-  // TODO: Implement with fetch when backend is ready
-  // await fetch(`${API}/salons/${salonId}/reviews/${reviewId}/reply`, { method: 'POST', body: JSON.stringify({ text }) })
-  return { ok: true };
+// Post reply to backend
+async function postReply(reviewId: string, text: string) {
+  try {
+    const res = await fetch(`${API}/api/user/leave-reply-review`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        rvw_id: parseInt(reviewId, 10),
+        comment: text,
+      }),
+    });
+    
+    if (res.ok) {
+      return { ok: true };
+    } else {
+      const errorData = await res.json();
+      console.error("Failed to post reply:", errorData);
+      return { ok: false, error: errorData.message };
+    }
+  } catch (err) {
+    console.error("Error posting reply:", err);
+    return { ok: false, error: "Network error" };
+  }
 }
 
 const OwnerReplyReview: React.FC = () => {
@@ -78,12 +80,16 @@ const OwnerReplyReview: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // Very simple "load" using the mock function above
+  // Load reviews from backend
   React.useEffect(() => {
     (async () => {
+      setLoading(true);
       const data = await getReviews();
       setReviews(data);
+      setLoading(false);
     })();
   }, []);
 
@@ -106,18 +112,29 @@ const OwnerReplyReview: React.FC = () => {
   async function submitReply(reviewId: string) {
     const text = replyText.trim();
     if (!text) return;
+    
+    setError("");
+    setLoading(true);
+    
     // Backend hook
-    await postReply(reviewId, text);
-    // Update UI
-    setReviews((list) =>
-      list.map((r) =>
-        r.id === reviewId
-          ? { ...r, reply: { text, createdAt: new Date().toISOString() } }
-          : r
-      )
-    );
-    setActiveId(null);
-    setReplyText("");
+    const result = await postReply(reviewId, text);
+    
+    setLoading(false);
+    
+    if (result.ok) {
+      // Update UI
+      setReviews((list) =>
+        list.map((r) =>
+          r.id === reviewId
+            ? { ...r, reply: { text, createdAt: new Date().toISOString() } }
+            : r
+        )
+      );
+      setActiveId(null);
+      setReplyText("");
+    } else {
+      setError(result.error || "Failed to submit reply");
+    }
   }
 
   const filtered = reviews.filter((r) => {
@@ -152,6 +169,18 @@ const OwnerReplyReview: React.FC = () => {
       >
         Owner Replies to Reviews
       </h1>
+
+      {loading && (
+        <div style={{ ...cardStyle, marginBottom: "1rem" }}>
+          Loading reviews...
+        </div>
+      )}
+
+      {error && (
+        <div style={{ ...cardStyle, marginBottom: "1rem", backgroundColor: "#8B4513" }}>
+          {error}
+        </div>
+      )}
 
       {/* Search */}
       <div style={{ marginBottom: "1rem" }}>
@@ -244,17 +273,18 @@ const OwnerReplyReview: React.FC = () => {
                     >
                       <button
                         onClick={() => submitReply(r.id)}
+                        disabled={loading}
                         style={{
                           padding: "0.6rem 1rem",
                           fontWeight: 600,
                           borderRadius: "0.5rem",
-                          backgroundColor: "#DE9E48",
+                          backgroundColor: loading ? "#999" : "#DE9E48",
                           color: "#372C2E",
                           border: "none",
-                          cursor: "pointer",
+                          cursor: loading ? "not-allowed" : "pointer",
                         }}
                       >
-                        Post reply
+                        {loading ? "Posting..." : "Post reply"}
                       </button>
                       <button
                         onClick={() => {

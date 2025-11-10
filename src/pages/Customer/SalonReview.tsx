@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../../auth/AuthContext";
 
-// Very simple client review form (like Sign Up page style)
+const API = "http://localhost:5000";
 const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "1rem 1.5rem",
@@ -29,27 +30,81 @@ const buttonPrimary: React.CSSProperties = {
   cursor: "pointer",
 };
 
-const ClientReview: React.FC = () => {
+type Salon = {
+  uid: number;
+  bid: number;
+  name: string;
+};
+
+const SalonReview: React.FC = () => {
+  const { user } = useAuth();
+  const [salons, setSalons] = useState<Salon[]>([]);
   const [salon, setSalon] = useState("");
   const [rating, setRating] = useState("");
   const [comment, setComment] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // TODO: replace with salons from backend
-  const salons = ["Salon A", "Salon B", "Salon C"];
+  // Fetch salons from backend
+  useEffect(() => {
+    async function fetchSalons() {
+      try {
+        const res = await fetch(`${API}/list-business`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setSalons(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch salons:", err);
+      }
+    }
+    fetchSalons();
+  }, []);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError("");
+    setSubmitted(false);
+
     const r = parseInt(rating, 10);
-    if (!salon || !r || !comment.trim()) return;
+    if (!salon || !r || !comment.trim()) {
+      setError("Please fill in all fields");
+      return;
+    }
 
-    // TODO: POST to backend: /salons/:salonId/reviews with { rating, comment }
-    console.log("Submitting review:", { salon, rating: r, comment });
+    setLoading(true);
 
-    setSubmitted(true);
-    setSalon("");
-    setRating("");
-    setComment("");
+    try {
+      const res = await fetch(`${API}/api/client/leave-business-review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          bid: parseInt(salon, 10),
+          cid: parseInt(user!.id, 10),
+          rating: r,
+          comment: comment.trim(),
+        }),
+      });
+
+      if (res.ok) {
+        setSubmitted(true);
+        setSalon("");
+        setRating("");
+        setComment("");
+      } else {
+        const errorData = await res.json();
+        setError(errorData.message || "Failed to submit review");
+      }
+    } catch (err) {
+      console.error("Error submitting review:", err);
+      setError("An error occurred while submitting your review");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -86,8 +141,8 @@ const ClientReview: React.FC = () => {
           >
             <option value="">Select Salon</option>
             {salons.map((s) => (
-              <option key={s} value={s}>
-                {s}
+              <option key={s.bid} value={s.bid}>
+                {s.name}
               </option>
             ))}
           </select>
@@ -122,10 +177,16 @@ const ClientReview: React.FC = () => {
               marginTop: "0.5rem",
             }}
           >
-            <button type="submit" style={buttonPrimary}>
-              Submit
+            <button type="submit" style={buttonPrimary} disabled={loading}>
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
+
+          {error && (
+            <div style={{ ...cardStyle, backgroundColor: "#8B4513" }}>
+              {error}
+            </div>
+          )}
 
           {submitted && (
             <div style={{ ...cardStyle }}>

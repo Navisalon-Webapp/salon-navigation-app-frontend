@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 
 interface CartItem {
-  cart_item_id: number;
-  product_id: number;
-  product_name: string;
+  cart_id: number;
+  pid: number;
+  name: string;
   price: number;
-  quantity: number;
+  amount: number;
+  total: number;
   business_name: string;
-  image_url?: string;
+  image?: string;
 }
 
 export default function Cart() {
@@ -31,82 +32,114 @@ export default function Cart() {
     setLoading(true);
     setError(null);
     
-    // Connect to backend to fetch cart items
-    setTimeout(() => {
-      setCartItems([
-        {
-          cart_item_id: 1,
-          product_id: 101,
-          product_name: "Premium Shampoo",
-          price: 24.99,
-          quantity: 2,
-          business_name: "Elegant Hair Salon",
-          image_url: undefined,
-        },
-        {
-          cart_item_id: 2,
-          product_id: 102,
-          product_name: "Hair Conditioner",
-          price: 19.99,
-          quantity: 1,
-          business_name: "Elegant Hair Salon",
-          image_url: undefined,
-        },
-        {
-          cart_item_id: 3,
-          product_id: 103,
-          product_name: "Styling Gel",
-          price: 15.50,
-          quantity: 3,
-          business_name: "Style Studio",
-          image_url: undefined,
-        },
-      ]);
+    try {
+      const res = await fetch(`${backendBase}/api/clients/view-cart`, {
+        credentials: "include",
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setCartItems(data.cart_items || []);
+      } else {
+        const errorData = await res.json();
+        setError(errorData.message || "Failed to fetch cart");
+      }
+    } catch (err) {
+      console.error("Failed to fetch cart:", err);
+      setError("An error occurred while fetching your cart");
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   const updateQuantity = async (cartItemId: number, newQuantity: number) => {
     if (newQuantity < 1) return;
 
-    // Connect to backend to update quantity of items in cart
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.cart_item_id === cartItemId
-          ? { ...item, quantity: newQuantity }
-          : item
-      )
-    );
+    try {
+      const res = await fetch(`${backendBase}/api/clients/alter-cart/${cartItemId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ amount: newQuantity }),
+      });
+      
+      if (res.ok) {
+        // Update UI
+        setCartItems((prev) =>
+          prev.map((item) =>
+            item.cart_id === cartItemId
+              ? { ...item, amount: newQuantity, total: item.price * newQuantity }
+              : item
+          )
+        );
+      } else {
+        const errorData = await res.json();
+        setError(errorData.message || "Failed to update quantity");
+      }
+    } catch (err) {
+      console.error("Failed to update quantity:", err);
+      setError("An error occurred while updating quantity");
+    }
   };
 
   const removeItem = async (cartItemId: number) => {
-    // Connect to backend to remove item from cart
-    setCartItems((prev) =>
-      prev.filter((item) => item.cart_item_id !== cartItemId)
-    );
+    try {
+      const res = await fetch(`${backendBase}/api/clients/manage-carts/delete-cart-item/${cartItemId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      
+      if (res.ok) {
+        // Update UI
+        setCartItems((prev) =>
+          prev.filter((item) => item.cart_id !== cartItemId)
+        );
+      } else {
+        const errorData = await res.json();
+        setError(errorData.message || "Failed to remove item");
+      }
+    } catch (err) {
+      console.error("Failed to remove item:", err);
+      setError("An error occurred while removing item");
+    }
   };
 
   const handleCheckout = async () => {
     if (cartItems.length === 0) return;
 
     setCheckoutLoading(true);
+    setError(null);
     
-    // Connect to backend to process checkout
-    setTimeout(() => {
-      setCheckoutSuccess(true);
-      setCartItems([]);
-      setCheckoutLoading(false);
-      setCheckoutModalOpen(false);
-      setFormData({
-        name: "",
-        email: "",
-        cardNumber: "",
-        expiry: "",
-        cvv: "",
+    try {
+      const res = await fetch(`${backendBase}/api/clients/checkout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(formData),
       });
-
-      setTimeout(() => setCheckoutSuccess(false), 5000);
-    }, 1000);
+      
+      if (res.ok) {
+        setCheckoutSuccess(true);
+        setCartItems([]);
+        setCheckoutModalOpen(false);
+        setFormData({
+          name: "",
+          email: "",
+          cardNumber: "",
+          expiry: "",
+          cvv: "",
+        });
+        setTimeout(() => setCheckoutSuccess(false), 5000);
+      } else {
+        const errorData = await res.json();
+        setError(errorData.message || "Checkout failed");
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
+      setError("An error occurred during checkout");
+    } finally {
+      setCheckoutLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -114,7 +147,7 @@ export default function Cart() {
   }, []);
 
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + item.price * item.amount,
     0
   );
   const tax = subtotal * 0.06125;
@@ -157,7 +190,7 @@ export default function Cart() {
           <div style={{ flex: 1 }}>
             {cartItems.map((item) => (
               <div
-                key={item.cart_item_id}
+                key={item.cart_id}
                 style={{
                   border: "1px solid #ddd",
                   padding: 15,
@@ -178,10 +211,10 @@ export default function Cart() {
                     justifyContent: "center",
                   }}
                 >
-                  {item.image_url ? (
+                  {item.image ? (
                     <img
-                      src={item.image_url}
-                      alt={item.product_name}
+                      src={item.image}
+                      alt={item.name}
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
                   ) : (
@@ -191,7 +224,7 @@ export default function Cart() {
 
                 <div style={{ flex: 1 }}>
                   <h3 style={{ margin: "0 0 5px 0", color: "#372C2E" }}>
-                    {item.product_name}
+                    {item.name}
                   </h3>
                   <p style={{ margin: "0 0 8px 0", fontSize: 14, color: "#666" }}>
                     {item.business_name}
@@ -203,7 +236,7 @@ export default function Cart() {
 
                 <div style={{ textAlign: "right" }}>
                   <button
-                    onClick={() => removeItem(item.cart_item_id)}
+                    onClick={() => removeItem(item.cart_id)}
                     style={{
                       background: "none",
                       border: "none",
@@ -219,9 +252,9 @@ export default function Cart() {
                   <div style={{ display: "flex", gap: 8 }}>
                     <button
                       onClick={() =>
-                        updateQuantity(item.cart_item_id, item.quantity - 1)
+                        updateQuantity(item.cart_id, item.amount - 1)
                       }
-                      disabled={item.quantity <= 1}
+                      disabled={item.amount <= 1}
                       style={{
                         width: 30,
                         height: 30,
@@ -233,11 +266,11 @@ export default function Cart() {
                       -
                     </button>
                     <span style={{ minWidth: 30, textAlign: "center", lineHeight: "30px" }}>
-                      {item.quantity}
+                      {item.amount}
                     </span>
                     <button
                       onClick={() =>
-                        updateQuantity(item.cart_item_id, item.quantity + 1)
+                        updateQuantity(item.cart_id, item.amount + 1)
                       }
                       style={{
                         width: 30,
