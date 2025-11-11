@@ -94,7 +94,7 @@ function Admin(props:any){
         }
       `}</style>
         <br/>
-        <button id='cards' onClick={admredirect}>
+        <button id='cards' onClick={openModal}>
             <div>
              {bar && <Bar data={data}/>}             
              {line && <Line data={data}/>}
