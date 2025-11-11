@@ -1,10 +1,8 @@
 //import '..src/index.css';
 //import { useNavigate } from 'react-router-dom';
-import React from 'react';
-import Modal from "react-modal";
 import 'chart.js/auto';
-import { Chart } from 'react-chartjs-2';
-import { useRef, useEffect, useState } from 'react';
+import { Bar } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 //<Chart type='line' data={chartData} />
 
 /*
@@ -13,70 +11,47 @@ import { useRef, useEffect, useState } from 'react';
     yaxis: string,
     xlabel: Array<string>,
     ylabel: Array<string>,
+
+
+
+    <Modal isOpen={modalIsOpen} onRequestClose={closeModal} contentLabel="Example Modal">
+        <h1>Appointment Info</h1>
+        <button style={{float: 'right',}} onClick={closeModal}>Close</button>
+        <span style={{fontSize: '5em',}}>{props.salon}</span><br/>
+        <span style={{fontSize: '2em', padding: '10px',}}>{props.date}</span> 
+        <span style={{fontSize: '2em', padding: '10px',}}>{props.time}</span> <br/><br></br>
+        {isFuture && <button style={{float: 'right',}} onClick={cancelAppt}>Cancel</button>}
+        {isFuture && <button style={{float: 'right',}} onClick={changeAppt}>Reschedule</button>}
+        
+        </Modal>
 */
 
+
+//change click to navigate to different page 
 
 
 
 function Admin(props:any){
     //const navigate = useNavigate()
-    const [modalIsOpen, setIsOpen] = React.useState(false);
-
-    function openModal() {
-    setIsOpen(true);
+    var bar = false
+    var line = false
+    if(props.chart=="bar"){
+        bar = true
+    }else if (props.chart=="line"){
+        line = true
     }
-
-    function closeModal() {
-    setIsOpen(false);
-    }
-    function cancelAppt(){
-        var worked;
-        try{
-            //backend call
-            worked = true;
-        }catch{
-            alert("Sorry, we were unable to cancel your appointment. Please try again.");
-            worked = false;
+   const data = {
+            // Name of the variables on x-axies for each bar
+            labels: props.xaxis,
+            datasets: [
+                {
+                    // Data or value of your each variable
+                    data: props.dataset,
+                    borderWidth: 0.5,
+                },
+            ],
         }
-        if(worked){
-            alert("Appointment cancelled");
-        } 
-
-    }
-    function changeAppt(){
-        //backend call
-        //add current appt info to appt modal
-        const info = {
-            id: 1,
-            name: 'Idalina Vater',
-            salon: 'Hair&Care',
-            time:'2:00 PM',
-            date: '10/22/2025',
-        };
-        //uncomment
-        //<AppointmentModal key={info.id} startTime={info.time} date={info.date} />
-    }
-    const today = new Date()
-    const inputDate = (props.date).split("/").reverse().join("")
-    const apptdate = new Date(+inputDate.slice(0, 4),+inputDate.slice(6, 8)-1,+inputDate.slice(4, 6), +(props.time).split(":")[0], ((props.time).split(":")[1]).substring(0,2), 0);
-    var isFuture = today <= apptdate
-    const chartRef = useRef(null);
-    const [chartData, setChartData] = useState({
-    datasets: [],
-    });
-
-    useEffect(() => {
-    const chart = chartRef.current;
-
-    if (chart) {
-        setChartData({
-        datasets: [{
-            backgroundColor: createBackgroundGradient(chart.ctx),
-            // ...
-        }]
-        });
-    }
-    }, []);
+        
     //() => navigate("/home/AppointmentInfo", { state: { id : props.id} })
     return(
     <div>
@@ -117,24 +92,14 @@ function Admin(props:any){
         }
       `}</style>
         <br/>
-        <button id='cards' onClick={openModal}>
+        <button id='cards' onClick={props.page}>
             <div>
-             <canvas>
-                id="chart" style="width:100%;max-width:700px"
-             </canvas> 
+             {bar && <Bar data={data}/>}             
+             {line && <Line data={data}/>}
             </div>
         </button>
         <br/>
-        <Modal isOpen={modalIsOpen} onRequestClose={closeModal} contentLabel="Example Modal">
-        <h1>Appointment Info</h1>
-        <button style={{float: 'right',}} onClick={closeModal}>Close</button>
-        <span style={{fontSize: '5em',}}>{props.salon}</span><br/>
-        <span style={{fontSize: '2em', padding: '10px',}}>{props.date}</span> 
-        <span style={{fontSize: '2em', padding: '10px',}}>{props.time}</span> <br/><br></br>
-        {isFuture && <button style={{float: 'right',}} onClick={cancelAppt}>Cancel</button>}
-        {isFuture && <button style={{float: 'right',}} onClick={changeAppt}>Reschedule</button>}
         
-        </Modal>
         
         </div>
     );
