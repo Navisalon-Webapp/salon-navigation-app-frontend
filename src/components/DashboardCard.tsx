@@ -1,5 +1,5 @@
 //import '..src/index.css';
-//import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import 'chart.js/auto';
 import { Bar } from 'react-chartjs-2';
 import { Line } from 'react-chartjs-2';
