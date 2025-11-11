@@ -10,7 +10,7 @@ const cardStyle: React.CSSProperties = {
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
-  padding: "0.75rem 1rem",
+  padding: "1.3rem 1rem",
   borderRadius: "0.5rem",
   backgroundColor: "#563727",
   border: "1px solid #7A431D",
@@ -99,7 +99,7 @@ const CreatePromotion: React.FC<Props> = () => {
         Create Promotion
       </h1>
 
-      <div style={{ ...cardStyle, marginBottom: "1rem", maxWidth: 760 }}>
+      <div style={{ ...cardStyle, marginBottom: "1rem", maxWidth: 1200 }}>
         <h2 style={{ marginTop: 0, marginBottom: "0.75rem", fontSize: "1.1rem" }}>New promotion</h2>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>

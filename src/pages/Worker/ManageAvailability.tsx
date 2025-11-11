@@ -118,182 +118,183 @@ const ManageAvailability: React.FC = () => {
   };
 
   return (
-    <div style={{ position: "relative" }}>
-      {/* Page-only background layer */}
+    <div style={{ 
+      backgroundColor: "#2A1F1D", 
+      position: "fixed",
+      top: 64,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      overflow: "auto",
+      padding: "40px 20px"
+    }}>
       <div
-        aria-hidden
         style={{
-          position: "fixed",
-          inset: 0,
-          background: "#372C2E",
-          zIndex: -1,
+          backgroundColor: "#372C2E",
+          borderRadius: 12,
+          padding: 40,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          border: "2px solid #DE9E48",
+          maxWidth: 1200,
+          margin: "0 auto",
         }}
-      />
-      <div style={{ width: "100%", maxWidth: "400px", margin: "0 auto" }}>
-        {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginBottom: "2rem",
-            marginTop: "2rem",
-          }}
-        >
-          <h1
+      >
+      <h1
+        style={{
+          color: "#FFFFFF",
+          marginTop: 0,
+          borderBottom: "3px solid #DE9E48",
+          paddingBottom: 16,
+          marginBottom: 24,
+          textAlign: "center",
+        }}
+      >
+        Manage Availability
+      </h1>
+
+      {/* Simple weekly list */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem", maxWidth: "600px", margin: "0 auto" }}>
+        {days.map((d) => (
+          <div
+            key={d}
             style={{
-              fontSize: "1.875rem",
-              fontWeight: 600,
-              textAlign: "center",
+              backgroundColor: "#563727",
+              border: "2px solid #7A431D",
+              borderRadius: "0.5rem",
+              padding: "1rem",
               color: "#FFFFFF",
-              margin: 0,
             }}
           >
-            Manage Availability
-          </h1>
-        </div>
-
-        {/* Simple weekly list */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {days.map((d) => (
             <div
-              key={d}
               style={{
-                backgroundColor: "#372C2E",
-                border: "1px solid #7A431D",
-                borderRadius: "0.5rem",
-                padding: "1rem",
-                color: "#FFFFFF",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "0.75rem",
               }}
             >
-              <div
+              <label
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "space-between",
-                  marginBottom: "0.75rem",
+                  gap: "0.5rem",
                 }}
               >
-                <label
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={week[d].enabled}
-                    onChange={(e) => handleDayToggle(d, e.target.checked)}
-                  />
-                  <span style={{ color: "#DE9E48", fontWeight: 600 }}>{d}</span>
-                </label>
-                <span style={{ opacity: 0.9 }}>
-                  {week[d].enabled ? "Available" : "Unavailable"}
-                </span>
-              </div>
-
-              {week[d].enabled && (
-                <div style={{ display: "flex", gap: "0.75rem" }}>
-                  <input
-                    type="time"
-                    value={week[d].start}
-                    onChange={(e) =>
-                      handleTimeChange(d, "start", e.target.value)
-                    }
-                    style={{
-                      width: "100%",
-                      padding: "1rem 1.5rem",
-                      borderRadius: "0.5rem",
-                      backgroundColor: "#563727",
-                      border: "1px solid #7A431D",
-                      color: "#FFFFFF",
-                      outline: "none",
-                      transition: "all 0.2s",
-                    }}
-                  />
-                  <input
-                    type="time"
-                    value={week[d].end}
-                    onChange={(e) => handleTimeChange(d, "end", e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "1rem 1.5rem",
-                      borderRadius: "0.5rem",
-                      backgroundColor: "#563727",
-                      border: "1px solid #7A431D",
-                      color: "#FFFFFF",
-                      outline: "none",
-                      transition: "all 0.2s",
-                    }}
-                  />
-                </div>
-              )}
+                <input
+                  type="checkbox"
+                  checked={week[d].enabled}
+                  onChange={(e) => handleDayToggle(d, e.target.checked)}
+                />
+                <span style={{ color: "#DE9E48", fontWeight: 600 }}>{d}</span>
+              </label>
+              <span style={{ opacity: 0.9 }}>
+                {week[d].enabled ? "Available" : "Unavailable"}
+              </span>
             </div>
-          ))}
-        </div>
 
-        {/* Actions */}
-        <div
+            {week[d].enabled && (
+              <div style={{ display: "flex", gap: "0.75rem" }}>
+                <input
+                  type="time"
+                  value={week[d].start}
+                  onChange={(e) =>
+                    handleTimeChange(d, "start", e.target.value)
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "1rem 1.5rem",
+                    borderRadius: "0.5rem",
+                    backgroundColor: "#372C2E",
+                    border: "1px solid #7A431D",
+                    color: "#FFFFFF",
+                    outline: "none",
+                    transition: "all 0.2s",
+                  }}
+                />
+                <input
+                  type="time"
+                  value={week[d].end}
+                  onChange={(e) => handleTimeChange(d, "end", e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "1rem 1.5rem",
+                    borderRadius: "0.5rem",
+                    backgroundColor: "#372C2E",
+                    border: "1px solid #7A431D",
+                    color: "#FFFFFF",
+                    outline: "none",
+                    transition: "all 0.2s",
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Actions */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "0.75rem",
+          marginTop: "1.5rem",
+        }}
+      >
+        <button
+          onClick={saveAvailability}
+          disabled={saving}
           style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "0.75rem",
-            marginTop: "1.5rem",
+            padding: "0.75rem 2rem",
+            fontWeight: 600,
+            borderRadius: "0.5rem",
+            backgroundColor: "#DE9E48",
+            color: "#FFFFFF",
+            border: "none",
+            cursor: "pointer",
+            transition: "all 0.2s",
           }}
         >
-          <button
-            onClick={saveAvailability}
-            disabled={saving}
-            style={{
-              padding: "0.75rem 2rem",
-              fontWeight: 600,
-              borderRadius: "0.5rem",
-              backgroundColor: "#DE9E48",
-              color: "#372C2E",
-              border: "none",
-              cursor: "pointer",
-              transition: "all 0.2s",
-            }}
-          >
-            {saving ? "Saving…" : "Save"}
-          </button>
-          <button
-            onClick={resetToDefaults}
-            style={{
-              padding: "0.75rem 2rem",
-              fontWeight: 600,
-              borderRadius: "0.5rem",
-              backgroundColor: "transparent",
-              border: "1px solid #7A431D",
-              color: "#FFFFFF",
-              cursor: "pointer",
-              transition: "all 0.2s",
-            }}
-          >
-            Reset
-          </button>
+          {saving ? "Saving…" : "Save"}
+        </button>
+        <button
+          onClick={resetToDefaults}
+          style={{
+            padding: "0.75rem 2rem",
+            fontWeight: 600,
+            borderRadius: "0.5rem",
+            backgroundColor: "transparent",
+            border: "2px solid #7A431D",
+            color: "#FFFFFF",
+            cursor: "pointer",
+            transition: "all 0.2s",
+          }}
+        >
+          Reset
+        </button>
+      </div>
+
+      {/* Message */}
+      {message && (
+        <div
+          style={{
+            marginTop: "1rem",
+            padding: "1rem",
+            borderRadius: "0.5rem",
+            backgroundColor: "#563727",
+            color: "#FFFFFF",
+            border: "2px solid #7A431D",
+            textAlign: "center",
+          }}
+        >
+          {message}
         </div>
+      )}
 
-        {/* Message */}
-        {message && (
-          <div
-            style={{
-              marginTop: "1rem",
-              padding: "1rem",
-              borderRadius: "0.5rem",
-              backgroundColor: "#2f2527",
-              color: "#FFFFFF",
-              border: "1px solid #7A431D",
-            }}
-          >
-            {message}
-          </div>
-        )}
-
-        <style>{`
-          input::placeholder { color: rgba(255, 255, 255, 0.5); }
-          input:focus { border-color: #DE9E48 !important; }
-        `}</style>
+      <style>{`
+        input::placeholder { color: rgba(255, 255, 255, 0.5); }
+        input:focus { border-color: #DE9E48 !important; }
+      `}</style>
       </div>
     </div>
   );

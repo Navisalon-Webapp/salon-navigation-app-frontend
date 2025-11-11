@@ -1,4 +1,3 @@
-// src/components/AppointmentModal.tsx
 import React, { useEffect, useState } from "react";
 
 type Props = {
@@ -13,6 +12,14 @@ type Service = {
   sid: number;
   name: string;
   price: number;
+  durationMin: number;
+};
+
+type Worker = {
+  employee_id: number;
+  employee_first_name: string;
+  employee_last_name: string;
+  expertise: string;
 };
 
 export default function AppointmentModal({
@@ -23,10 +30,12 @@ export default function AppointmentModal({
   onSuccess,
 }: Props) {
   const [services, setServices] = useState<Service[]>([]);
+  const [workers, setWorkers] = useState<Worker[]>([]);
   const [serviceId, setServiceId] = useState<number | "">("");
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | "">(employeeId || "");
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [selectedSlot, setSelectedSlot] = useState<string>("");
   const [date, setDate] = useState<string>("");
-  const [startTime, setStartTime] = useState<string>("");
-  const [endTime, setEndTime] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +45,13 @@ export default function AppointmentModal({
     if (!open) return;
     setError(null);
     setServices([]);
+    setWorkers([]);
     setServiceId("");
+    setSelectedEmployeeId(employeeId || "");
+    setAvailableSlots([]);
+    setSelectedSlot("");
+    setDate("");
+    
     fetch(`${backendBase}/api/business/${businessId}/services`)
       .then(async (res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -48,7 +63,54 @@ export default function AppointmentModal({
         console.error("Failed to load services:", err);
         setError("Unable to load services for this business.");
       });
-  }, [open, businessId]);
+    
+    fetch(`${backendBase}/api/business/${businessId}/available-workers`, {
+      credentials: "include"
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setWorkers(Array.isArray(data) ? data : []);
+        if (employeeId) {
+          setSelectedEmployeeId(employeeId);
+        } else if (data.length > 0) {
+          setSelectedEmployeeId(data[0].employee_id);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load workers:", err);
+        setWorkers([]);
+      });
+  }, [open, businessId, employeeId]);
+
+  useEffect(() => {
+    if (!open || !selectedEmployeeId || !date || !serviceId) {
+      setAvailableSlots([]);
+      setSelectedSlot("");
+      return;
+    }
+    
+    const selectedService = services.find(s => s.sid === serviceId);
+    if (!selectedService) return;
+    
+    fetch(`${backendBase}/api/employee/${selectedEmployeeId}/available-slots?date=${date}&duration=${selectedService.durationMin}`, {
+      credentials: "include"
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setAvailableSlots(Array.isArray(data) ? data : []);
+        if (Array.isArray(data) && data.length > 0) {
+          setSelectedSlot(data[0]);
+        } else {
+          setSelectedSlot("");
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load available slots:", err);
+        setAvailableSlots([]);
+      });
+  }, [open, selectedEmployeeId, date, serviceId, services]);
 
   if (!open) return null;
 
@@ -63,19 +125,24 @@ export default function AppointmentModal({
   };
 
   const handleSubmit = async () => {
-    const start = `${date}T${startTime}:00`;
-    const end = `${date}T${endTime}:00`;
     setError(null);
 
     if (!serviceId) return setError("Please choose a service.");
-    if (!date || !startTime || !endTime)
-      return setError("Please select a date and times.");
+    if (!selectedEmployeeId) return setError("Please select a worker.");
+    if (!date) return setError("Please select a date.");
+    if (!selectedSlot) return setError("Please select a time slot.");
 
     setLoading(true);
     try {
+      const start = `${date}T${selectedSlot}:00`;
       const expected_end_time = computeEndISO(start, 60);
-      const payload: any = { sid: serviceId, start_time: start, expected_end_time, notes };
-      if (employeeId) payload.eid = employeeId;
+      const payload: any = { 
+        sid: serviceId, 
+        start_time: start, 
+        expected_end_time, 
+        notes,
+        eid: selectedEmployeeId
+      };
 
       const res = await fetch(`${backendBase}/api/client/create-appointment`, {
         method: "POST",
@@ -108,7 +175,6 @@ export default function AppointmentModal({
     }
   };
 
-  // --- STYLES ---
   const styles = {
     backdrop: {
       position: "fixed" as const,
@@ -202,42 +268,52 @@ export default function AppointmentModal({
           ))}
         </select>
 
+        <label style={styles.label}>Worker {employeeId ? "(Pre-selected)" : ""}</label>
+        <select
+          value={selectedEmployeeId}
+          onChange={(e) => setSelectedEmployeeId(Number(e.target.value))}
+          style={styles.select}
+          disabled={!!employeeId}
+        >
+          <option value="">— Select worker —</option>
+          {workers.map((w) => (
+            <option key={w.employee_id} value={w.employee_id}>
+              {w.employee_first_name} {w.employee_last_name} - {w.expertise}
+            </option>
+          ))}
+        </select>
+
         <label style={styles.label}>Date</label>
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           style={styles.input}
+          disabled={!selectedEmployeeId}
         />
 
-        {/* Time inputs side by side */}
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            marginTop: 12,
-            marginBottom: 8,
-          }}
-        >
-          <div style={{ flex: 1 }}>
-            <label style={styles.label}>Start</label>
-            <input
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              style={styles.input}
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <label style={styles.label}>End</label>
-            <input
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              style={styles.input}
-            />
-          </div>
-        </div>
+        {selectedEmployeeId && date && (
+          <>
+            <label style={styles.label}>Available Time Slots</label>
+            <select
+              value={selectedSlot}
+              onChange={(e) => setSelectedSlot(e.target.value)}
+              style={styles.select}
+            >
+              <option value="">— Select time slot —</option>
+              {availableSlots.map((slot) => (
+                <option key={slot} value={slot}>
+                  {slot}
+                </option>
+              ))}
+            </select>
+            {availableSlots.length === 0 && (
+              <p style={{ fontSize: 12, color: "#7A431D", marginTop: 4 }}>
+                No available time slots for this worker on this date
+              </p>
+            )}
+          </>
+        )}
 
         <label style={styles.label}>Notes (optional)</label>
         <textarea

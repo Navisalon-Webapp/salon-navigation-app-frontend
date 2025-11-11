@@ -29,9 +29,11 @@ import Marketing from "./pages/Salon/Marketing";
 import SalonRevenue from "./pages/Salon/SalonRevenue";
 
 // WORKER
+import WorkerDashboard from "./pages/Worker/Dashboard";
 import ManageAvailability from "./pages/Worker/ManageAvailability";
 import AppointmentsToday from "./pages/Worker/AppointmentsToday";
 import WorkerAppointments from "./pages/Worker/PrevAppointments";
+import WorkerAppointment from "./pages/Worker/Appointment";
 
 // ADMIN
 import Dashboard from "./pages/Admin/Dashboard"
@@ -297,10 +299,11 @@ export default function App() {
 
             {/* WORKER GROUP */}
             <Route path="/employee" element={<RequireRole allow={["employee"]} />}>
-              <Route path="home" element={<ManageAvailability />} />
+              <Route path="home" element={<WorkerDashboard />} />
               <Route path="manage-availability" element={<ManageAvailability />} />
               <Route path="appointments-today" element={<AppointmentsToday />} />
               <Route path="prev-appointments" element={<WorkerAppointments />} />
+              <Route path="appointment/:appointmentId" element={<WorkerAppointment />} />
             </Route>
 
             {/* ADMIN GROUP */}

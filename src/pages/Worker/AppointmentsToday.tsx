@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
+const API_BASE = "http://localhost:5000";
+
 type Appointment = {
   id: string;
   time: string; // e.g. "09:30 AM"
@@ -54,7 +56,7 @@ const AppointmentsToday: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`http://localhost:5000/worker/appointments?date=${encodeURIComponent(todayISO)}`, {
+      const res = await fetch(`${API_BASE}/worker/appointments?date=${encodeURIComponent(todayISO)}`, {
         credentials: 'include',
       });
       if (!res.ok) throw new Error(`Failed to load: ${res.status}`);
@@ -76,7 +78,7 @@ const AppointmentsToday: React.FC = () => {
     setSending(appointmentId);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/employee/send-notification/${appointmentId}`,
+        `${API_BASE}/api/employee/send-notification/${appointmentId}`,
         {
           method: "POST",
           credentials: "include",
@@ -100,145 +102,152 @@ const AppointmentsToday: React.FC = () => {
   };
 
   return (
-    <div
-      className="flex items-center justify-center p-4"
-      style={{
-        background: "#372C2E",
-        minHeight: "100vh",
-        width: "100%",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        overflowY: "auto",
-      }}
-    >
-      <div style={{ width: "100%", maxWidth: "700px", margin: "0 auto" }}>
-        <h1
-          style={{
-            fontSize: "1.875rem",
-            fontWeight: 600,
-            textAlign: "center",
-            color: "#FFFFFF",
-            marginBottom: "1.25rem",
-          }}
-        >
-          Today&apos;s Appointments
-        </h1>
+    <div style={{ 
+      backgroundColor: "#2A1F1D", 
+      position: "fixed",
+      top: 64,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      overflow: "auto",
+      padding: "40px 20px"
+    }}>
+      <div
+        style={{
+          backgroundColor: "#372C2E",
+          borderRadius: 12,
+          padding: 40,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          border: "2px solid #DE9E48",
+          maxWidth: 1200,
+          margin: "0 auto",
+        }}
+      >
+      <h1
+        style={{
+          color: "#FFFFFF",
+          marginTop: 0,
+          borderBottom: "3px solid #DE9E48",
+          paddingBottom: 16,
+          marginBottom: 24,
+          textAlign: "center",
+        }}
+      >
+        Today&apos;s Appointments
+      </h1>
 
+      <div
+        style={{
+          color: "#FFFFFF",
+          opacity: 0.85,
+          textAlign: "center",
+          marginBottom: "1rem",
+        }}
+      >
+        {todayISO}
+      </div>
+
+      {error && (
         <div
           style={{
+            backgroundColor: "#D62828",
             color: "#FFFFFF",
-            opacity: 0.85,
-            textAlign: "center",
+            padding: "0.6rem 0.8rem",
+            borderRadius: "0.5rem",
             marginBottom: "0.75rem",
+            textAlign: "center",
+            border: "2px solid #8B0000",
           }}
         >
-          {todayISO}
+          {error}
         </div>
+      )}
 
-        {error && (
-          <div
-            style={{
-              backgroundColor: "#D62828",
-              color: "#FFFFFF",
-              padding: "0.6rem 0.8rem",
-              borderRadius: "0.5rem",
-              marginBottom: "0.75rem",
-              textAlign: "center",
-            }}
-          >
-            {error}
-          </div>
-        )}
+      {loading && (
+        <div style={{ ...cardStyle, textAlign: "center", border: "2px solid #7A431D" }}>Loading...</div>
+      )}
 
-        {loading && (
-          <div style={{ ...cardStyle, textAlign: "center" }}>Loading...</div>
-        )}
+      {!loading && appointments.length === 0 && (
+        <div style={{ ...cardStyle, textAlign: "center", border: "2px solid #7A431D" }}>
+          No appointments for today.
+        </div>
+      )}
 
-        {!loading && appointments.length === 0 && (
-          <div style={{ ...cardStyle, textAlign: "center" }}>
-            No appointments for today.
-          </div>
-        )}
-
-        {/* Simple list like cards */}
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
-        >
-          {!loading &&
-            appointments.map((a) => (
-              <div key={a.id} style={cardStyle}>
-                <div
+      {/* Simple list like cards */}
+      <div
+        style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
+      >
+        {!loading &&
+          appointments.map((a) => (
+            <div key={a.id} style={{ ...cardStyle, border: "2px solid #7A431D" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  flexWrap: "wrap",
+                }}
+              >
+                <div style={{ fontWeight: 700, fontSize: "1.05rem" }}>
+                  {a.time}
+                </div>
+                <span style={badgeStyle(a.status)}>{a.status}</span>
+              </div>
+              <div style={{ marginTop: "0.35rem", fontSize: "0.95rem" }}>
+                {a.client} • {a.service} • {a.durationMins} mins
+              </div>
+              {a.notes && (
+                <div style={{ marginTop: "0.35rem", opacity: 0.85 }}>
+                  {a.notes}
+                </div>
+              )}
+              <div style={{ marginTop: "0.75rem" }}>
+                <button
+                  onClick={() => handleSendNotification(a.id)}
+                  disabled={sending === a.id}
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    flexWrap: "wrap",
+                    padding: "0.4rem 0.8rem",
+                    fontSize: "0.85rem",
+                    fontWeight: 600,
+                    borderRadius: "0.375rem",
+                    backgroundColor: sending === a.id ? "#7A431D" : "#DE9E48",
+                    color: "#FFFFFF",
+                    border: "none",
+                    cursor: sending === a.id ? "not-allowed" : "pointer",
+                    opacity: sending === a.id ? 0.6 : 1,
                   }}
                 >
-                  <div style={{ fontWeight: 700, fontSize: "1.05rem" }}>
-                    {a.time}
-                  </div>
-                  <span style={badgeStyle(a.status)}>{a.status}</span>
-                </div>
-                <div style={{ marginTop: "0.35rem", fontSize: "0.95rem" }}>
-                  {a.client} • {a.service} • {a.durationMins} mins
-                </div>
-                {a.notes && (
-                  <div style={{ marginTop: "0.35rem", opacity: 0.85 }}>
-                    {a.notes}
-                  </div>
-                )}
-                <div style={{ marginTop: "0.75rem" }}>
-                  <button
-                    onClick={() => handleSendNotification(a.id)}
-                    disabled={sending === a.id}
-                    style={{
-                      padding: "0.4rem 0.8rem",
-                      fontSize: "0.85rem",
-                      fontWeight: 600,
-                      borderRadius: "0.375rem",
-                      backgroundColor: sending === a.id ? "#7A431D" : "#DE9E48",
-                      color: "#372C2E",
-                      border: "none",
-                      cursor: sending === a.id ? "not-allowed" : "pointer",
-                      opacity: sending === a.id ? 0.6 : 1,
-                    }}
-                  >
-                    {sending === a.id ? "Sending..." : "Notify Client You Are Running Late"}
-                  </button>
-                </div>
+                  {sending === a.id ? "Sending..." : "Notify Client You Are Running Late"}
+                </button>
               </div>
-            ))}
-        </div>
+            </div>
+          ))}
+      </div>
 
-        {/* Refresh button (mirrors Sign Up button styling) */}
-        <div
+      {/* Refresh button */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "1.5rem",
+        }}
+      >
+        <button
+          onClick={loadAppointments}
           style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "1rem",
+            padding: "0.75rem 3rem",
+            fontWeight: 600,
+            borderRadius: "0.5rem",
+            backgroundColor: "#DE9E48",
+            color: "#FFFFFF",
+            border: "none",
+            cursor: "pointer",
+            transition: "all 0.2s",
           }}
         >
-          <button
-            onClick={loadAppointments}
-            style={{
-              padding: "0.75rem 3rem",
-              fontWeight: 600,
-              borderRadius: "0.5rem",
-              backgroundColor: "#DE9E48",
-              color: "#372C2E",
-              border: "none",
-              cursor: "pointer",
-              transition: "all 0.2s",
-            }}
-          >
-            Refresh
-          </button>
-        </div>
+          Refresh
+        </button>
       </div>
 
       <style>{`
@@ -246,6 +255,7 @@ const AppointmentsToday: React.FC = () => {
         input::placeholder { color: rgba(255, 255, 255, 0.5); }
         input:focus { border-color: #DE9E48 !important; }
       `}</style>
+      </div>
     </div>
   );
 };
