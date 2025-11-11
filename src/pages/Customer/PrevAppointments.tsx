@@ -18,7 +18,8 @@ interface Appointment {
 
 export default function CustomerAppointments(){
   const navigate = useNavigate();
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [pastAppointments, setPastAppointments] = useState<Appointment[]>([]);
+  const [futureAppointments, setFutureAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -31,16 +32,23 @@ export default function CustomerAppointments(){
     setError("");
     
     try {
-      const res = await fetch(`${API}/api/clients/view-prev-appointments`, {
+      // Fetch past appointments
+      const pastRes = await fetch(`${API}/api/clients/view-prev-appointments`, {
         credentials: "include",
       });
       
-      if (res.ok) {
-        const data = await res.json();
-        setAppointments(data);
+      // Fetch future appointments
+      const futureRes = await fetch(`${API}/api/clients/view-future-appointments`, {
+        credentials: "include",
+      });
+      
+      if (pastRes.ok && futureRes.ok) {
+        const pastData = await pastRes.json();
+        const futureData = await futureRes.json();
+        setPastAppointments(pastData);
+        setFutureAppointments(futureData);
       } else {
-        const errorData = await res.json();
-        setError(errorData.message || "Failed to fetch appointments");
+        setError("Failed to fetch appointments");
       }
     } catch (err) {
       console.error("Failed to fetch appointments:", err);
@@ -85,7 +93,7 @@ export default function CustomerAppointments(){
           marginBottom: 24,
         }}
       >
-        Past Appointments
+        Appointments
       </h1>
       
       {loading && <div style={{ color: "#372C2E", padding: 20 }}>Loading appointments...</div>}
@@ -96,27 +104,80 @@ export default function CustomerAppointments(){
         </div>
       )}
       
-      {!loading && !error && appointments.length === 0 && (
-        <div style={{ color: "#372C2E", padding: 20 }}>No past appointments found.</div>
-      )}
-      
-      {!loading && !error && appointments.length > 0 && (
-        <div>
-          {appointments.map(item => (
-            <div 
-              key={item.appointment_id} 
-              onClick={() => handleAppointmentClick(item.appointment_id)}
-              style={{ cursor: 'pointer' }}
+      {!loading && !error && (
+        <>
+          {/* Future Appointments Section */}
+          <div style={{ marginBottom: 40 }}>
+            <h2
+              style={{
+                color: "#372C2E",
+                fontSize: "1.5rem",
+                marginBottom: 16,
+                paddingBottom: 8,
+                borderBottom: "2px solid #DE9E48",
+              }}
             >
-              <Appt 
-                name={`${item.employee_first_name} ${item.employee_last_name}`}
-                salon={item.service_name}
-                time={formatTime(item.start_time)}
-                date={formatDate(item.start_time)}
-              />
-            </div>
-          ))}
-        </div>
+              Upcoming Appointments
+            </h2>
+            
+            {futureAppointments.length === 0 ? (
+              <div style={{ color: "#372C2E", padding: 20 }}>No upcoming appointments.</div>
+            ) : (
+              <div>
+                {futureAppointments.map(item => (
+                  <div 
+                    key={item.appointment_id} 
+                    onClick={() => handleAppointmentClick(item.appointment_id)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <Appt 
+                      name={`${item.employee_first_name} ${item.employee_last_name}`}
+                      salon={item.service_name}
+                      time={formatTime(item.start_time)}
+                      date={formatDate(item.start_time)}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Past Appointments Section */}
+          <div>
+            <h2
+              style={{
+                color: "#372C2E",
+                fontSize: "1.5rem",
+                marginBottom: 16,
+                paddingBottom: 8,
+                borderBottom: "2px solid #DE9E48",
+              }}
+            >
+              Past Appointments
+            </h2>
+            
+            {pastAppointments.length === 0 ? (
+              <div style={{ color: "#372C2E", padding: 20 }}>No past appointments.</div>
+            ) : (
+              <div>
+                {pastAppointments.map(item => (
+                  <div 
+                    key={item.appointment_id} 
+                    onClick={() => handleAppointmentClick(item.appointment_id)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <Appt 
+                      name={`${item.employee_first_name} ${item.employee_last_name}`}
+                      salon={item.service_name}
+                      time={formatTime(item.start_time)}
+                      date={formatDate(item.start_time)}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   );

@@ -48,7 +48,7 @@ const CreatePromotion: React.FC<Props> = () => {
     }
 
     const payload = {
-      lprog_id: 1,
+      lprog_id: null,
       title: title.trim(),
       description: description.trim(),
       start_date: startDate,

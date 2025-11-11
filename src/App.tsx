@@ -103,7 +103,7 @@ function MainLayout() {
                     Browse
                   </NavLink>
                   <NavLink to="/customer/prev-appointments" style={navLinkStyle}>
-                    Previous Appointments
+                    Appointments
                   </NavLink>
                   <NavLink to="/customer/salon-review" style={navLinkStyle}>
                     Client Reviews
@@ -145,10 +145,10 @@ function MainLayout() {
                     Manage Availability
                   </NavLink>
                   <NavLink to="/employee/appointments-today" style={navLinkStyle}>
-                    Today’s Appointments
+                    Today's Appointments
                   </NavLink>
                   <NavLink to="/employee/prev-appointments" style={navLinkStyle}>
-                    Previous Appointments
+                    Appointments
                   </NavLink>
                 </>
               )}
