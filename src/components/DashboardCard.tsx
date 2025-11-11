@@ -1,10 +1,8 @@
 //import '..src/index.css';
 //import { useNavigate } from 'react-router-dom';
-import React from 'react';
-import Modal from "react-modal";
 import 'chart.js/auto';
 import { Bar } from 'react-chartjs-2';
-import { Line } from 'react';
+import { Line } from 'react-chartjs-2';
 //<Chart type='line' data={chartData} />
 
 /*
