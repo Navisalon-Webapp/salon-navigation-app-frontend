@@ -67,12 +67,28 @@ export default function CustomerAppointments(){
   };
 
   return (
-    <div>
-      <h1>Past Appointments</h1>
-      <br/>
-      <br/>
+    <div
+      style={{
+        backgroundColor: "#FFFFFF",
+        borderRadius: 12,
+        padding: 40,
+        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+        border: "2px solid #DE9E48",
+      }}
+    >
+      <h1
+        style={{
+          color: "#372C2E",
+          marginTop: 0,
+          borderBottom: "3px solid #DE9E48",
+          paddingBottom: 16,
+          marginBottom: 24,
+        }}
+      >
+        Past Appointments
+      </h1>
       
-      {loading && <div>Loading appointments...</div>}
+      {loading && <div style={{ color: "#372C2E", padding: 20 }}>Loading appointments...</div>}
       
       {error && (
         <div style={{ color: 'red', marginBottom: '1rem' }}>
@@ -81,7 +97,7 @@ export default function CustomerAppointments(){
       )}
       
       {!loading && !error && appointments.length === 0 && (
-        <div>No past appointments found.</div>
+        <div style={{ color: "#372C2E", padding: 20 }}>No past appointments found.</div>
       )}
       
       {!loading && !error && appointments.length > 0 && (
@@ -102,8 +118,6 @@ export default function CustomerAppointments(){
           ))}
         </div>
       )}
-      
-      <br/>
     </div>
   );
 }

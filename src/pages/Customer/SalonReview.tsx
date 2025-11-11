@@ -6,18 +6,19 @@ const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "1rem 1.5rem",
   borderRadius: "0.5rem",
-  backgroundColor: "#563727",
-  border: "1px solid #7A431D",
-  color: "#FFFFFF",
+  backgroundColor: "#FFFFFF",
+  border: "1px solid #DE9E48",
+  color: "#372C2E",
   outline: "none",
+  fontSize: "1rem",
 };
 
 const cardStyle: React.CSSProperties = {
-  backgroundColor: "#563727",
-  border: "1px solid #7A431D",
+  backgroundColor: "#FFF9F4",
+  border: "1px solid #DE9E48",
   borderRadius: "0.5rem",
   padding: "1rem",
-  color: "#FFFFFF",
+  color: "#372C2E",
 };
 
 const buttonPrimary: React.CSSProperties = {
@@ -25,7 +26,7 @@ const buttonPrimary: React.CSSProperties = {
   fontWeight: 600,
   borderRadius: "0.5rem",
   backgroundColor: "#DE9E48",
-  color: "#372C2E",
+  color: "#FFFFFF",
   border: "none",
   cursor: "pointer",
 };
@@ -108,31 +109,29 @@ const SalonReview: React.FC = () => {
   }
 
   return (
-    <div style={{ position: "relative" }}>
-      {/* Page-only background layer */}
-      <div
-        aria-hidden
-        style={{
-          position: "fixed",
-          inset: 0,
-          background: "#372C2E",
-          zIndex: -1,
-        }}
-      />
-
+    <div
+      style={{
+        backgroundColor: "#FFFFFF",
+        borderRadius: 12,
+        padding: 40,
+        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+        border: "2px solid #DE9E48",
+      }}
+    >
       <h1
         style={{
-          color: "#FFFFFF",
-          fontSize: "1.75rem",
-          fontWeight: 600,
-          marginBottom: "1rem",
+          color: "#372C2E",
+          marginTop: 0,
+          borderBottom: "3px solid #DE9E48",
+          paddingBottom: 16,
+          marginBottom: 24,
         }}
       >
         Leave a Review
       </h1>
 
-      <form onSubmit={handleSubmit} style={{ maxWidth: 520 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           {/* Select Salon */}
           <select
             value={salon}
@@ -166,7 +165,7 @@ const SalonReview: React.FC = () => {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Write your review..."
-            rows={5}
+            rows={8}
             style={{ ...inputStyle, resize: "vertical" }}
           />
 
@@ -183,13 +182,13 @@ const SalonReview: React.FC = () => {
           </div>
 
           {error && (
-            <div style={{ ...cardStyle, backgroundColor: "#8B4513" }}>
+            <div style={{ ...cardStyle, backgroundColor: "#FFEBEE", border: "1px solid #EF5350", color: "#C62828" }}>
               {error}
             </div>
           )}
 
           {submitted && (
-            <div style={{ ...cardStyle }}>
+            <div style={{ ...cardStyle, backgroundColor: "#E8F5E9", border: "1px solid #66BB6A", color: "#2E7D32" }}>
               Thank you! Your review has been submitted.
             </div>
           )}
@@ -197,8 +196,8 @@ const SalonReview: React.FC = () => {
       </form>
 
       <style>{`
-        select::placeholder, textarea::placeholder { color: rgba(255, 255, 255, 0.5); }
-        select:focus, textarea:focus { border-color: #DE9E48 !important; }
+        select::placeholder, textarea::placeholder { color: rgba(55, 44, 46, 0.5); }
+        select:focus, textarea:focus { border-color: #DE9E48 !important; outline: 2px solid rgba(222, 158, 72, 0.2); }
       `}</style>
     </div>
   );

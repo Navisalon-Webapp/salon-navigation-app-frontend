@@ -33,7 +33,7 @@ interface AppointmentInfo {
   };
 }
 
-export default function AppointmentPage() {
+export default function WorkerAppointmentPage() {
   const { appointmentId } = useParams<{ appointmentId: string }>();
   const [appointmentInfo, setAppointmentInfo] = useState<AppointmentInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,38 +72,52 @@ export default function AppointmentPage() {
   return (
     <div
       style={{
-        backgroundColor: "#FFFFFF",
-        borderRadius: 12,
-        padding: 40,
-        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-        border: "2px solid #DE9E48",
+        backgroundColor: "#2A1F1D",
+        position: "fixed",
+        top: 64,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflow: "auto",
+        padding: "40px 20px",
       }}
     >
-      <h1
+      <div
         style={{
-          color: "#372C2E",
-          marginTop: 0,
-          borderBottom: "3px solid #DE9E48",
-          paddingBottom: 16,
-          marginBottom: 24,
+          backgroundColor: "#372C2E",
+          borderRadius: 12,
+          padding: 40,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          border: "2px solid #DE9E48",
+          maxWidth: 1200,
+          margin: "0 auto",
         }}
       >
-        Appointment Details
-      </h1>
+        <h1
+          style={{
+            color: "#FFFFFF",
+            marginTop: 0,
+            borderBottom: "3px solid #DE9E48",
+            paddingBottom: 16,
+            marginBottom: 24,
+          }}
+        >
+          Appointment Details
+        </h1>
 
       {loading && (
-        <div style={{ color: "#372C2E", padding: "2rem" }}>
+        <div style={{ color: "#FFFFFF", padding: "2rem" }}>
           Loading appointment details...
         </div>
       )}
 
       {error && (
         <div style={{ 
-          color: "#C62828", 
+          color: "#FFFFFF", 
           padding: "1rem", 
-          backgroundColor: "#FFEBEE", 
+          backgroundColor: "#D62828", 
           borderRadius: 8,
-          border: "1px solid #EF5350",
+          border: "2px solid #8B0000",
           marginBottom: 16
         }}>
           {error}
@@ -114,8 +128,8 @@ export default function AppointmentPage() {
         <>
           <div
             style={{
-              background: "#FFF9F4",
-              border: "1px solid #DE9E48",
+              background: "#563727",
+              border: "2px solid #7A431D",
               borderRadius: 8,
               padding: 16,
               marginBottom: 16,
@@ -129,15 +143,15 @@ export default function AppointmentPage() {
               }}
             >
               <div>
-                <div style={{ color: "rgba(55, 44, 46, 0.7)", fontSize: 12, fontWeight: 600 }}>
+                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 600 }}>
                   Appointment ID
                 </div>
-                <div style={{ color: "#372C2E", fontWeight: 600 }}>
+                <div style={{ color: "#FFFFFF", fontWeight: 600 }}>
                   {appointmentInfo.id}
                 </div>
               </div>
               <div>
-                <div style={{ color: "rgba(55, 44, 46, 0.7)", fontSize: 12, fontWeight: 600 }}>
+                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 600 }}>
                   Status
                 </div>
                 <div style={{ color: "#DE9E48", fontWeight: 600 }}>
@@ -145,39 +159,40 @@ export default function AppointmentPage() {
                 </div>
               </div>
               <div>
-                <div style={{ color: "rgba(55, 44, 46, 0.7)", fontSize: 12, fontWeight: 600 }}>
+                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 600 }}>
                   Client
                 </div>
-                <div style={{ color: "#372C2E" }}>{appointmentInfo.client}</div>
+                <div style={{ color: "#FFFFFF" }}>{appointmentInfo.client}</div>
               </div>
               <div>
-                <div style={{ color: "rgba(55, 44, 46, 0.7)", fontSize: 12, fontWeight: 600 }}>
+                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 600 }}>
                   Worker
                 </div>
-                <div style={{ color: "#372C2E" }}>{appointmentInfo.worker}</div>
+                <div style={{ color: "#FFFFFF" }}>{appointmentInfo.worker}</div>
               </div>
               <div>
-                <div style={{ color: "rgba(55, 44, 46, 0.7)", fontSize: 12, fontWeight: 600 }}>
+                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 600 }}>
                   Service
                 </div>
-                <div style={{ color: "#372C2E" }}>{appointmentInfo.service}</div>
+                <div style={{ color: "#FFFFFF" }}>{appointmentInfo.service}</div>
               </div>
               <div>
-                <div style={{ color: "rgba(55, 44, 46, 0.7)", fontSize: 12, fontWeight: 600 }}>
+                <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 600 }}>
                   When
                 </div>
-                <div style={{ color: "#372C2E" }}>
+                <div style={{ color: "#FFFFFF" }}>
                   {appointmentInfo.date} • {appointmentInfo.time}
                 </div>
               </div>
             </div>
           </div>
 
-          <BeforeAfterImages appointmentId={appointmentInfo.id.toString()} />
+          <BeforeAfterImages appointmentId={appointmentInfo.id.toString()} theme="dark" />
 
-          <AppointmentNotes appointmentId={appointmentInfo.id.toString()} />
+          <AppointmentNotes appointmentId={appointmentInfo.id.toString()} theme="dark" />
         </>
       )}
+      </div>
     </div>
   );
 }

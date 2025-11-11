@@ -51,7 +51,9 @@ export default function Browse() {
           ? `${backendBase}/api/client/browse-salons`
           : `${backendBase}/api/client/browse-workers`;
 
-      const res = await fetch(endpoint);
+      const res = await fetch(endpoint, {
+        credentials: "include"
+      });
 
       if (!res.ok) {
         throw new Error(`HTTP error! Status: ${res.status}`);
