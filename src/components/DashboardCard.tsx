@@ -1,5 +1,5 @@
 //import '..src/index.css';
-//import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import 'chart.js/auto';
 import { Bar } from 'react-chartjs-2';
 import { Line } from 'react-chartjs-2';
@@ -32,7 +32,7 @@ import { Line } from 'react-chartjs-2';
 
 
 function Admin(props:any){
-    //const navigate = useNavigate()
+    const navigate = useNavigate()
     var bar = false
     var line = false
     if(props.chart=="bar"){
@@ -41,17 +41,19 @@ function Admin(props:any){
         line = true
     }
    const data = {
-            // Name of the variables on x-axies for each bar
-            labels: props.xaxis,
+            labels: props.xdata,
             datasets: [
                 {
-                    // Data or value of your each variable
-                    data: props.dataset,
+                    label: props.ylabel,
+                    data: props.ydata,
                     borderWidth: 0.5,
                 },
             ],
-        }
+        };
         
+    const admredirect = () => {
+        navigate(props.page)
+    };    
     //() => navigate("/home/AppointmentInfo", { state: { id : props.id} })
     return(
     <div>
@@ -92,7 +94,7 @@ function Admin(props:any){
         }
       `}</style>
         <br/>
-        <button id='cards' onClick={props.page}>
+        <button id='cards' onClick={admredirect}>
             <div>
              {bar && <Bar data={data}/>}             
              {line && <Line data={data}/>}
