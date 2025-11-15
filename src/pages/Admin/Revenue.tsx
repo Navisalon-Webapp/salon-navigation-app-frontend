@@ -16,7 +16,7 @@ const infob = [{
   xdata: ["Mon", "Tues", "Wed", "Thurs", "Fri"],
   ydata: [1, 2, 3, 4, 3, 5],
   period:'week',
-  page:"./ApptTrends",
+  page:"./Revenue",
 }];
 //backend call for x axis, y axis, dataset, time period AND put chart type in there
 // can map BUT need to separate line vs bar charts
