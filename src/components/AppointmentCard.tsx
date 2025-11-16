@@ -38,6 +38,7 @@ function Appt(props: any){
             worked = false;
         }
         if(worked){
+            setOneOpen(false);
             alert("Appointment cancelled");
         } 
     }
@@ -50,18 +51,22 @@ function Appt(props: any){
     function handleCVC(){
         console.log("cvc");        
     }
-    /*function changeAppt(){
-        alert("Reschedule functionality coming soon");
+    function changeAppt(){
+        setTwoOpen(false);
+        alert("Rescheduled!");
     }
     function pay(){
-        alert("INSERT SOMETHIN HERE");
-    }*/
+        setOneOpen(false);
+        setThreeOpen(false);
+        alert("Payment Successful!");
+    }
 
     const today = new Date();
     const inputDate = (props.date).split("/").reverse().join("");
     const apptdate = new Date(+inputDate.slice(0, 4),+inputDate.slice(6, 8)-1,+inputDate.slice(4, 6), +(props.time).split(":")[0], ((props.time).split(":")[1]).substring(0,2), 0);
     const isFuture = today <= apptdate;
     const isPaid = false; //get from backend
+   
 
     return(
     <div>
@@ -263,7 +268,7 @@ function Appt(props: any){
             )}
           </>
         )} */}
-        <button>Reschedule</button>
+        <button onClick={changeAppt}>Reschedule</button>
         </Modal>
         <Modal isOpen={modalThreeOpen} onRequestClose={closeModal} contentLabel="Payment Modal"
             style={{
@@ -304,13 +309,11 @@ function Appt(props: any){
                 fontWeight: 600,
             }} 
             onClick={closeModal}>Cancel</button>
-
-        <span>Current card: {meta.cardType.displayName}</span>    
-        <input {...getCardNumberProps({ onChange: handleCardNumber })}/>
-        <input {...getExpiryDateProps({ onChange: handleExpiryDate })}/>
-        <input {...getCVCProps({ onChange: handleCVC })}/>
-        {meta.isTouched && meta.error && <span>Error: {meta.error}</span>}
-
+            <input {...getCardNumberProps({ onChange: handleCardNumber })}/>
+            <input {...getExpiryDateProps({ onChange: handleExpiryDate })}/>
+            <input {...getCVCProps({ onChange: handleCVC })}/>
+            {meta.isTouched && meta.error && <span>Error: {meta.error}</span>}
+            <button onClick={pay}>Pay</button>
         </Modal>
 
         </div>
