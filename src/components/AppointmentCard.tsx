@@ -1,11 +1,15 @@
 import React from 'react';
 import Modal from "react-modal";
 import AppointmentNotes from './AppointmentNotes';
+import { usePaymentInputs } from 'react-payment-inputs';
 
 function Appt(props: any){
     const [modalOneOpen, setOneOpen] = React.useState(false);
     const [modalTwoOpen, setTwoOpen] = React.useState(false);
     const [modalThreeOpen, setThreeOpen] = React.useState(false);
+    const [date, setDate] = React.useState("");
+    const { meta, getCardNumberProps, getExpiryDateProps, getCVCProps } = usePaymentInputs();
+    
 
     const theme = props.theme || "light";
 
@@ -37,13 +41,21 @@ function Appt(props: any){
             alert("Appointment cancelled");
         } 
     }
-
-    function changeAppt(){
+    function handleCardNumber(){
+        console.log("card number");        
+    }
+    function handleExpiryDate(){
+        console.log("expiration date");        
+    }
+    function handleCVC(){
+        console.log("cvc");        
+    }
+    /*function changeAppt(){
         alert("Reschedule functionality coming soon");
     }
     function pay(){
         alert("INSERT SOMETHIN HERE");
-    }
+    }*/
 
     const today = new Date();
     const inputDate = (props.date).split("/").reverse().join("");
@@ -222,6 +234,36 @@ function Appt(props: any){
                 fontWeight: 600,
             }} 
             onClick={closeModal}>Cancel</button>
+        <label>Date</label>
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          //disabled={!selectedEmployeeId}
+        />
+
+        {/*{selectedEmployeeId && date && (
+          <>
+            <label>Available Time Slots</label>
+            <select
+              value={selectedSlot}
+              onChange={(e) => setSelectedSlot(e.target.value)}
+            >
+              <option value="">— Select time slot —</option>
+              {availableSlots.map((slot) => (
+                <option key={slot} value={slot}>
+                  {slot}
+                </option>
+              ))}
+            </select>
+            {availableSlots.length === 0 && (
+              <p style={{ fontSize: 12, color: "#7A431D", marginTop: 4 }}>
+                No available time slots for this worker on this date
+              </p>
+            )}
+          </>
+        )} */}
+        <button>Reschedule</button>
         </Modal>
         <Modal isOpen={modalThreeOpen} onRequestClose={closeModal} contentLabel="Payment Modal"
             style={{
@@ -262,6 +304,12 @@ function Appt(props: any){
                 fontWeight: 600,
             }} 
             onClick={closeModal}>Cancel</button>
+
+        <span>Current card: {meta.cardType.displayName}</span>    
+        <input {...getCardNumberProps({ onChange: handleCardNumber })}/>
+        <input {...getExpiryDateProps({ onChange: handleExpiryDate })}/>
+        <input {...getCVCProps({ onChange: handleCVC })}/>
+        {meta.isTouched && meta.error && <span>Error: {meta.error}</span>}
 
         </Modal>
 
