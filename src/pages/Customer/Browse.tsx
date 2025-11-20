@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AppointmentModal from "../../components/appointment_modal";
+import BusinessDetailsModal from "../../components/BusinessDetailsModal";
 
 interface Salon {
   business_id: number;
@@ -38,6 +39,9 @@ export default function Browse() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalBusinessId, setModalBusinessId] = useState<number | null>(null);
   const [modalEmployeeId, setModalEmployeeId] = useState<number | null>(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [detailsBusinessId, setDetailsBusinessId] = useState<number | null>(null);
+  const [detailsBusinessName, setDetailsBusinessName] = useState("");
 
   const backendBase = "http://localhost:5000";
 
@@ -256,28 +260,50 @@ export default function Browse() {
                 </>
               )}
 
-              <button
-                style={{
-                  marginTop: 8,
-                  backgroundColor: "#DE9E48",
-                  border: "none",
-                  color: "#FFFFFF",
-                  padding: "8px 12px",
-                  borderRadius: 6,
-                  cursor: "pointer",
-                }}
-                onClick={() => {
-                  setModalBusinessId(mode === "salons" ? (item as Salon).business_id : (item as Worker).business_id);
-                  setModalEmployeeId(mode === "workers" ? (item as Worker).employee_id : null);
-                  setModalOpen(true);
-                }}
-              >
-                Schedule Appointment
-              </button>
+              <div style={{ display: "flex", gap: 8, marginTop: 12, flexDirection: "column" }}>
+                <button
+                  style={{
+                    backgroundColor: "#DE9E48",
+                    border: "none",
+                    color: "#FFFFFF",
+                    padding: "8px 12px",
+                    borderRadius: 6,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    setModalBusinessId(mode === "salons" ? (item as Salon).business_id : (item as Worker).business_id);
+                    setModalEmployeeId(mode === "workers" ? (item as Worker).employee_id : null);
+                    setModalOpen(true);
+                  }}
+                >
+                  Schedule Appointment
+                </button>
+                
+                {mode === "salons" && (
+                  <button
+                    style={{
+                      backgroundColor: "#563727",
+                      border: "none",
+                      color: "#FFFFFF",
+                      padding: "8px 12px",
+                      borderRadius: 6,
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      setDetailsBusinessId((item as Salon).business_id);
+                      setDetailsBusinessName((item as Salon).name);
+                      setDetailsModalOpen(true);
+                    }}
+                  >
+                    View Details
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
       )}
+      
       {modalBusinessId !== null && (
         <AppointmentModal
           open={modalOpen}
@@ -287,8 +313,15 @@ export default function Browse() {
           onSuccess={fetchData}
         />
       )}
-    </div>
 
-    
+      {detailsBusinessId !== null && (
+        <BusinessDetailsModal
+          open={detailsModalOpen}
+          onClose={() => setDetailsModalOpen(false)}
+          businessId={detailsBusinessId}
+          businessName={detailsBusinessName}
+        />
+      )}
+    </div>
   );
 }

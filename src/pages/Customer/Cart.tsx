@@ -154,39 +154,67 @@ export default function Cart() {
   const total = subtotal + tax;
 
   return (
-    <div style={{ maxWidth: 1200, margin: "0 auto", padding: 20 }}>
-      <h1 style={{ color: "#372C2E", marginBottom: 30 }}>
-        Shopping Cart
-      </h1>
+  <div style={{ maxWidth: 1200, margin: "0 auto", padding: 20 }}>
+    <h1 style={{ color: "#372C2E", marginBottom: 30 }}>
+      Shopping Cart
+    </h1>
 
-      {checkoutSuccess && (
-        <div
+    {checkoutSuccess && (
+      <div
+        style={{
+          backgroundColor: "#d4edda",
+          color: "#155724",
+          padding: 15,
+          borderRadius: 4,
+          marginBottom: 20,
+          textAlign: "center",
+        }}
+      >
+        <strong>✓ Order placed successfully!</strong> Come in store for pickup.
+      </div>
+    )}
+
+    {error && (
+      <div
+        style={{
+          backgroundColor: "#f8d7da",
+          color: "#721c24",
+          padding: 15,
+          borderRadius: 4,
+          marginBottom: 20,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <span>Error: {error}</span>
+        <button
+          onClick={() => setError(null)}
           style={{
-            backgroundColor: "#d4edda",
-            color: "#155724",
-            padding: 15,
-            borderRadius: 4,
-            marginBottom: 20,
-            textAlign: "center",
+            background: "none",
+            border: "none",
+            color: "#721c24",
+            cursor: "pointer",
+            fontSize: 18,
+            fontWeight: "bold",
           }}
         >
-          <strong>✓ Order placed successfully!</strong> Come in store for pickup.
-        </div>
-      )}
+          ×
+        </button>
+      </div>
+    )}
 
-      {loading ? (
-        <p style={{ color: "#563727" }}>Loading cart...</p>
-      ) : error ? (
-        <p style={{ color: "red" }}>Error: {error}</p>
-      ) : cartItems.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "40px 0", color: "#563727" }}>
-          <p style={{ fontSize: 18, marginBottom: 8 }}>Your cart is empty</p>
-          <p style={{ fontSize: 14, color: "#666" }}>
-            Browse our products to add items to your cart
-          </p>
-        </div>
-      ) : (
-        <div style={{ display: "flex", gap: 30 }}>
+    {loading ? (
+      <p style={{ color: "#563727" }}>Loading cart...</p>
+    ) : cartItems.length === 0 ? (
+      <div style={{ textAlign: "center", padding: "40px 0", color: "#563727" }}>
+        <p style={{ fontSize: 18, marginBottom: 8 }}>Your cart is empty</p>
+        <p style={{ fontSize: 14, color: "#666" }}>
+          Browse our products to add items to your cart
+        </p>
+      </div>
+    ) : (
+      <div style={{ display: "flex", gap: 30 }}>
           <div style={{ flex: 1 }}>
             {cartItems.map((item) => (
               <div
@@ -261,11 +289,13 @@ export default function Cart() {
                         border: "1px solid #ddd",
                         backgroundColor: "#fff",
                         cursor: "pointer",
+                        lineHeight: "6px",
+                        paddingLeft: "8px",
                       }}
                     >
                       -
                     </button>
-                    <span style={{ minWidth: 30, textAlign: "center", lineHeight: "30px" }}>
+                    <span style={{ minWidth: 20, textAlign: "center", lineHeight: "30px" }}>
                       {item.amount}
                     </span>
                     <button
@@ -278,6 +308,8 @@ export default function Cart() {
                         border: "1px solid #ddd",
                         backgroundColor: "#fff",
                         cursor: "pointer",
+                        lineHeight: "6px",
+                        paddingLeft: "8px",
                       }}
                     >
                       +
