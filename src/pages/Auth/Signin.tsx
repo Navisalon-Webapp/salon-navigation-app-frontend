@@ -7,8 +7,34 @@ const NavisalonSignIn: React.FC = () => {
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotStatus, setForgotStatus] = useState<string | null>(null);
+  const [forgotLoading, setForgotLoading] = useState(false);
   const navigate = useNavigate();
   const { signIn } = useAuth();
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotStatus(null);
+    setForgotLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.status === "success") {
+        setForgotStatus("Password reset email sent! Check your inbox.");
+      } else {
+        setForgotStatus(data.message || "Failed to send reset email.");
+      }
+    } catch (err) {
+      setForgotStatus("Something went wrong. Try again later.");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -169,6 +195,63 @@ const NavisalonSignIn: React.FC = () => {
           >
             Don't have an account? Sign Up
           </button>
+          <button
+            type="button"
+            onClick={() => setForgotOpen((v) => !v)}
+            style={{
+              width: "100%",
+              padding: "1rem 1.5rem",
+              borderRadius: "0.5rem",
+              backgroundColor: "transparent",
+              border: "1px solid #DE9E48",
+              color: "#DE9E48",
+              cursor: "pointer",
+              marginTop: "1rem",
+            }}
+          >
+            Forgot Password?
+          </button>
+          {forgotOpen && (
+            <form onSubmit={handleForgotPassword} style={{ marginTop: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "1rem 1.5rem",
+                  borderRadius: "0.5rem",
+                  backgroundColor: "#563727",
+                  border: "1px solid #7A431D",
+                  color: "#FFFFFF",
+                  outline: "none",
+                  transition: "all 0.2s",
+                }}
+              />
+              <button
+                type="submit"
+                disabled={forgotLoading || !forgotEmail}
+                style={{
+                  padding: "0.75rem 2rem",
+                  fontWeight: 600,
+                  borderRadius: "0.5rem",
+                  backgroundColor: "#DE9E48",
+                  color: "#372C2E",
+                  border: "none",
+                  cursor: forgotLoading ? "not-allowed" : "pointer",
+                  opacity: forgotLoading ? 0.7 : 1,
+                }}
+              >
+                {forgotLoading ? "Sending..." : "Send Reset Email"}
+              </button>
+              {forgotStatus && (
+                <p style={{ color: forgotStatus.includes("sent") ? "#4BB543" : "#ff7b7b", textAlign: "center", marginTop: "0.5rem", fontWeight: 500 }}>
+                  {forgotStatus}
+                </p>
+              )}
+            </form>
+          )}
         </div>
       </div>
 

@@ -106,7 +106,7 @@ function MainLayout() {
                     Appointments
                   </NavLink>
                   <NavLink to="/customer/salon-review" style={navLinkStyle}>
-                    Client Reviews
+                    Make a Review
                   </NavLink>
                 </>
               )}
