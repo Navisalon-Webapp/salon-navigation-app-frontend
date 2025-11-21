@@ -13,28 +13,37 @@ const NavisalonSignIn: React.FC = () => {
   const [forgotLoading, setForgotLoading] = useState(false);
   const navigate = useNavigate();
   const { signIn } = useAuth();
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setForgotStatus(null);
-    setForgotLoading(true);
-    try {
-      const res = await fetch("http://localhost:5000/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: forgotEmail }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.status === "success") {
-        setForgotStatus("Password reset email sent! Check your inbox.");
-      } else {
-        setForgotStatus(data.message || "Failed to send reset email.");
-      }
-    } catch (err) {
-      setForgotStatus("Something went wrong. Try again later.");
-    } finally {
-      setForgotLoading(false);
+ const handleForgotPassword = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setForgotStatus(null);
+  setForgotLoading(true);
+  
+  console.log("[ForgotPassword] Starting request for email:", forgotEmail);
+  
+  try {
+    const res = await fetch("http://localhost:5000/password-reset/email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email: forgotEmail }),
+    });
+    
+    const data = await res.json().catch((parseErr) => {
+      console.error("[ForgotPassword] JSON parse error:", parseErr);
+      return {};
+    });
+        
+    if (res.ok && data.status === "success") {
+      setForgotStatus("Password reset email sent! Check your inbox.");
+    } else {
+      setForgotStatus(data.message || "Failed to send reset email.");
     }
-  };
+  } catch (err) {
+    setForgotStatus("Something went wrong. Try again later.");
+  } finally {
+    setForgotLoading(false);
+  }
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +80,7 @@ const NavisalonSignIn: React.FC = () => {
         customer: "/customer/home",
         business: "/business/home",
         employee: "/employee/home",
-        admin: "/customer/home", // update when we have an admin page
+        admin: "/customer/home",
       };
 
       console.log("[Signin] navigating to", landing[role]);

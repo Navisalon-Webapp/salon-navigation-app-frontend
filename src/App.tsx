@@ -8,6 +8,7 @@ import { PublicOnly, RequireAuth, RequireRole } from "./auth/guards";
 // Pages
 import SignIn from "./pages/Auth/Signin";
 import SignUp from "./pages/Auth/SignUp";
+import PasswordReset from "./pages/Auth/PasswordReset";
 
 // CUSTOMER
 import Home from "./pages/Customer/Home";
@@ -273,6 +274,7 @@ export default function App() {
         {/* Public */}
         <Route path="/" element={<PublicOnly><SignIn /></PublicOnly>} />
         <Route path="/SignUp" element={<PublicOnly><SignUp /></PublicOnly>} />
+        <Route path="/password-reset/:uid" element={<PublicOnly><PasswordReset /></PublicOnly>} />
         <Route path="/unauthorized" element={<div>Unauthorized</div>} />
 
         {/* Private (must be signed in) */}
