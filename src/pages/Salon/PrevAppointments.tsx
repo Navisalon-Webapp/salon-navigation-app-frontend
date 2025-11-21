@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Appt from '../../components/AppointmentCard';
+import { BsSearch } from 'react-icons/bs';
 
 const API_BASE = "http://localhost:5000";
 
@@ -20,6 +21,7 @@ export default function WorkerAppointments() {
   const [pastAppointments, setPastAppointments] = useState<AppointmentInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchVal, setSearchVal] = useState("");
 
   useEffect(() => {
     loadAppointments();
@@ -50,7 +52,11 @@ export default function WorkerAppointments() {
       setLoading(false);
     }
   };
-
+  function handleSearchClick(){
+    //searchVal
+    //add backend call to only return appointments for specific clients? if nothing then return all info
+    //change past appointments
+  }
   return (
     <div style={{ 
       backgroundColor: "#2A1F1D", 
@@ -109,7 +115,11 @@ export default function WorkerAppointments() {
 
       {!loading && !error && (
         <>
-          
+          <div>
+              <input onChange={e => setSearchVal(e.target.value)}>
+              </input>
+              <BsSearch onClick={handleSearchClick} />
+          </div>
           {/* Past Appointments Section */}
           <div>
             <h2
@@ -133,7 +143,7 @@ export default function WorkerAppointments() {
                 {pastAppointments.map((appt) => (
                   <div
                     key={appt.id}
-                    onClick={() => navigate(`/employee/appointment/${appt.id}`)}
+                    onClick={() => navigate(`/salon/appointment/${appt.id}`)}
                     style={{ cursor: 'pointer' }}
                   >
                     <Appt
