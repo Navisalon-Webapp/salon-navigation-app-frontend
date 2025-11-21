@@ -16,7 +16,7 @@ type AppointmentInfo = {
   status: string;
 };
 
-export default function WorkerAppointments() {
+export default function OwnerAppointments() {
   const navigate = useNavigate();
   const [pastAppointments, setPastAppointments] = useState<AppointmentInfo[]>([]);
   const [loading, setLoading] = useState(false);
