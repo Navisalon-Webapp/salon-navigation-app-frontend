@@ -27,6 +27,8 @@ import CreatePromotion from "./pages/Salon/CreatePromotion";
 import CreateLoyalty from "./pages/Salon/CreateLoyalty";
 import Marketing from "./pages/Salon/Marketing";
 import SalonRevenue from "./pages/Salon/SalonRevenue";
+import OwnerAppointments from "./pages/Salon/PrevAppointments";
+
 
 // WORKER
 import WorkerDashboard from "./pages/Worker/Dashboard";
@@ -128,6 +130,9 @@ function MainLayout() {
                   </NavLink>
                   <NavLink to="/business/revenue" style={navLinkStyle}>
                     Revenue
+                  </NavLink>
+                  <NavLink to="/business/appointments" style={navLinkStyle}>
+                    Appointments
                   </NavLink>
                   <NavLink to="/business/marketing" style={navLinkStyle}>
                     Promotions & Loyalty
@@ -295,6 +300,8 @@ export default function App() {
               <Route path="approve-workers" element={<ApproveWorkers />} />
               <Route path="reply-reviews" element={<OwnerReplyReview />} />
               <Route path="revenue" element={<SalonRevenue />} />
+              <Route path="appointments" element={<OwnerAppointments />} />
+
             </Route>
 
             {/* WORKER GROUP */}
