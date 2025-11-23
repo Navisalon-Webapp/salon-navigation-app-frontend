@@ -80,7 +80,7 @@ const NavisalonSignIn: React.FC = () => {
         customer: "/customer/home",
         business: "/business/home",
         employee: "/employee/home",
-        admin: "/customer/home",
+        admin: "/admin/home", // update when we have an admin page
       };
 
       console.log("[Signin] navigating to", landing[role]);
