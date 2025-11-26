@@ -224,9 +224,7 @@ export default function EmailSubscriptions() {
   {status === "error" && <span style={{ color: "#C23B22" }}>Failed to save preferences (server error)</span>}
       </div>
 
-      <div style={{ fontSize: 12, color: "#6B6B6B" }}>
-        You can change these anytime. In a future update, these preferences will sync with your account.
-      </div>
+    
     </div>
   );
 }
