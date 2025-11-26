@@ -1,4 +1,5 @@
 import EmailSubscriptions from "./EmailSubscriptions";
+import PaymentMethodForm from "./PaymentMethodForm";
 
 export default function CustomerSettings() {
   return (
@@ -12,6 +13,10 @@ export default function CustomerSettings() {
 
       <section>
         <EmailSubscriptions />
+      </section>
+
+      <section>
+        <PaymentMethodForm />
       </section>
     </div>
   );
