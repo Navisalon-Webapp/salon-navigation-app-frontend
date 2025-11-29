@@ -18,6 +18,7 @@ export default function PaymentMethodForm() {
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [fetching, setFetching] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [removingId, setRemovingId] = useState<number | null>(null);
 
   const fetchMethods = useCallback(async () => {
     if (!user) {
@@ -226,6 +227,58 @@ export default function PaymentMethodForm() {
                       </div>
                     </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!user) {
+                        setStatus("error");
+                        setFeedback("Please sign in to manage payment methods.");
+                        return;
+                      }
+
+                      if (!window.confirm("Remove this payment method?")) {
+                        return;
+                      }
+
+                      setRemovingId(m.id);
+                      setStatus("idle");
+                      setFeedback(null);
+
+                      try {
+                        const res = await fetch(`${API}/payment/remove/${m.id}`, {
+                          method: "DELETE",
+                          credentials: "include",
+                        });
+
+                        if (!res.ok) {
+                          throw new Error(`HTTP ${res.status}`);
+                        }
+
+                        setStatus("success");
+                        setFeedback("Payment method removed.");
+                        await fetchMethods();
+                      } catch (err) {
+                        console.error("Failed to remove payment method", err);
+                        setStatus("error");
+                        setFeedback("Could not remove payment method. Try again.");
+                      } finally {
+                        setRemovingId(null);
+                      }
+                    }}
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: 8,
+                      border: "1px solid #E6E6E6",
+                      background: "#FFF8EC",
+                      color: "#C23B22",
+                      fontWeight: 600,
+                      cursor: removingId === m.id ? "wait" : "pointer",
+                      minWidth: 88,
+                    }}
+                    disabled={removingId === m.id}
+                  >
+                    {removingId === m.id ? "Removing..." : "Remove"}
+                  </button>
                 </div>
               );
             })}
