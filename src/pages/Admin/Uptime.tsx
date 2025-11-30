@@ -36,7 +36,6 @@ const infob = {
 //
     const downTimes = 0; //add route from backend
     const responseTime = 0;
-    const pageSpeed = 0; //add route from backend
     //const barcharts = infob.map(item => <Admin chart={"bar"} xlabel={item.xaxis} ylabel={item.yaxis} xdata={item.xdata} ydata={item.ydata} time={item.period} />);
 const data = {
   labels: infob.xdata,
@@ -56,7 +55,7 @@ function handleTime(e : any){
     return (
         <div>
             <h1>
-                Customer Retention
+                Uptime
             </h1>
             <br/>
             <div>
@@ -69,23 +68,15 @@ function handleTime(e : any){
             fontWeight: 300,
             marginBottom: "1.5rem", marginLeft: "0.5rem", 
             float: "left"}}>times down in the last 24 hours</span>
-            <span style={{
-              fontSize: "1.875rem", 
-            fontWeight: 600,
-            marginBottom: "1.5rem", 
-            textAlign: "center" }}>{responseTime}</span>
+            
             <span style={{fontSize: "1.875rem", 
             fontWeight: 300,
             marginBottom: "1.5rem", marginLeft: "0.5rem", 
-            textAlign: "center" }}> page response time</span>
-            <span style={{fontSize: "1.875rem", 
-            fontWeight: 300,
-            marginBottom: "1.5rem", marginLeft: "0.5rem", 
-            float: "right"}}>  page speed</span>
+            float: "right"}}> page response time</span>
             <span style={{fontSize: "1.875rem", 
             fontWeight: 600,
             marginBottom: "1.5rem", 
-            float: "right"}}>{pageSpeed}/5</span>
+            float: "right"}}>{responseTime}</span>
             </div>
           
             <br/>
