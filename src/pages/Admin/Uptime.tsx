@@ -73,19 +73,19 @@ function handleTime(e : any){
               fontSize: "1.875rem", 
             fontWeight: 600,
             marginBottom: "1.5rem", 
-            textAlign: "center" }}>{downTimes}</span>
+            textAlign: "center" }}>{responseTime}</span>
             <span style={{fontSize: "1.875rem", 
             fontWeight: 300,
             marginBottom: "1.5rem", marginLeft: "0.5rem", 
-            textAlign: "center" }}>times down in the last 24 hours</span>
+            textAlign: "center" }}> page response time</span>
             <span style={{fontSize: "1.875rem", 
             fontWeight: 300,
             marginBottom: "1.5rem", marginLeft: "0.5rem", 
-            float: "right"}}>  average customer review</span>
+            float: "right"}}>  page speed</span>
             <span style={{fontSize: "1.875rem", 
             fontWeight: 600,
             marginBottom: "1.5rem", 
-            float: "right"}}>{custReview}/5</span>
+            float: "right"}}>{pageSpeed}/5</span>
             </div>
           
             <br/>
