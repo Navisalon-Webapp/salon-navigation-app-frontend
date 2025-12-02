@@ -44,7 +44,7 @@ const Dashboard: React.FC = () => {
 
   const fetch_metrics = async () => {
     try {
-      const baseUrl = "http://localhost:5000";
+      const baseUrl = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}`;
 
       const [
         tot_active_res,
