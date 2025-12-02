@@ -41,7 +41,7 @@ export default function EmailSubscriptions() {
   const [prefs, setPrefs] = useState<EmailPrefs>(DEFAULT_PREFS);
   const [status, setStatus] = useState<"idle" | "saved" | "error">("idle");
   const [saving, setSaving] = useState(false);
-  const API_BASE = "http://localhost:5000";
+  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   useEffect(() => {
     setPrefs(load());

@@ -43,7 +43,7 @@ export default function Browse() {
   const [detailsBusinessId, setDetailsBusinessId] = useState<number | null>(null);
   const [detailsBusinessName, setDetailsBusinessName] = useState("");
 
-  const backendBase = "http://localhost:5000";
+  const backendBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   // --- Fetch all data depending on mode ---
   const fetchData = async () => {

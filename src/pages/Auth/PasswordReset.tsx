@@ -30,7 +30,7 @@ const PasswordReset: React.FC = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/password-reset", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/password-reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uid, password, confirmPassword }),

@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import AppointmentNotes from "../../components/AppointmentNotes";
 import BeforeAfterImages from "../../components/BeforeAfterImages";
 
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 interface AppointmentInfo {
   id: number;

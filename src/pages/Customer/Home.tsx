@@ -38,7 +38,7 @@ export default function Home() {
     
     const fetchLoyaltyPoints = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/clients/view-loyalty-points", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/clients/view-loyalty-points`, {
           credentials: "include",
         });
 
@@ -75,7 +75,7 @@ export default function Home() {
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/clients/view-cart", { credentials: "include" });
+        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/clients/view-cart`, { credentials: "include" });
         if (res.ok) {
           const data = await res.json();
           setCartItems(data.cart_items || data.items || []);
@@ -92,7 +92,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const API = "http://localhost:5000";
+    const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
     const fetchAppointments = async () => {
       try {
         const pastRes = await fetch(`${API}/api/clients/view-prev-appointments`, {

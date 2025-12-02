@@ -39,7 +39,7 @@ export default function AppointmentModal({
   const [notes, setNotes] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const backendBase = "http://localhost:5000";
+  const backendBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   useEffect(() => {
     if (!open) return;

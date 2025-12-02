@@ -15,7 +15,7 @@ const ApproveWorkers: React.FC = () => {
   const loadPendingWorkers = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/worker/pending/`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/worker/pending/`, {
         credentials: "include"
       });
 
@@ -35,7 +35,7 @@ const ApproveWorkers: React.FC = () => {
   const handleApprove = async (id: string) => {
     const w = workers.find((x) => x.id === id);
     console.log("Approve worker", w);
-    await fetch(`http://localhost:5000/worker/${id}/approve`, {
+    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/worker/${id}/approve`, {
       method: "POST",
       credentials: "include"
     });
@@ -45,7 +45,7 @@ const ApproveWorkers: React.FC = () => {
   const handleReject = async (id: string) => {
     const w = workers.find((x) => x.id === id);
     console.log("Reject worker", w);
-    await fetch(`http://localhost:5000/worker/${id}/reject`, {
+    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/worker/${id}/reject`, {
       method: "POST",
       credentials: "include"
     });
