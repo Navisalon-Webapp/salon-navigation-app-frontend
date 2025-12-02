@@ -47,7 +47,7 @@ const buttonGhost: React.CSSProperties = {
 };
 
 async function loadInitialServices(bid: number): Promise<Service[]> {
-  const res = await fetch(`http://localhost:5000/services/`, {
+  const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/services/`, {
   credentials: "include",
 });
   if (!res.ok) throw new Error("Failed to load services");
@@ -83,7 +83,7 @@ const ManageServices: React.FC = () => {
     const p = parseFloat(priceUsd);
     if (!n || isNaN(d) || isNaN(p)) return;
 
-    const res = await fetch(`http://localhost:5000/services/`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/services/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -113,7 +113,7 @@ const ManageServices: React.FC = () => {
     const d = parseInt(editDurationMin, 10);
     const p = parseFloat(editPriceUsd);
     if (!n || isNaN(d) || isNaN(p)) return;
-    const res = await fetch(`http://localhost:5000/services/${id}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/services/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -131,7 +131,7 @@ const ManageServices: React.FC = () => {
   }
 
   const remove = async (id: string) => {
-    const res = await fetch(`http://localhost:5000/services/${id}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/services/${id}`, {
     method: "DELETE",
     credentials: "include",
   });

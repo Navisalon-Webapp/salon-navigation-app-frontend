@@ -27,7 +27,7 @@ const NavisalonSignUp: React.FC = () => {
   const [salons, setSalons] = useState<Array<{ bid: number; name: string }>>([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/list-business')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/list-business`)
       .then((res) => res.json())
       .then((data) => setSalons(data))
       .catch(() => setSalons([]));
@@ -75,7 +75,7 @@ const NavisalonSignUp: React.FC = () => {
 
     try {
       const res = await axios.post(
-        `http://localhost:5000/${selectedRole}/signup`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/${selectedRole}/signup`,
         payload,
         { headers: { "Content-Type": "application/json" } }
       );

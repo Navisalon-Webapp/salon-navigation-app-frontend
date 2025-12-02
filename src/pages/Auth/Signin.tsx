@@ -21,7 +21,7 @@ const NavisalonSignIn: React.FC = () => {
   console.log("[ForgotPassword] Starting request for email:", forgotEmail);
   
   try {
-    const res = await fetch("http://localhost:5000/password-reset/email", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/password-reset/email`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -52,7 +52,7 @@ const NavisalonSignIn: React.FC = () => {
     console.log("[Signin] submitting", { email });
 
     try {
-      const res = await fetch("http://localhost:5000/signin", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/signin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

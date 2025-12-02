@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { RevenueModal } from "../../components/Revenue/SalonRevenue";
 
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const cardStyle: React.CSSProperties = {
   backgroundColor: "#563727",

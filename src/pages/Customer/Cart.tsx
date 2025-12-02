@@ -26,7 +26,7 @@ export default function Cart() {
     cvv: "",
   });
 
-  const backendBase = "http://localhost:5000";
+  const backendBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const fetchCart = async () => {
     setLoading(true);

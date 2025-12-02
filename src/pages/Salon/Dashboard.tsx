@@ -117,7 +117,7 @@ export default function BusinessDashboard() {
       setLoading(true);
       
       try {
-        const salonRes = await fetch("http://localhost:5000/owner/salon", {
+        const salonRes = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/salon`, {
           method: "GET",
           credentials: "include",
           headers: {
@@ -137,7 +137,7 @@ export default function BusinessDashboard() {
           setEditStatus(salonData.status);
         }
 
-        const prodRes = await fetch("http://localhost:5000/owner/products", {
+        const prodRes = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/products`, {
           method: "GET",
           credentials: "include",
           headers: {
@@ -173,7 +173,7 @@ export default function BusinessDashboard() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/owner/manage-details", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/manage-details`, {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -211,7 +211,7 @@ export default function BusinessDashboard() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/owner/products", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/products`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -272,7 +272,7 @@ export default function BusinessDashboard() {
     setProducts((prev) => prev.map((p) => (p.pid === pid ? { ...p, stock: newStockValue } : p)));
 
     try {
-      await fetch(`http://localhost:5000/owner/products/${pid}`, {
+      await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/products/${pid}`, {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -287,7 +287,7 @@ export default function BusinessDashboard() {
     if (!pid) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/owner/products/${pid}/purchase`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/products/${pid}/purchase`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -313,7 +313,7 @@ export default function BusinessDashboard() {
     if (!confirm("Are you sure you want to delete this product?")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/owner/products/${pid}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/products/${pid}`, {
         method: "DELETE",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

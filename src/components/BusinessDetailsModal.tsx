@@ -56,7 +56,7 @@ export default function BusinessDetailsModal({
   const [cartQuantities, setCartQuantities] = useState<{ [key: number]: number }>({});
   const [addingToCart, setAddingToCart] = useState<number | null>(null);
 
-  const backendBase = "http://localhost:5000";
+  const backendBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   useEffect(() => {
     if (open) {

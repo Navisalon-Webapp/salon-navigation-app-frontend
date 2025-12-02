@@ -10,7 +10,7 @@ type AuthCtx = {
 };
 
 const AuthContext = createContext<AuthCtx | undefined>(undefined);
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(null);

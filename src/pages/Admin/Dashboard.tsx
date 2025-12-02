@@ -14,7 +14,7 @@ const Dashboard: React.FC = () => {
   const loadPendingSalons = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/admin/pending`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/pending`, {
         credentials: "include"
       });
 
@@ -34,7 +34,7 @@ const Dashboard: React.FC = () => {
   const handleApprove = async (id: string) => {
     const w = salons.find((x) => x.id === id);
     console.log("Approve salon", w);
-    await fetch(`http://localhost:5000/admin/${id}/approve`, {
+    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/${id}/approve`, {
       method: "POST",
       credentials: "include"
     });
@@ -45,7 +45,7 @@ const Dashboard: React.FC = () => {
   const handleReject = async (id: string) => {
     const w = salons.find((x) => x.id === id);
     console.log("Reject salon", w);
-    await fetch(`http://localhost:5000/admin/${id}/reject`, {
+    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/${id}/reject`, {
       method: "POST",
       credentials: "include"
     });
