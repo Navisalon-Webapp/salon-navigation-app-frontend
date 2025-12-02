@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Appt from '../../components/AppointmentCard';
-import { BsSearch } from 'react-icons/bs';
+// import { BsSearch } from 'react-icons/bs';
 
-const API_BASE = "http://localhost:5000";
+// const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 type AppointmentInfo = {
   id: string;
@@ -21,7 +21,7 @@ export default function OwnerAppointments() {
   const [pastAppointments, setPastAppointments] = useState<AppointmentInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchVal, setSearchVal] = useState("");
+  const [_searchVal, setSearchVal] = useState("");
 
   useEffect(() => {
     loadAppointments();
@@ -118,7 +118,8 @@ export default function OwnerAppointments() {
           <div>
               <input onChange={e => setSearchVal(e.target.value)}>
               </input>
-              <BsSearch onClick={handleSearchClick} />
+              <button onClick={handleSearchClick}>Search</button>
+              {/* <BsSearch onClick={handleSearchClick} /> */}
           </div>
           {/* Past Appointments Section */}
           <div>
