@@ -40,6 +40,11 @@ import WorkerAppointment from "./pages/Worker/Appointment";
 
 // ADMIN
 import Dashboard from "./pages/Admin/Dashboard"
+import Engagement from "./pages/Admin/Engagement"
+import Rewards from "./pages/Admin/Rewards"
+import Revenue from "./pages/Admin/Revenue"
+import Appointments from "./pages/Admin/Appointments"
+import Demographics from "./pages/Admin/Demographics"
 
 const accBtnStyle: React.CSSProperties = {
   textAlign: "left",
@@ -159,11 +164,26 @@ function MainLayout() {
                 </>
               )}
 
-              {/* WORKER NAV */}
+              {/* ADMIN NAV */}
               {user?.role === "admin" && (
                 <>
                   <NavLink to="/admin/home" style={navLinkStyle}>
                     Dashboard
+                  </NavLink>
+                  <NavLink to="/admin/appointments" style={navLinkStyle}>
+                    Appointments
+                  </NavLink>
+                  <NavLink to="/admin/demographics" style={navLinkStyle}>
+                    Demographics
+                  </NavLink>
+                  <NavLink to="/admin/engagement" style={navLinkStyle}>
+                    Engagement
+                  </NavLink>
+                  <NavLink to="/admin/rewards" style={navLinkStyle}>
+                    Rewards
+                  </NavLink>
+                  <NavLink to="/admin/revenue" style={navLinkStyle}>
+                    Revenue
                   </NavLink>
                 </>
               )}
@@ -318,6 +338,11 @@ export default function App() {
             {/* ADMIN GROUP */}
             <Route path="/admin" element={<RequireRole allow={["admin"]} />}>
               <Route path="home" element={<Dashboard />} />
+              <Route path="engagement" element={<Engagement />} />
+              <Route path="rewards" element={<Rewards />} />
+              <Route path="revenue" element={<Revenue />} />
+              <Route path="appointments" element={<Appointments />} />
+              <Route path="demographics" element={<Demographics />} />
             </Route>
           </Route>
         </Route>
