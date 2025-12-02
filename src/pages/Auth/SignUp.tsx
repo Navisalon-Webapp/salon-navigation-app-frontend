@@ -22,7 +22,7 @@ const NavisalonSignUp: React.FC = () => {
 
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
 
   const [salons, setSalons] = useState<Array<{ bid: number; name: string }>>([]);
 

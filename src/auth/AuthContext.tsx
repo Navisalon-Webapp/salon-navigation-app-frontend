@@ -5,6 +5,7 @@ export type User = { id: string; name: string; role: Role } | null;
 
 type AuthCtx = {
   user: User;
+  loading: boolean;
   signIn: (u: NonNullable<User>) => void;
   signOut: () => void;
 };

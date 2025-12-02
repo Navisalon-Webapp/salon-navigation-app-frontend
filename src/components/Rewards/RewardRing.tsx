@@ -1,4 +1,4 @@
-export default function RewardRing({ current, goal, salonName = "Salon" }) {
+export default function RewardRing({ current, goal, salonName = "Salon" }: { current: number; goal: number; salonName?: string }) {
   const clamped = Math.max(0, Math.min(current, goal));
   const pct = goal ? clamped / goal : 0;
   const radius = 40;
