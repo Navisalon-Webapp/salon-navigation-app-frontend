@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import AppointmentModal from "../../components/appointment_modal";
 import BusinessDetailsModal from "../../components/BusinessDetailsModal";
 
@@ -73,7 +73,7 @@ export default function Browse() {
       const data = JSON.parse(text) as Salon[] | Worker[];
 
       // --- Apply client-side filters ---
-      let filtered = data;
+      let filtered: (Salon | Worker)[] = data;
 
       if (location.trim()) {
         filtered = filtered.filter((item: any) => {
@@ -100,7 +100,7 @@ export default function Browse() {
         });
       }
 
-      setResults(filtered);
+      setResults(filtered as Salon[] | Worker[]);
     } catch (err: any) {
       console.error("Error fetching data:", err);
       setError(err.message || "Unknown error");
