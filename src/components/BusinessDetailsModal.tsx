@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 interface BusinessDetailsModalProps {
   open: boolean;
@@ -51,8 +51,8 @@ export default function BusinessDetailsModal({
   const [businessInfo, setBusinessInfo] = useState<BusinessInfo | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [_loading, setLoading] = useState(false);
+  const [_error, setError] = useState<string | null>(null);
   const [cartQuantities, setCartQuantities] = useState<{ [key: number]: number }>({});
   const [addingToCart, setAddingToCart] = useState<number | null>(null);
 
@@ -354,7 +354,7 @@ export default function BusinessDetailsModal({
                     <img
                         src={typeof product.image === 'string' ? product.image : ''}
                         alt={product.product_name}
-                        onError={(e) => {
+                        onError={(_e) => {
                         console.error('Image load error for product:', product.product_name);
                         }}
                         style={{

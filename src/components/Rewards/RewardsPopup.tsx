@@ -1,14 +1,22 @@
 import React, { useRef } from "react";
 
-export default function RewardsPopup({ open, onClose, salons }) {
-  const cardRef = useRef(null);
+type Salon = {
+  id: string;
+  name: string;
+  points: number;
+  goal: number;
+  address?: string;
+};
+
+export default function RewardsPopup({ open, onClose, salons }: { open: boolean; onClose: () => void; salons: Salon[] }) {
+  const cardRef = useRef<HTMLDivElement>(null);
 
   if (!open) return null;
 
-  const total = salons.reduce((acc, s) => acc + (s.points || 0), 0);
+  const total = salons.reduce((acc: number, s: Salon) => acc + (s.points || 0), 0);
 
-  const handleBackdropClick = (e) => {
-    if (cardRef.current && !cardRef.current.contains(e.target)) onClose();
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (cardRef.current && !cardRef.current.contains(e.target as Node)) onClose();
   };
 
   return (
@@ -91,7 +99,7 @@ export default function RewardsPopup({ open, onClose, salons }) {
             <div style={{ fontSize: 12, opacity: 0.7, textAlign: "right" }}>Points</div>
             <div style={{ fontSize: 12, opacity: 0.7, textAlign: "right" }}>Goal</div>
 
-            {salons.map((s) => (
+            {salons.map((s: Salon) => (
               <React.Fragment key={s.id}>
                 <div
                   style={{

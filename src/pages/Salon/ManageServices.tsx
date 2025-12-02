@@ -46,7 +46,7 @@ const buttonGhost: React.CSSProperties = {
   cursor: "pointer",
 };
 
-async function loadInitialServices(bid: number): Promise<Service[]> {
+async function loadInitialServices(_bid: number): Promise<Service[]> {
   const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/services/`, {
   credentials: "include",
 });
