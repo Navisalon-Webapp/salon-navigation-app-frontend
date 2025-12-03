@@ -73,6 +73,7 @@ const NavisalonSignIn: React.FC = () => {
         id: String(data.User_ID),
         name: data.name ?? email,
         role,
+        employeeId: data.employee_id ? String(data.employee_id) : undefined,
       });
 
       // Role-based redirect

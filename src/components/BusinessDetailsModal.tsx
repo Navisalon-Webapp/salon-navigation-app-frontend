@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface BusinessDetailsModalProps {
   open: boolean;
@@ -41,13 +42,24 @@ interface Product {
 
 }
 
+interface WorkerSummary {
+  employee_id: number | string;
+  first_name: string;
+  last_name: string;
+  expertise?: string | null;
+  bio?: string | null;
+  profile_picture?: string | null;
+  approved?: boolean;
+}
+
 export default function BusinessDetailsModal({
   open,
   onClose,
   businessId,
   businessName,
 }: BusinessDetailsModalProps) {
-  const [activeTab, setActiveTab] = useState<"info" | "reviews" | "products">("info");
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<"info" | "reviews" | "products" | "workers">("info");
   const [businessInfo, setBusinessInfo] = useState<BusinessInfo | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -55,14 +67,19 @@ export default function BusinessDetailsModal({
   const [_error, setError] = useState<string | null>(null);
   const [cartQuantities, setCartQuantities] = useState<{ [key: number]: number }>({});
   const [addingToCart, setAddingToCart] = useState<number | null>(null);
+  const [workers, setWorkers] = useState<WorkerSummary[]>([]);
+  const [workersLoading, setWorkersLoading] = useState(false);
+  const [workersError, setWorkersError] = useState<string | null>(null);
 
   const backendBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const tabs: Array<typeof activeTab> = ["info", "workers", "reviews", "products"];
 
   useEffect(() => {
     if (open) {
       fetchBusinessInfo();
       fetchReviews();
       fetchProducts();
+      fetchWorkers();
     }
   }, [open, businessId]);
 
@@ -120,6 +137,42 @@ export default function BusinessDetailsModal({
     } catch (err) {
       console.error("Error fetching products:", err);
       setProducts([]);
+    }
+  };
+
+  const fetchWorkers = async () => {
+    setWorkersLoading(true);
+    setWorkersError(null);
+    try {
+      const res = await fetch(`${backendBase}/api/client/business-workers/${businessId}`, {
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to load workers (status ${res.status})`);
+      }
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        const mapped = data
+          .filter((item: any) => item && typeof item === "object" && item.employee_id != null)
+          .map((item: any) => ({
+            employee_id: item.employee_id,
+            first_name: String(item.first_name ?? ""),
+            last_name: String(item.last_name ?? ""),
+            expertise: item.expertise ?? null,
+            bio: item.bio ?? null,
+            profile_picture: typeof item.profile_picture === "string" ? item.profile_picture : null,
+            approved: Boolean(item.approved),
+          }));
+        setWorkers(mapped);
+      } else {
+        setWorkers([]);
+      }
+    } catch (err: any) {
+      console.error("Error fetching workers:", err);
+      setWorkersError(err?.message || "Unable to load workers");
+      setWorkers([]);
+    } finally {
+      setWorkersLoading(false);
     }
   };
 
@@ -236,7 +289,7 @@ export default function BusinessDetailsModal({
             gap: 8,
           }}
         >
-          {["info", "reviews", "products"].map((tab) => (
+          {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
@@ -271,6 +324,123 @@ export default function BusinessDetailsModal({
                 </div>
               ) : (
                 <p style={{ color: "#563727" }}>Loading business information...</p>
+              )}
+            </div>
+          )}
+
+          {activeTab === "workers" && (
+            <div>
+              <h3 style={{ marginTop: 0, color: "#DE9E48" }}>Team Members</h3>
+              {workersLoading ? (
+                <p style={{ color: "#563727" }}>Loading workers...</p>
+              ) : workersError ? (
+                <p style={{ color: "#B00020" }}>Unable to load workers: {workersError}</p>
+              ) : workers.length === 0 ? (
+                <p style={{ color: "#563727" }}>No workers listed for this salon yet.</p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  {workers.map((worker) => (
+                    <div
+                      key={String(worker.employee_id)}
+                      style={{
+                        display: "flex",
+                        gap: 16,
+                        border: "1px solid #DE9E48",
+                        borderRadius: 10,
+                        padding: 16,
+                        backgroundColor: "#FFF9F4",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      {worker.profile_picture ? (
+                        <img
+                          src={worker.profile_picture}
+                          alt={`${worker.first_name} ${worker.last_name}`}
+                          style={{
+                            width: 96,
+                            height: 96,
+                            objectFit: "cover",
+                            borderRadius: "50%",
+                            border: "2px solid #DE9E48",
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: 96,
+                            height: 96,
+                            borderRadius: "50%",
+                            border: "2px solid #DE9E48",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: "rgba(222,158,72,0.12)",
+                            color: "#DE9E48",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {`${worker.first_name?.[0] ?? ""}${worker.last_name?.[0] ?? ""}`.toUpperCase() || "?"}
+                        </div>
+                      )}
+
+                      <div style={{ flex: 1 }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigate(`/customer/worker/${worker.employee_id}`);
+                            onClose();
+                          }}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            padding: 0,
+                            margin: 0,
+                            color: "#DE9E48",
+                            cursor: "pointer",
+                            fontSize: 20,
+                            fontWeight: 700,
+                            textAlign: "left",
+                          }}
+                        >
+                          {worker.first_name} {worker.last_name}
+                        </button>
+                        {worker.expertise && (
+                          <p style={{ margin: "6px 0", color: "#372C2E" }}>
+                            <strong>Specialties:</strong> {worker.expertise}
+                          </p>
+                        )}
+                        {worker.bio && (
+                          <p style={{ margin: "6px 0", color: "#372C2E" }}>
+                            {worker.bio.length > 220 ? `${worker.bio.slice(0, 220)}…` : worker.bio}
+                          </p>
+                        )}
+                        {worker.approved === false && (
+                          <p style={{ margin: "6px 0", color: "#B00020" }}>
+                            Awaiting salon approval
+                          </p>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigate(`/customer/worker/${worker.employee_id}`);
+                            onClose();
+                          }}
+                          style={{
+                            marginTop: 8,
+                            backgroundColor: "#563727",
+                            color: "#FFFFFF",
+                            border: "none",
+                            padding: "8px 14px",
+                            borderRadius: 6,
+                            cursor: "pointer",
+                          }}
+                        >
+                          View Profile
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           )}
