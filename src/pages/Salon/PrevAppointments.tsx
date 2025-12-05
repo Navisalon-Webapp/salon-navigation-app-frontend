@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Appt from '../../components/AppointmentCard';
 // import { BsSearch } from 'react-icons/bs';
 
-// const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 type AppointmentInfo = {
   id: string;
@@ -19,6 +19,7 @@ type AppointmentInfo = {
 export default function OwnerAppointments() {
   const navigate = useNavigate();
   const [pastAppointments, setPastAppointments] = useState<AppointmentInfo[]>([]);
+  const [futureAppointments, setFutureAppointments] = useState<AppointmentInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [_searchVal, setSearchVal] = useState("");
@@ -31,20 +32,24 @@ export default function OwnerAppointments() {
     setLoading(true);
     setError(null);
     try {
-      /*// Fetch past appointments
-      const pastRes = await fetch(`${API_BASE}/worker/past-appointments`, {
+      // Fetch past appointments
+      const pastRes = await fetch(`${API_BASE}/business/appointments/past`, {
         credentials: 'include',
       });
-      
+
+      const futureRes = await fetch(`${API_BASE}/business/appointments/future`, {
+        credentials: 'include'
+      })
       
       if (!pastRes.ok || !futureRes.ok) {
         throw new Error(`Failed to load appointments`);
       }
       
       const pastData: AppointmentInfo[] = await pastRes.json();
+      const futureData: AppointmentInfo[] = await futureRes.json();
       
       setPastAppointments(pastData);
-      setFutureAppointments(futureData);*/
+      setFutureAppointments(futureData);
     } catch (e: any) {
       setError(e?.message || "Something went wrong");
       setPastAppointments([]);
@@ -123,6 +128,42 @@ export default function OwnerAppointments() {
           </div>
           {/* Past Appointments Section */}
           <div>
+            <h2
+              style={{
+                color: "#FFFFFF",
+                fontSize: "1.5rem",
+                marginBottom: 16,
+                paddingBottom: 8,
+                borderBottom: "2px solid #DE9E48",
+              }}
+            >
+              Upcomming Appointments
+            </h2>
+
+            {futureAppointments.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "2rem", color: "rgba(255,255,255,0.6)" }}>
+                No upcomming appointments.
+              </div>
+            ) : (
+              <div>
+                {futureAppointments.map((appt) => (
+                  <div
+                    key={appt.id}
+                    onClick={() => navigate(`/salon/appointment/${appt.id}`)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <Appt
+                      name={appt.client}
+                      salon={appt.service}
+                      time={appt.time}
+                      date={appt.date}
+                      theme="dark"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
             <h2
               style={{
                 color: "#FFFFFF",
