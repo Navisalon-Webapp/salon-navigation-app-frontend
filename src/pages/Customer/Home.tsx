@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import RewardRing from "../../components/Rewards/RewardRing";
 import RewardsPopup from "../../components/Rewards/RewardsPopup";
 
@@ -9,7 +9,12 @@ type Salon = {
   points: number;
   goal: number;
   address?: string;
+  programType?: string | null;
+  rewardType?: string | null;
+  rewardValue?: number | null;
 };
+
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const formatDate = (dateString: string) => {
   if (!dateString) return "";
@@ -27,55 +32,61 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   const [salons, setSalons] = useState<Salon[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loyaltyError, setLoyaltyError] = useState<string | null>(null);
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [cartLoading, setCartLoading] = useState(true);
   const [prevAppointment, setPrevAppointment] = useState<any | null>(null);
   const [futureAppointment, setFutureAppointment] = useState<any | null>(null);
   const [apptLoading, setApptLoading] = useState(true);
 
+  const mountedRef = useRef(true);
   useEffect(() => {
-    let isMounted = true;
-    
-    const fetchLoyaltyPoints = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/clients/view-loyalty-points`, {
-          credentials: "include",
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (isMounted) {
-            setSalons(data);
-          }
-        } else {
-          console.error("Failed to fetch loyalty points");
-          if (isMounted) {
-            setSalons([]);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching loyalty points:", error);
-        if (isMounted) {
-          setSalons([]);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchLoyaltyPoints();
-    
     return () => {
-      isMounted = false;
+      mountedRef.current = false;
     };
   }, []);
+
+  const fetchLoyaltyPoints = useCallback(async () => {
+    setLoading(true);
+    setLoyaltyError(null);
+    try {
+      const response = await fetch(`${API_BASE}/api/clients/view-loyalty-points`, {
+        credentials: "include",
+      });
+
+      if (!mountedRef.current) {
+        return;
+      }
+
+      if (response.ok) {
+        const data = await response.json();
+        setSalons(Array.isArray(data) ? data : []);
+      } else {
+        console.error("Failed to fetch loyalty points");
+        setSalons([]);
+        setLoyaltyError("Unable to load loyalty rewards right now.");
+      }
+    } catch (error) {
+      console.error("Error fetching loyalty points:", error);
+      if (mountedRef.current) {
+        setSalons([]);
+        setLoyaltyError("Unable to load loyalty rewards right now.");
+      }
+    } finally {
+      if (mountedRef.current) {
+        setLoading(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchLoyaltyPoints();
+  }, [fetchLoyaltyPoints]);
 
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/clients/view-cart`, { credentials: "include" });
+        const res = await fetch(`${API_BASE}/api/clients/view-cart`, { credentials: "include" });
         if (res.ok) {
           const data = await res.json();
           setCartItems(data.cart_items || data.items || []);
@@ -92,10 +103,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
     const fetchAppointments = async () => {
       try {
-        const pastRes = await fetch(`${API}/api/clients/view-prev-appointments`, {
+        const pastRes = await fetch(`${API_BASE}/api/clients/view-prev-appointments`, {
           credentials: "include",
         });
         let prev = null;
@@ -107,7 +117,7 @@ export default function Home() {
         }
         setPrevAppointment(prev);
 
-        const futureRes = await fetch(`${API}/api/clients/view-future-appointments`, {
+        const futureRes = await fetch(`${API_BASE}/api/clients/view-future-appointments`, {
           credentials: "include",
         });
         let future = null;
@@ -182,6 +192,26 @@ export default function Home() {
             }}
           >
             Loading rewards...
+          </div>
+        ) : loyaltyError ? (
+          <div
+            style={{
+              backgroundColor: "#DE9E48",
+              borderRadius: 12,
+              padding: 20,
+              width: 300,
+              minHeight: 320,
+              color: "#FFFFFF",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Loyalty Rewards</div>
+            <div>{loyaltyError}</div>
           </div>
         ) : salons.length === 0 ? (
           <div
@@ -353,10 +383,11 @@ export default function Home() {
         </div>
       </div>
 
-      <RewardsPopup
+        <RewardsPopup
         open={open}
         onClose={() => setOpen(false)}
         salons={salons}
+        onRedeemed={() => void fetchLoyaltyPoints()}
       />
     </div>
   );

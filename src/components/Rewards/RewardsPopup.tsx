@@ -1,15 +1,34 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 type Salon = {
   id: string;
+  bid: number;
   name: string;
   points: number;
   goal: number;
   address?: string;
+  programType?: string | null;
+  rewardType?: string | null;
+  rewardValue?: number | null;
 };
 
-export default function RewardsPopup({ open, onClose, salons }: { open: boolean; onClose: () => void; salons: Salon[] }) {
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+export default function RewardsPopup({
+  open,
+  onClose,
+  salons,
+  onRedeemed,
+}: {
+  open: boolean;
+  onClose: () => void;
+  salons: Salon[];
+  onRedeemed?: () => void;
+}) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const [busySalonId, setBusySalonId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   if (!open) return null;
 
@@ -17,6 +36,87 @@ export default function RewardsPopup({ open, onClose, salons }: { open: boolean;
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (cardRef.current && !cardRef.current.contains(e.target as Node)) onClose();
+  };
+
+  useEffect(() => {
+    if (open) {
+      setFeedback(null);
+      setError(null);
+      setBusySalonId(null);
+    }
+  }, [open]);
+
+  const handleRedeem = async (salon: Salon) => {
+    if (salon.points <= 0) {
+      setError("You don't have any points to redeem with this salon yet.");
+      return;
+    }
+
+    const suggested = salon.goal > 0 ? Math.min(salon.points, salon.goal) : salon.points;
+    const promptValue = window.prompt(
+      `Redeem points at ${salon.name}. You currently have ${salon.points} points.\n\nEnter how many points to redeem:`,
+      String(Math.max(1, suggested))
+    );
+
+    if (promptValue === null) {
+      return;
+    }
+
+    const parsed = Number.parseInt(promptValue, 10);
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      setError("Please enter a valid positive number of points to redeem.");
+      return;
+    }
+    if (parsed > salon.points) {
+      setError("You cannot redeem more points than you currently have.");
+      return;
+    }
+
+    setBusySalonId(salon.id);
+    setError(null);
+    setFeedback(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/loyalty/redeem`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bid: salon.bid, points: parsed }),
+      });
+
+      const payload = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        const message = payload?.message ?? "Unable to redeem points right now.";
+        setError(message);
+        return;
+      }
+
+      const discount = payload?.data?.discount ?? 0;
+      setFeedback(`Redeemed ${parsed} points for a $${Number(discount).toFixed(2)} discount.`);
+      if (onRedeemed) {
+        onRedeemed();
+      }
+    } catch (err) {
+      console.error("Failed to redeem loyalty points", err);
+      setError("Unable to redeem points right now. Please try again later.");
+    } finally {
+      setBusySalonId(null);
+    }
+  };
+
+  const programLabel = (programType?: string | null) => {
+    switch (programType) {
+      case "appts_thresh":
+        return "Visits milestone";
+      case "pdct_thresh":
+        return "Product purchases";
+      case "points_thresh":
+        return "Points goal";
+      case "price_thresh":
+        return "Spend goal";
+      default:
+        return "Loyalty goal";
+    }
   };
 
   return (
@@ -75,6 +175,36 @@ export default function RewardsPopup({ open, onClose, salons }: { open: boolean;
         </div>
 
         <div style={{ padding: 20 }}>
+          {feedback && (
+            <div
+              style={{
+                background: "rgba(61, 156, 75, 0.1)",
+                border: "1px solid rgba(61, 156, 75, 0.45)",
+                color: "#245530",
+                borderRadius: 8,
+                padding: "10px 12px",
+                marginBottom: 16,
+              }}
+            >
+              {feedback}
+            </div>
+          )}
+
+          {error && (
+            <div
+              style={{
+                background: "rgba(176, 0, 32, 0.12)",
+                border: "1px solid rgba(176, 0, 32, 0.55)",
+                color: "#8C1C13",
+                borderRadius: 8,
+                padding: "10px 12px",
+                marginBottom: 16,
+              }}
+            >
+              {error}
+            </div>
+          )}
+
           {/* Totals */}
           <div
             style={{
@@ -94,10 +224,18 @@ export default function RewardsPopup({ open, onClose, salons }: { open: boolean;
           </div>
 
           {/* List */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 12, alignItems: "center" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1.4fr 0.6fr 0.6fr 0.9fr",
+              gap: 12,
+              alignItems: "stretch",
+            }}
+          >
             <div style={{ fontSize: 12, opacity: 0.7 }}>Salon</div>
             <div style={{ fontSize: 12, opacity: 0.7, textAlign: "right" }}>Points</div>
             <div style={{ fontSize: 12, opacity: 0.7, textAlign: "right" }}>Goal</div>
+            <div style={{ fontSize: 12, opacity: 0.7, textAlign: "center" }}>Actions</div>
 
             {salons.map((s: Salon) => (
               <React.Fragment key={s.id}>
@@ -112,9 +250,37 @@ export default function RewardsPopup({ open, onClose, salons }: { open: boolean;
                 >
                   <div style={{ fontWeight: 700, color: "#372C2E" }}>{s.name}</div>
                   <div style={{ fontSize: 12, color: "#563727", opacity: 0.8 }}>{s.address ?? ""}</div>
+                  <div style={{ fontSize: 12, color: "#563727", opacity: 0.8 }}>
+                    {programLabel(s.programType)} · {s.rewardType ?? "Reward"}
+                    {s.rewardValue !== null && s.rewardValue !== undefined
+                      ? ` (${Number(s.rewardValue).toLocaleString()})`
+                      : ""}
+                  </div>
                 </div>
                 <div style={{ textAlign: "right", fontWeight: 700 }}>{s.points}</div>
                 <div style={{ textAlign: "right", opacity: 0.8 }}>{s.goal ?? "-"}</div>
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                  <button
+                    type="button"
+                    onClick={() => handleRedeem(s)}
+                    disabled={busySalonId === s.id || s.points <= 0}
+                    style={{
+                      background: s.points > 0 ? "#DE9E48" : "#BFBFBF",
+                      color: "#372C2E",
+                      border: "none",
+                      borderRadius: 8,
+                      padding: "6px 12px",
+                      fontWeight: 600,
+                      cursor:
+                        busySalonId === s.id ? "wait" : s.points <= 0 ? "not-allowed" : "pointer",
+                      minWidth: 90,
+                      opacity: busySalonId === s.id || s.points <= 0 ? 0.7 : 1,
+                    }}
+                    title={s.points <= 0 ? "No points available to redeem" : undefined}
+                  >
+                    {busySalonId === s.id ? "Processing..." : "Redeem"}
+                  </button>
+                </div>
               </React.Fragment>
             ))}
           </div>
