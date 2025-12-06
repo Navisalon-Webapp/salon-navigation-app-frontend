@@ -22,7 +22,6 @@ export default function OwnerAppointments() {
   const [futureAppointments, setFutureAppointments] = useState<AppointmentInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [_searchVal, setSearchVal] = useState("");
 
   useEffect(() => {
     loadAppointments();
@@ -57,11 +56,6 @@ export default function OwnerAppointments() {
       setLoading(false);
     }
   };
-  function handleSearchClick(){
-    //searchVal
-    //add backend call to only return appointments for specific clients? if nothing then return all info
-    //change past appointments
-  }
   return (
     <div style={{ 
       backgroundColor: "#2A1F1D", 
@@ -120,12 +114,6 @@ export default function OwnerAppointments() {
 
       {!loading && !error && (
         <>
-          <div>
-              <input onChange={e => setSearchVal(e.target.value)}>
-              </input>
-              <button onClick={handleSearchClick}>Search</button>
-              {/* <BsSearch onClick={handleSearchClick} /> */}
-          </div>
           {/* Past Appointments Section */}
           <div>
             <h2
@@ -137,12 +125,12 @@ export default function OwnerAppointments() {
                 borderBottom: "2px solid #DE9E48",
               }}
             >
-              Upcomming Appointments
+              Upcoming Appointments
             </h2>
 
             {futureAppointments.length === 0 ? (
               <div style={{ textAlign: "center", padding: "2rem", color: "rgba(255,255,255,0.6)" }}>
-                No upcomming appointments.
+                No upcoming appointments.
               </div>
             ) : (
               <div>
