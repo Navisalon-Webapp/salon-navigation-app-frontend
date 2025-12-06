@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: String(data.User_ID),
           name: `${data["first name"]} ${data["last name"]}`.trim(),
           role: data.role,
-          employeeId: data.employee_id ? String(data.employee_id) : undefined,
+          employeeId: data.eid ? String(data.eid) : undefined,
         });
       } catch {
         // best effort; keep previously provided auth state
