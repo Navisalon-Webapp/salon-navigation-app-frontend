@@ -18,6 +18,7 @@ import CustomerSettings from "./pages/Customer/Settings";
 import Cart from "./pages/Customer/Cart";
 import CustomerAppointments from "./pages/Customer/PrevAppointments";
 import SalonReview from "./pages/Customer/SalonReview";
+import CustomerWorkerProfile from "./pages/Customer/WorkerProfile";
 
 // OWNER
 import ApproveWorkers from "./pages/Salon/ApproveWorkers";
@@ -37,6 +38,7 @@ import ManageAvailability from "./pages/Worker/ManageAvailability";
 import AppointmentsToday from "./pages/Worker/AppointmentsToday";
 import WorkerAppointments from "./pages/Worker/PrevAppointments";
 import WorkerAppointment from "./pages/Worker/Appointment";
+import WorkerProfile from "./pages/Worker/Profile";
 
 // ADMIN
 import Dashboard from "./pages/Admin/Dashboard"
@@ -237,16 +239,41 @@ function MainLayout() {
                       </div>
                     </div>
                     <div style={{ padding: 12, display: "grid", gap: 8 }}>
-                      <button style={accBtnStyle}>Profile</button>
-                      <button style={accBtnStyle}>Transactions</button>
-                      {user?.role === "customer" ? (
-                      <NavLink to="/customer/settings" style={{ ...accBtnStyle, display: "block" }} onClick={() => setOpen(false)}>
-                          Settings
+                      {user?.role === "employee" ? (
+                        <NavLink
+                          to="/employee/profile"
+                          style={{
+                            ...accBtnStyle,
+                            display: "block",
+                            textDecoration: "none",
+                            color: "#372C2E",
+                          }}
+                          onClick={() => setOpen(false)}
+                        >
+                          Profile
                         </NavLink>
                       ) : (
-                        <button style={accBtnStyle}>Settings</button>
+                        <button style={accBtnStyle}>Profile</button>
                       )}
-                    <button onClick={signOut} style={{ ...accBtnStyle, color: "#B00020" }}>
+
+                      {user?.role !== "employee" && (
+                        <>
+                          <button style={accBtnStyle}>Transactions</button>
+                          {user?.role === "customer" ? (
+                            <NavLink
+                              to="/customer/settings"
+                              style={{ ...accBtnStyle, display: "block" }}
+                              onClick={() => setOpen(false)}
+                            >
+                              Settings
+                            </NavLink>
+                          ) : (
+                            <button style={accBtnStyle}>Settings</button>
+                          )}
+                        </>
+                      )}
+
+                      <button onClick={signOut} style={{ ...accBtnStyle, color: "#B00020" }}>
                         Sign out
                       </button>
                     </div>
@@ -289,6 +316,7 @@ export default function App() {
               <Route path="cart" element={<Cart />} />
               <Route path="prev-appointments" element={<CustomerAppointments />} />
               <Route path="salon-review" element={<SalonReview />} />
+              <Route path="worker/:employeeId" element={<CustomerWorkerProfile />} />
 
             </Route>
 
@@ -313,6 +341,7 @@ export default function App() {
               <Route path="appointments-today" element={<AppointmentsToday />} />
               <Route path="prev-appointments" element={<WorkerAppointments />} />
               <Route path="appointment/:appointmentId" element={<WorkerAppointment />} />
+              <Route path="profile" element={<WorkerProfile />} />
             </Route>
 
             {/* ADMIN GROUP */}

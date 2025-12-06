@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import AppointmentModal from "../../components/appointment_modal";
 import BusinessDetailsModal from "../../components/BusinessDetailsModal";
 
@@ -29,6 +30,7 @@ interface Worker {
 type Mode = "salons" | "workers";
 
 export default function Browse() {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>("salons");
   const [results, setResults] = useState<Salon[] | Worker[]>([]);
   const [service, setService] = useState("");
@@ -238,11 +240,29 @@ export default function Browse() {
               }}
             >
               <h3 style={{ marginTop: 0 }}>
-                {mode === "salons"
-                  ? (item as Salon).name
-                  : `${(item as Worker).employee_first_name} ${
-                      (item as Worker).employee_last_name
-                    }`}
+                {mode === "salons" ? (
+                  (item as Salon).name
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate(`/customer/worker/${(item as Worker).employee_id}`)
+                    }
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      margin: 0,
+                      color: "#DE9E48",
+                      cursor: "pointer",
+                      fontSize: "inherit",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {(item as Worker).employee_first_name} {" "}
+                    {(item as Worker).employee_last_name}
+                  </button>
+                )}
               </h3>
               <p style={{ margin: "4px 0" }}>
                 {(item as Salon | Worker).street}, {(item as Salon | Worker).city},{" "}
@@ -278,6 +298,24 @@ export default function Browse() {
                 >
                   Schedule Appointment
                 </button>
+
+                {mode === "workers" && (
+                  <button
+                    style={{
+                      backgroundColor: "#563727",
+                      border: "none",
+                      color: "#FFFFFF",
+                      padding: "8px 12px",
+                      borderRadius: 6,
+                      cursor: "pointer",
+                    }}
+                    onClick={() =>
+                      navigate(`/customer/worker/${(item as Worker).employee_id}`)
+                    }
+                  >
+                    View Profile
+                  </button>
+                )}
                 
                 {mode === "salons" && (
                   <button
