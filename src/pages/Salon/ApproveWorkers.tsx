@@ -95,7 +95,7 @@ const ApproveWorkers: React.FC = () => {
             marginBottom: "1.5rem",
           }}
         >
-          Approve Workers
+          Pending
         </h1>
 
         {/* List */}
