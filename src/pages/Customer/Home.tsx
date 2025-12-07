@@ -41,6 +41,7 @@ export default function Home() {
 
   const mountedRef = useRef(true);
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
     };
@@ -183,7 +184,7 @@ export default function Home() {
               borderRadius: 12,
               padding: 20,
               width: 300,
-              minHeight: 320,
+              minHeight: 340,
               color: "#FFFFFF",
               display: "flex",
               alignItems: "center",
@@ -200,7 +201,7 @@ export default function Home() {
               borderRadius: 12,
               padding: 20,
               width: 300,
-              minHeight: 320,
+              minHeight: 340,
               color: "#FFFFFF",
               display: "flex",
               flexDirection: "column",
@@ -220,7 +221,7 @@ export default function Home() {
               borderRadius: 12,
               padding: 20,
               width: 300,
-              minHeight: 320,
+              minHeight: 340,
               color: "#FFFFFF",
               display: "flex",
               flexDirection: "column",

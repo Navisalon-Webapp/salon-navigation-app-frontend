@@ -14,6 +14,8 @@ type Salon = {
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
+const defaultSalons: Salon[] = [];
+
 export default function RewardsPopup({
   open,
   onClose,
@@ -22,7 +24,7 @@ export default function RewardsPopup({
 }: {
   open: boolean;
   onClose: () => void;
-  salons: Salon[];
+  salons?: Salon[];
   onRedeemed?: () => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -30,9 +32,9 @@ export default function RewardsPopup({
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  if (!open) return null;
-
-  const total = salons.reduce((acc: number, s: Salon) => acc + (s.points || 0), 0);
+  const salonList = Array.isArray(salons) ? salons : defaultSalons;
+  const hasSalons = salonList.length > 0;
+  const total = salonList.reduce((acc: number, s: Salon) => acc + (Number(s.points) || 0), 0);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (cardRef.current && !cardRef.current.contains(e.target as Node)) onClose();
@@ -45,6 +47,10 @@ export default function RewardsPopup({
       setBusySalonId(null);
     }
   }, [open]);
+
+  if (!open) {
+    return null;
+  }
 
   const handleRedeem = async (salon: Salon) => {
     if (salon.points <= 0) {
@@ -205,85 +211,111 @@ export default function RewardsPopup({
             </div>
           )}
 
-          {/* Totals */}
-          <div
-            style={{
-              background: "#F9F5F1",
-              border: "1px solid #DE9E48",
-              borderRadius: 10,
-              padding: 12,
-              marginBottom: 16,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              fontWeight: 600,
-            }}
-          >
-            <span>Total points across salons</span>
-            <span>{total}</span>
-          </div>
+          {hasSalons ? (
+            <>
+              <div
+                style={{
+                  background: "#F9F5F1",
+                  border: "1px solid #DE9E48",
+                  borderRadius: 10,
+                  padding: 12,
+                  marginBottom: 16,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  fontWeight: 600,
+                }}
+              >
+                <span>Total rewards progress</span>
+                <span>{total}</span>
+              </div>
 
-          {/* List */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1.4fr 0.6fr 0.6fr 0.9fr",
-              gap: 12,
-              alignItems: "stretch",
-            }}
-          >
-            <div style={{ fontSize: 12, opacity: 0.7 }}>Salon</div>
-            <div style={{ fontSize: 12, opacity: 0.7, textAlign: "right" }}>Points</div>
-            <div style={{ fontSize: 12, opacity: 0.7, textAlign: "right" }}>Goal</div>
-            <div style={{ fontSize: 12, opacity: 0.7, textAlign: "center" }}>Actions</div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1.4fr 0.6fr 0.6fr 0.9fr",
+                  gap: 12,
+                  alignItems: "stretch",
+                }}
+              >
+                <div style={{ fontSize: 12, opacity: 0.7 }}>Salon</div>
+                <div style={{ fontSize: 12, opacity: 0.7, textAlign: "right" }}>Progress</div>
+                <div style={{ fontSize: 12, opacity: 0.7, textAlign: "right" }}>Goal</div>
+                <div style={{ fontSize: 12, opacity: 0.7, textAlign: "center" }}>Actions</div>
 
-            {salons.map((s: Salon) => (
-              <React.Fragment key={s.id}>
-                <div
-                  style={{
-                    background: "#FFFFFF",
-                    border: "1px solid #E6E6E6",
-                    borderRadius: 8,
-                    padding: "10px 12px",
-                    gridColumn: "1 / 2",
-                  }}
-                >
-                  <div style={{ fontWeight: 700, color: "#372C2E" }}>{s.name}</div>
-                  <div style={{ fontSize: 12, color: "#563727", opacity: 0.8 }}>{s.address ?? ""}</div>
-                  <div style={{ fontSize: 12, color: "#563727", opacity: 0.8 }}>
-                    {programLabel(s.programType)} · {s.rewardType ?? "Reward"}
-                    {s.rewardValue !== null && s.rewardValue !== undefined
-                      ? ` (${Number(s.rewardValue).toLocaleString()})`
-                      : ""}
-                  </div>
-                </div>
-                <div style={{ textAlign: "right", fontWeight: 700 }}>{s.points}</div>
-                <div style={{ textAlign: "right", opacity: 0.8 }}>{s.goal ?? "-"}</div>
-                <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                  <button
-                    type="button"
-                    onClick={() => handleRedeem(s)}
-                    disabled={busySalonId === s.id || s.points <= 0}
-                    style={{
-                      background: s.points > 0 ? "#DE9E48" : "#BFBFBF",
-                      color: "#372C2E",
-                      border: "none",
-                      borderRadius: 8,
-                      padding: "6px 12px",
-                      fontWeight: 600,
-                      cursor:
-                        busySalonId === s.id ? "wait" : s.points <= 0 ? "not-allowed" : "pointer",
-                      minWidth: 90,
-                      opacity: busySalonId === s.id || s.points <= 0 ? 0.7 : 1,
-                    }}
-                    title={s.points <= 0 ? "No points available to redeem" : undefined}
-                  >
-                    {busySalonId === s.id ? "Processing..." : "Redeem"}
-                  </button>
-                </div>
-              </React.Fragment>
-            ))}
-          </div>
+                {salonList.map((s: Salon) => {
+                  const displayReward = (() => {
+                    if (s.rewardValue === null || s.rewardValue === undefined) {
+                      return "";
+                    }
+                    const numericReward = Number(s.rewardValue);
+                    if (Number.isFinite(numericReward)) {
+                      return ` (${numericReward.toLocaleString()})`;
+                    }
+                    return typeof s.rewardValue === "string" ? ` (${s.rewardValue})` : "";
+                  })();
+
+                  return (
+                    <React.Fragment key={s.id ?? `${s.bid}`}>
+                      <div
+                        style={{
+                          background: "#FFFFFF",
+                          border: "1px solid #E6E6E6",
+                          borderRadius: 8,
+                          padding: "10px 12px",
+                          gridColumn: "1 / 2",
+                        }}
+                      >
+                        <div style={{ fontWeight: 700, color: "#372C2E" }}>{s.name}</div>
+                        <div style={{ fontSize: 12, color: "#563727", opacity: 0.8 }}>{s.address ?? ""}</div>
+                        <div style={{ fontSize: 12, color: "#563727", opacity: 0.8 }}>
+                          {programLabel(s.programType)} · {s.rewardType ?? "Reward"}
+                          {displayReward}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: "right", fontWeight: 700 }}>{s.points}</div>
+                      <div style={{ textAlign: "right", opacity: 0.8 }}>{s.goal ?? "-"}</div>
+                      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                        <button
+                          type="button"
+                          onClick={() => handleRedeem(s)}
+                          disabled={busySalonId === s.id || s.points <= 0}
+                          style={{
+                            background: s.points > 0 ? "#DE9E48" : "#BFBFBF",
+                            color: "#372C2E",
+                            border: "none",
+                            borderRadius: 8,
+                            padding: "6px 12px",
+                            fontWeight: 600,
+                            cursor:
+                              busySalonId === s.id ? "wait" : s.points <= 0 ? "not-allowed" : "pointer",
+                            minWidth: 90,
+                            opacity: busySalonId === s.id || s.points <= 0 ? 0.7 : 1,
+                          }}
+                          title={s.points <= 0 ? "No points available to redeem" : undefined}
+                        >
+                          {busySalonId === s.id ? "Processing..." : "Redeem"}
+                        </button>
+                      </div>
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div
+              style={{
+                background: "#F9F5F1",
+                border: "1px solid #DE9E48",
+                borderRadius: 10,
+                padding: 16,
+                textAlign: "center",
+                fontWeight: 600,
+              }}
+            >
+              No loyalty activity yet.
+            </div>
+          )}
         </div>
       </div>
     </div>

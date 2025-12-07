@@ -15,7 +15,7 @@ export default function RewardRing({ current, goal, salonName = "Salon" }: { cur
         borderRadius: 12,
         padding: 20,
         width: 300,
-        height: 250,
+        minHeight: 340,
         color: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
