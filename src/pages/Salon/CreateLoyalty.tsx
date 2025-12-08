@@ -92,6 +92,13 @@ const CreateLoyalty: React.FC<Props> = () => {
   }, [fetchPrograms]);
 
 
+  const handleRewardValueChange = (value: string) => {
+    const allowed = /^\d*(?:\.\d*)?$/;
+    if (value === "" || allowed.test(value)) {
+      setRewardValue(value);
+    }
+  };
+
   const submit = async () => {
     setMessage(null);
 
@@ -294,13 +301,12 @@ const CreateLoyalty: React.FC<Props> = () => {
           </div>
 
           <input
-            type="number"
+            type="text"
+            inputMode="decimal"
             placeholder="Reward Value (e.g., 10 for 10% off or 50 for $50)"
             value={rewardValue}
-            onChange={(e) => setRewardValue(e.target.value)}
+            onChange={(e) => handleRewardValueChange(e.target.value)}
             style={inputStyle}
-            min={0}
-            step="0.01"
           />
 
           <div>

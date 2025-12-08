@@ -145,6 +145,7 @@ export default function Home() {
 
   const currentPoints = topSalon?.points || 0;
   const goalPoints = topSalon?.goal || 100;
+  const topProgramType = topSalon?.programType;
 
   return (
     <div
@@ -246,6 +247,7 @@ export default function Home() {
               current={currentPoints} 
               goal={goalPoints}
               salonName={topSalon?.name || "Salon"}
+              programType={topProgramType}
             />
           </button>
         )}

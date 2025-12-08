@@ -16,6 +16,37 @@ const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const defaultSalons: Salon[] = [];
 
+type ProgramDescriptor = {
+  plural: string;
+  singular: string;
+};
+
+const PROGRAM_UNITS: Record<string, ProgramDescriptor> = {
+  appts_thresh: { plural: "appointments", singular: "appointment" },
+  pdct_thresh: { plural: "products", singular: "product" },
+  points_thresh: { plural: "points", singular: "point" },
+  price_thresh: { plural: "dollars", singular: "dollar" },
+};
+
+const getProgramUnits = (programType?: string | null): ProgramDescriptor => {
+  if (!programType) {
+    return PROGRAM_UNITS.points_thresh;
+  }
+  return PROGRAM_UNITS[programType] ?? PROGRAM_UNITS.points_thresh;
+};
+
+const formatValue = (value?: number | null): string => {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return "0";
+  }
+  return Number.isInteger(value) ? String(value) : value.toFixed(2);
+};
+
+const formatWithUnits = (value: number | null | undefined, descriptor: ProgramDescriptor): string => {
+  const safeValue = value ?? 0;
+  return `${formatValue(safeValue)} ${safeValue === 1 ? descriptor.singular : descriptor.plural}`;
+};
+
 export default function RewardsPopup({
   open,
   onClose,
@@ -34,7 +65,6 @@ export default function RewardsPopup({
 
   const salonList = Array.isArray(salons) ? salons : defaultSalons;
   const hasSalons = salonList.length > 0;
-  const total = salonList.reduce((acc: number, s: Salon) => acc + (Number(s.points) || 0), 0);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (cardRef.current && !cardRef.current.contains(e.target as Node)) onClose();
@@ -58,9 +88,10 @@ export default function RewardsPopup({
       return;
     }
 
+    const descriptor = getProgramUnits(salon.programType);
     const suggested = salon.goal > 0 ? Math.min(salon.points, salon.goal) : salon.points;
     const promptValue = window.prompt(
-      `Redeem points at ${salon.name}. You currently have ${salon.points} points.\n\nEnter how many points to redeem:`,
+      `Redeem points at ${salon.name}. You currently have ${formatWithUnits(salon.points, descriptor)}.\n\nEnter how many points to redeem:`,
       String(Math.max(1, suggested))
     );
 
@@ -226,8 +257,8 @@ export default function RewardsPopup({
                   fontWeight: 600,
                 }}
               >
-                <span>Total rewards progress</span>
-                <span>{total}</span>
+                <span>Active loyalty programs</span>
+                <span>{salonList.length}</span>
               </div>
 
               <div
@@ -255,6 +286,10 @@ export default function RewardsPopup({
                     return typeof s.rewardValue === "string" ? ` (${s.rewardValue})` : "";
                   })();
 
+                  const descriptor = getProgramUnits(s.programType);
+                  const progressText = `${formatValue(s.points)} / ${formatValue(s.goal)} ${descriptor.plural}`;
+                  const goalText = formatWithUnits(s.goal, descriptor);
+
                   return (
                     <React.Fragment key={s.id ?? `${s.bid}`}>
                       <div
@@ -273,8 +308,8 @@ export default function RewardsPopup({
                           {displayReward}
                         </div>
                       </div>
-                      <div style={{ textAlign: "right", fontWeight: 700 }}>{s.points}</div>
-                      <div style={{ textAlign: "right", opacity: 0.8 }}>{s.goal ?? "-"}</div>
+                      <div style={{ textAlign: "right", fontWeight: 700 }}>{progressText}</div>
+                      <div style={{ textAlign: "right", opacity: 0.8 }}>{goalText}</div>
                       <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                         <button
                           type="button"
