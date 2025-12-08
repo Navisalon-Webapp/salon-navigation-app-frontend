@@ -86,18 +86,19 @@ function MainLayout() {
           zIndex: 1000,
         }}
       >
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px" }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "0 20px" }}>
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
               height: 64,
+              gap: "2rem",
             }}
           >
-            <img src="/navisalon.png" alt="NaviSalon" style={{ height: 80 }} />
+            <img src="/navisalon.png" alt="NaviSalon" style={{ height: 80, flexShrink: 0 }} />
 
-            <nav style={{ display: "flex", gap: 30 }}>
+            <nav style={{ display: "flex", gap: "2rem", flex: 1, justifyContent: "center", flexWrap: "wrap", alignItems: "center" }}>
               {/* CUSTOMER NAV */}
               {user?.role === "customer" && (
                 <>
@@ -111,7 +112,7 @@ function MainLayout() {
                     Appointments
                   </NavLink>
                   <NavLink to="/customer/salon-review" style={navLinkStyle}>
-                    Make a Review
+                    Review
                   </NavLink>
                 </>
               )}
@@ -123,13 +124,13 @@ function MainLayout() {
                     Dashboard
                   </NavLink>
                   <NavLink to="/business/manage-services" style={navLinkStyle}>
-                    Manage Services
+                    Services
                   </NavLink>
                   <NavLink to="/business/approve-workers" style={navLinkStyle}>
-                    Approve Workers
+                    Employees
                   </NavLink>
                   <NavLink to="/business/reply-reviews" style={navLinkStyle}>
-                    Reply Reviews
+                    Reviews
                   </NavLink>
                   <NavLink to="/business/revenue" style={navLinkStyle}>
                     Revenue
@@ -150,7 +151,7 @@ function MainLayout() {
                     Dashboard
                   </NavLink>
                   <NavLink to="/employee/manage-availability" style={navLinkStyle}>
-                    Manage Availability
+                    Availability
                   </NavLink>
                   <NavLink to="/employee/appointments-today" style={navLinkStyle}>
                     Today's Appointments
@@ -161,7 +162,7 @@ function MainLayout() {
                 </>
               )}
 
-              {/* WORKER NAV */}
+              {/* ADMIN NAV */}
               {user?.role === "admin" && (
                 <>
                   <NavLink to="/admin/home" style={navLinkStyle}>
@@ -172,7 +173,7 @@ function MainLayout() {
             </nav>
 
             {/* Cart + Account Buttons */}
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", flexShrink: 0 }}>
               {user?.role === "customer" && (
                 <NavLink to="/customer/cart">
                   <img
