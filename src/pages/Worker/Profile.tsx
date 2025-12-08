@@ -154,7 +154,7 @@ export default function WorkerProfile() {
       setNameInput(nextProfile.fullName);
       setBioInput(nextProfile.bio);
       setPhoneInput(nextProfile.phone);
-      setBusinessInput(nextProfile.businessId);
+      setBusinessInput(nextProfile.businessName);
       await refreshPhotos();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unexpected error while loading profile";
@@ -328,9 +328,16 @@ export default function WorkerProfile() {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bid: trimmed }),
+        body: JSON.stringify({ business: trimmed }),
       });
       const payload = await res.json().catch(() => null);
+      
+      // Check if business was not found
+      if (payload && payload.bid_found === false) {
+        setActionError(`Business "${trimmed}" not found. Please check the name and try again.`);
+        return;
+      }
+      
       if (!res.ok || (payload && payload.status && payload.status !== "success")) {
         throw new Error(
           payload && typeof payload.message === "string"
@@ -338,6 +345,7 @@ export default function WorkerProfile() {
             : "Failed to update business."
         );
       }
+      
       await loadProfile();
       setActionMessage("Business updated. Approval will be required for the new location.");
     } catch (err) {
@@ -356,6 +364,7 @@ export default function WorkerProfile() {
     }
 
     setSavingField("profile-picture");
+    const formElement = event.currentTarget;
     try {
       const formData = new FormData();
       formData.append("image", profileImageFile);
@@ -375,7 +384,7 @@ export default function WorkerProfile() {
       const dataUrl = await convertFileToDataUrl(profileImageFile);
       setProfile((prev) => (prev ? { ...prev, profilePicture: dataUrl } : prev));
       setProfileImageFile(null);
-      event.currentTarget.reset();
+      formElement.reset();
       setActionMessage("Profile picture updated.");
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Failed to update profile picture.");
@@ -393,6 +402,7 @@ export default function WorkerProfile() {
     }
 
     setSavingField("portfolio");
+    const formElement = event.currentTarget;
     try {
       const formData = new FormData();
       formData.append("image", workImageFile);
@@ -409,9 +419,20 @@ export default function WorkerProfile() {
             : "Failed to upload photo."
         );
       }
+      
+      // Optimistically add image to state immediately
+      const dataUrl = await convertFileToDataUrl(workImageFile);
+      const newPhoto: WorkPhoto = {
+        id: typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random()}`,
+        picture: dataUrl,
+        active: true,
+      };
+      setPhotos((prev) => [newPhoto, ...prev]);
+      
       setWorkImageFile(null);
-      event.currentTarget.reset();
-      await refreshPhotos();
+      formElement.reset();
       setActionMessage("Added a new portfolio photo.");
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Failed to upload photo.");
@@ -597,7 +618,7 @@ export default function WorkerProfile() {
 
               <form onSubmit={handleBusinessSubmit} style={formRow}>
                 <label htmlFor="worker-business" style={labelStyle}>
-                  Business ID
+                  Business
                 </label>
                 <input
                   id="worker-business"
