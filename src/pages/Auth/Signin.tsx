@@ -11,12 +11,14 @@ const NavisalonSignIn: React.FC = () => {
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotStatus, setForgotStatus] = useState<string | null>(null);
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [resetUid, setResetUid] = useState<string | null>(null);
   const navigate = useNavigate();
   const { signIn } = useAuth();
  const handleForgotPassword = async (e: React.FormEvent) => {
   e.preventDefault();
   setForgotStatus(null);
   setForgotLoading(true);
+  setResetUid(null);
   
   console.log("[ForgotPassword] Starting request for email:", forgotEmail);
   
@@ -34,9 +36,10 @@ const NavisalonSignIn: React.FC = () => {
     });
         
     if (res.ok && data.status === "success") {
-      setForgotStatus("Password reset email sent! Check your inbox.");
+      setForgotStatus("Email verified! Click the button below to reset your password.");
+      setResetUid(data.uid);
     } else {
-      setForgotStatus(data.message || "Failed to send reset email.");
+      setForgotStatus(data.message || "Failed to verify email.");
     }
   } catch (err) {
     setForgotStatus("Something went wrong. Try again later.");
@@ -241,7 +244,7 @@ const NavisalonSignIn: React.FC = () => {
               />
               <button
                 type="submit"
-                disabled={forgotLoading || !forgotEmail}
+                disabled={forgotLoading || !forgotEmail || resetUid !== null}
                 style={{
                   padding: "0.75rem 2rem",
                   fontWeight: 600,
@@ -249,14 +252,33 @@ const NavisalonSignIn: React.FC = () => {
                   backgroundColor: "#DE9E48",
                   color: "#372C2E",
                   border: "none",
-                  cursor: forgotLoading ? "not-allowed" : "pointer",
-                  opacity: forgotLoading ? 0.7 : 1,
+                  cursor: (forgotLoading || resetUid !== null) ? "not-allowed" : "pointer",
+                  opacity: (forgotLoading || resetUid !== null) ? 0.7 : 1,
                 }}
               >
-                {forgotLoading ? "Sending..." : "Send Reset Email"}
+                {forgotLoading ? "Verifying..." : "Verify Email"}
               </button>
+              
+              {resetUid && (
+                <button
+                  type="button"
+                  onClick={() => navigate(`/password-reset/${resetUid}`)}
+                  style={{
+                    padding: "0.75rem 2rem",
+                    fontWeight: 600,
+                    borderRadius: "0.5rem",
+                    backgroundColor: "#4BB543",
+                    color: "#FFFFFF",
+                    border: "none",
+                    cursor: "pointer",
+                  }}
+                >
+                  Reset Password
+                </button>
+              )}
+              
               {forgotStatus && (
-                <p style={{ color: forgotStatus.includes("sent") ? "#4BB543" : "#ff7b7b", textAlign: "center", marginTop: "0.5rem", fontWeight: 500 }}>
+                <p style={{ color: forgotStatus.includes("verified") ? "#4BB543" : "#ff7b7b", textAlign: "center", marginTop: "0.5rem", fontWeight: 500 }}>
                   {forgotStatus}
                 </p>
               )}
