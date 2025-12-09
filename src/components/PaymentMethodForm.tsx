@@ -72,8 +72,10 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
       const res = await fetch(`${API}/payment/${user.id}`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
+        console.log("API Response for checkout modal:", data);
         setMethods(Array.isArray(data) ? data : []);
       } else {
+        console.log("API Response for checkout modal:", data);
         setMethods([]);
       }
     } catch {
@@ -235,7 +237,7 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
       body: JSON.stringify({
         payment_method_id: selectedMethodId,
         bid: bid,
-        is_product_purchase: isProductPurchase
+        is_product_purchase: true
       })
     });
 
