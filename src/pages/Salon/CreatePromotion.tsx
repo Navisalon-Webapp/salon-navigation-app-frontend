@@ -30,33 +30,46 @@ const buttonPrimary: React.CSSProperties = {
 
 type Props = {};
 
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
 const CreatePromotion: React.FC<Props> = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [discountPct, setDiscountPct] = useState("");
   const [startDate, setStartDate] = useState("");
+  const [startTime, setStartTime] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [isRecurr, setIsRecurr]  = useState(false);
+  const [recurrDays, setRecurrDays] = useState<string[]>([]);
+  const threshold = 0;
+  const programType = "appts_thresh";
+  const [rewardType, setRewardType] = useState("is_discount");
+  const [rewardValue, setRewardValue] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   const submit = async () => {
     setMessage(null);
-    const d = parseFloat(discountPct);
-    if (!title.trim() || isNaN(d) || !startDate || !endDate) {
-      setMessage("Please fill required fields and provide a numeric discount.");
+    const rwdVal = parseFloat(rewardValue);
+
+    if (!title.trim() || isNaN(rwdVal) || !startDate || !endDate) {
+      setMessage("Please fill required fields and enter a numeric reward value.");
       return;
     }
 
     const payload = {
-      lprog_id: null,
       title: title.trim(),
       description: description.trim(),
       start_date: startDate,
       end_date: endDate,
-      is_recurring: false,
-      recurr_day: null,
-      start_time: "00:00:00",
-      end_time: "23:59:59",
+      is_recurring: isRecurr,
+      recurr_days: isRecurr ? recurrDays : null,
+      start_time: startTime,
+      end_time: endTime,
+      threshold: threshold,
+      prog_type: programType,
+      reward_type: rewardType,
+      rwd_value: rwdVal,
     };
 
     setBusy(true);
@@ -80,14 +93,26 @@ const CreatePromotion: React.FC<Props> = () => {
         setMessage("Promotion created successfully.");
         setTitle("");
         setDescription("");
-        setDiscountPct("");
         setStartDate("");
+        setStartTime("");
         setEndDate("");
+        setEndTime("");
+        setRewardValue("");
+        setIsRecurr(false);
+        setRecurrDays([]);
       }
     } catch (err) {
       setMessage("Could not contact backend.");
     } finally {
       setBusy(false);
+    }
+  };
+
+  const toggleRecurrDay = (day: string) => {
+    if (recurrDays.includes(day)) {
+      setRecurrDays(recurrDays.filter(d => d !== day));
+    } else {
+      setRecurrDays([...recurrDays, day]);
     }
   };
 
@@ -118,26 +143,79 @@ const CreatePromotion: React.FC<Props> = () => {
             style={{ ...inputStyle, minHeight: 100 }}
           />
 
+          <div>
+            <label style={{ display: "block", marginBottom: 6, fontSize: 12, color: "#fff" }}>Reward Type</label>
+            <select value={rewardType} onChange={(e) => setRewardType(e.target.value)} style={inputStyle}>
+              <option value="is_appt">Free Appointment</option>
+              <option value="is_product">Free Product</option>
+              <option value="is_price">Price Off</option>
+              <option value="is_points">Points</option>
+              <option value="is_discount">Discount %</option>
+            </select>
+          </div>
+
           <input
             type="number"
-            placeholder="Discount percent"
-            value={discountPct}
-            onChange={(e) => setDiscountPct(e.target.value)}
+            placeholder="Reward Value (e.g., 10 for 10% off or 50 for $50)"
+            value={rewardValue}
+            onChange={(e) => setRewardValue(e.target.value)}
             style={inputStyle}
             min={0}
-            max={100}
+            step="0.01"
           />
 
           <div style={{ display: "flex", gap: "0.5rem" }}>
             <div style={{ flex: 1 }}>
-              <label style={{ display: "block", marginBottom: 6, fontSize: 12, color: "#fff" }}>Start date</label>
+              <label style={{ display: "block", marginBottom: 6, fontSize: 12, color: "#fff" }}>Start</label>
               <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={inputStyle} />
             </div>
+
             <div style={{ flex: 1 }}>
-              <label style={{ display: "block", marginBottom: 6, fontSize: 12, color: "#fff" }}>End date</label>
+              <label style={{ display: "block", marginBottom: 6, fontSize: 12, color: "#fff" }}>End</label>
               <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={inputStyle} />
             </div>
           </div>
+
+          <label style={{ color: "#fff", marginTop: 8, marginBottom: ".5rem" }}>
+            <input
+              type="checkbox"
+              checked={isRecurr}
+              onChange={(e) => setIsRecurr(e.target.checked)}
+              style={{ marginRight: 6 }}
+            />
+            Recurring Promotion
+          </label>
+
+          {isRecurr && (
+            <div>
+              <label style={{ display: "block", marginBottom: 6, fontSize: 12, color: "#fff" }}>
+                Select Day(s)
+              </label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.3rem", marginBottom: "1rem" }}>
+                {days.map(day => (
+                  <label key={day} style={{ color: "#fff", display: "flex", alignItems: "center", gap: 4 }}>
+                    <input
+                      type="checkbox"
+                      checked={recurrDays.includes(day)}
+                      onChange={() => toggleRecurrDay(day)}
+                    />
+                    {day}
+                  </label>
+                ))}
+              </div>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: "block", marginBottom: 6, fontSize: 12, color: "#fff" }}>Start Time</label>
+                    <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} style={{ ...inputStyle, marginTop: 4 }} />
+                  </div>
+
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: "block", marginBottom: 6, fontSize: 12, color: "#fff" }}>End Time</label>
+                    <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} style={{ ...inputStyle, marginTop: 4 }} />
+                  </div>
+              </div>
+            </div>
+          )}
 
           <div>
             <button onClick={submit} style={buttonPrimary} disabled={busy}>

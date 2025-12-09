@@ -1,4 +1,47 @@
-export default function RewardRing({ current, goal, salonName = "Salon" }: { current: number; goal: number; salonName?: string }) {
+type ProgramDescriptor = {
+  plural: string;
+  singular: string;
+};
+
+const PROGRAM_UNITS: Record<string, ProgramDescriptor> = {
+  appts_thresh: { plural: "appointments", singular: "appointment" },
+  pdct_thresh: { plural: "products", singular: "product" },
+  points_thresh: { plural: "points", singular: "point" },
+  price_thresh: { plural: "dollars", singular: "dollar" },
+};
+
+const getProgramUnits = (programType?: string | null): ProgramDescriptor => {
+  if (!programType) {
+    return PROGRAM_UNITS.points_thresh;
+  }
+  return PROGRAM_UNITS[programType] ?? PROGRAM_UNITS.points_thresh;
+};
+
+const formatValue = (value?: number | null): string => {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return "0";
+  }
+  return Number.isInteger(value) ? String(value) : value.toFixed(2);
+};
+
+const formatWithUnits = (value: number | null | undefined, descriptor: ProgramDescriptor): string => {
+  const safeValue = value ?? 0;
+  const formatted = formatValue(safeValue);
+  const word = safeValue === 1 ? descriptor.singular : descriptor.plural;
+  return `${formatted} ${word}`;
+};
+
+export default function RewardRing({
+  current,
+  goal,
+  salonName = "Salon",
+  programType,
+}: {
+  current: number;
+  goal: number;
+  salonName?: string;
+  programType?: string | null;
+}) {
   const clamped = Math.max(0, Math.min(current, goal));
   const pct = goal ? clamped / goal : 0;
   const radius = 40;
@@ -7,6 +50,11 @@ export default function RewardRing({ current, goal, salonName = "Salon" }: { cur
   const dash = circumference * pct;
 
   const remaining = Math.max(0, goal - clamped);
+  const descriptor = getProgramUnits(programType);
+  const progressLabel = `${formatValue(current)} / ${formatValue(goal)} ${descriptor.plural}`;
+  const remainingLabel = remaining > 0 ? `${formatWithUnits(remaining, descriptor)} remaining` : "Reward ready!";
+  const remainingWord = remaining === 1 ? descriptor.singular : descriptor.plural;
+  const remainingValue = formatValue(remaining);
 
   return (
     <div
@@ -15,7 +63,7 @@ export default function RewardRing({ current, goal, salonName = "Salon" }: { cur
         borderRadius: 12,
         padding: 20,
         width: 300,
-        height: 250,
+        minHeight: 340,
         color: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
@@ -62,15 +110,16 @@ export default function RewardRing({ current, goal, salonName = "Salon" }: { cur
           fill="#FFFFFF"
           style={{ fontWeight: 600 }}
         >
-          {remaining > 0 ? `${remaining} more` : "Goal met!"}
+          {remaining > 0 ? `${remainingValue} more` : "Goal met!"}
           <tspan x="55" dy="1.2em">
-            {remaining > 0 ? "points" : ""}
+            {remaining > 0 ? remainingWord : ""}
           </tspan>
         </text>
       </svg>
       <div style={{ marginTop: 12, fontSize: 16, fontWeight: 600 }}>
-        {current} / {goal} points
+        {progressLabel}
       </div>
+      <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>{remainingLabel}</div>
     </div>
   );
 }

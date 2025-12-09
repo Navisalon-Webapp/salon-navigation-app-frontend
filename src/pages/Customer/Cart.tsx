@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PaymentMethodForm from "../../components/PaymentMethodForm";
 
 interface CartItem {
   cart_id: number;
@@ -9,22 +10,14 @@ interface CartItem {
   total: number;
   business_name: string;
   image?: string;
+  bid: number;
 }
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    cardNumber: "",
-    expiry: "",
-    cvv: "",
-  });
 
   const backendBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -104,44 +97,6 @@ export default function Cart() {
     }
   };
 
-  const handleCheckout = async () => {
-    if (cartItems.length === 0) return;
-
-    setCheckoutLoading(true);
-    setError(null);
-    
-    try {
-      const res = await fetch(`${backendBase}/api/clients/checkout`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(formData),
-      });
-      
-      if (res.ok) {
-        setCheckoutSuccess(true);
-        setCartItems([]);
-        setCheckoutModalOpen(false);
-        setFormData({
-          name: "",
-          email: "",
-          cardNumber: "",
-          expiry: "",
-          cvv: "",
-        });
-        setTimeout(() => setCheckoutSuccess(false), 5000);
-      } else {
-        const errorData = await res.json();
-        setError(errorData.message || "Checkout failed");
-      }
-    } catch (err) {
-      console.error("Checkout error:", err);
-      setError("An error occurred during checkout");
-    } finally {
-      setCheckoutLoading(false);
-    }
-  };
-
   useEffect(() => {
     fetchCart();
   }, []);
@@ -158,21 +113,6 @@ export default function Cart() {
     <h1 style={{ color: "#372C2E", marginBottom: 30 }}>
       Shopping Cart
     </h1>
-
-    {checkoutSuccess && (
-      <div
-        style={{
-          backgroundColor: "#d4edda",
-          color: "#155724",
-          padding: 15,
-          borderRadius: 4,
-          marginBottom: 20,
-          textAlign: "center",
-        }}
-      >
-        <strong>✓ Order placed successfully!</strong> Come in store for pickup.
-      </div>
-    )}
 
     {error && (
       <div
@@ -360,7 +300,6 @@ export default function Cart() {
 
               <button
                 onClick={() => setCheckoutModalOpen(true)}
-                disabled={checkoutLoading}
                 style={{
                   width: "100%",
                   backgroundColor: "#DE9E48",
@@ -369,8 +308,7 @@ export default function Cart() {
                   padding: "12px",
                   fontSize: 16,
                   fontWeight: "bold",
-                  cursor: checkoutLoading ? "not-allowed" : "pointer",
-                  opacity: checkoutLoading ? 0.7 : 1,
+                  cursor: "pointer",
                 }}
               >
                 Proceed to Checkout
@@ -384,14 +322,12 @@ export default function Cart() {
         <div
           style={{
             position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            inset: 0,
             backgroundColor: "rgba(0, 0, 0, 0.5)",
             display: "flex",
-            alignItems: "center",
             justifyContent: "center",
+            padding: "40px",
+            overflowY: "auto",
             zIndex: 1000,
           }}
           onClick={() => setCheckoutModalOpen(false)}
@@ -399,164 +335,28 @@ export default function Cart() {
           <div
             style={{
               backgroundColor: "#fff",
+              borderRadius: 12,
               padding: 30,
               maxWidth: 500,
               width: "90%",
               border: "1px solid #ddd",
+              overflowY: "auto", 
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 style={{ color: "#372C2E", marginTop: 0, marginBottom: 20 }}>
-              Checkout
-            </h2>
 
             <div>
-              <div style={{ marginBottom: 15 }}>
-                <label style={{ display: "block", marginBottom: 5, fontWeight: "bold" }}>
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  style={{
-                    width: "100%",
-                    padding: 8,
-                    border: "1px solid #ddd",
-                    fontSize: 14,
-                    boxSizing: "border-box",
+                <PaymentMethodForm
+                  onSelectMethod={(method) => {
+                    console.log("Selected method:", method);
                   }}
-                  placeholder="John Doe"
+                  onClose={() => setCheckoutModalOpen(false)}
+                  bid={cartItems[0].bid}
+                  isProductPurchase={true}
                 />
-              </div>
-
-              <div style={{ marginBottom: 15 }}>
-                <label style={{ display: "block", marginBottom: 5, fontWeight: "bold" }}>
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  style={{
-                    width: "100%",
-                    padding: 8,
-                    border: "1px solid #ddd",
-                    fontSize: 14,
-                    boxSizing: "border-box",
-                  }}
-                  placeholder="john@example.com"
-                />
-              </div>
-
-              <div style={{ marginBottom: 15 }}>
-                <label style={{ display: "block", marginBottom: 5, fontWeight: "bold" }}>
-                  Card Number *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.cardNumber}
-                  onChange={(e) =>
-                    setFormData({ ...formData, cardNumber: e.target.value })
-                  }
-                  style={{
-                    width: "100%",
-                    padding: 8,
-                    border: "1px solid #ddd",
-                    fontSize: 14,
-                    boxSizing: "border-box",
-                  }}
-                  placeholder="1234 5678 9012 3456"
-                  maxLength={19}
-                />
-              </div>
-
-              <div style={{ display: "flex", gap: 15, marginBottom: 20 }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: "block", marginBottom: 5, fontWeight: "bold" }}>
-                    Expiry *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.expiry}
-                    onChange={(e) =>
-                      setFormData({ ...formData, expiry: e.target.value })
-                    }
-                    style={{
-                      width: "100%",
-                      padding: 8,
-                      border: "1px solid #ddd",
-                      fontSize: 14,
-                      boxSizing: "border-box",
-                    }}
-                    placeholder="MM/YY"
-                    maxLength={5}
-                  />
-                </div>
-
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: "block", marginBottom: 5, fontWeight: "bold" }}>
-                    CVV *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.cvv}
-                    onChange={(e) =>
-                      setFormData({ ...formData, cvv: e.target.value })
-                    }
-                    style={{
-                      width: "100%",
-                      padding: 8,
-                      border: "1px solid #ddd",
-                      fontSize: 14,
-                      boxSizing: "border-box",
-                    }}
-                    placeholder="123"
-                    maxLength={4}
-                  />
-                </div>
-              </div>
 
               <div style={{ display: "flex", gap: 10 }}>
-                <button
-                  type="button"
-                  onClick={() => setCheckoutModalOpen(false)}
-                  style={{
-                    flex: 1,
-                    padding: 10,
-                    border: "1px solid #ddd",
-                    backgroundColor: "#fff",
-                    cursor: "pointer",
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCheckout}
-                  disabled={checkoutLoading}
-                  style={{
-                    flex: 1,
-                    padding: 10,
-                    border: "none",
-                    backgroundColor: "#DE9E48",
-                    color: "#fff",
-                    fontWeight: "bold",
-                    cursor: checkoutLoading ? "not-allowed" : "pointer",
-                    opacity: checkoutLoading ? 0.7 : 1,
-                  }}
-                >
-                  {checkoutLoading ? "Processing..." : "Submit Order"}
-                </button>
+
               </div>
             </div>
           </div>

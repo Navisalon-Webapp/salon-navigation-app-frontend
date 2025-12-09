@@ -18,6 +18,7 @@ import CustomerSettings from "./pages/Customer/Settings";
 import Cart from "./pages/Customer/Cart";
 import CustomerAppointments from "./pages/Customer/PrevAppointments";
 import SalonReview from "./pages/Customer/SalonReview";
+import CustomerWorkerProfile from "./pages/Customer/WorkerProfile";
 
 // OWNER
 import ApproveWorkers from "./pages/Salon/ApproveWorkers";
@@ -32,14 +33,19 @@ import OwnerAppointments from "./pages/Salon/PrevAppointments";
 
 
 // WORKER
-import WorkerDashboard from "./pages/Worker/Dashboard";
 import ManageAvailability from "./pages/Worker/ManageAvailability";
 import AppointmentsToday from "./pages/Worker/AppointmentsToday";
 import WorkerAppointments from "./pages/Worker/PrevAppointments";
 import WorkerAppointment from "./pages/Worker/Appointment";
+import WorkerProfile from "./pages/Worker/Profile";
 
 // ADMIN
 import Dashboard from "./pages/Admin/Dashboard"
+import Engagement from "./pages/Admin/Engagement"
+import Rewards from "./pages/Admin/Rewards"
+import Revenue from "./pages/Admin/Revenue"
+import Appointments from "./pages/Admin/Appointments"
+import Demographics from "./pages/Admin/Demographics"
 
 const accBtnStyle: React.CSSProperties = {
   textAlign: "left",
@@ -84,18 +90,19 @@ function MainLayout() {
           zIndex: 1000,
         }}
       >
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 20px" }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "0 20px" }}>
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
               height: 64,
+              gap: "2rem",
             }}
           >
-            <img src="/navisalon.png" alt="NaviSalon" style={{ height: 80 }} />
+            <img src="/navisalon.png" alt="NaviSalon" style={{ height: 80, flexShrink: 0 }} />
 
-            <nav style={{ display: "flex", gap: 30 }}>
+            <nav style={{ display: "flex", gap: "2rem", flex: 1, justifyContent: "center", flexWrap: "wrap", alignItems: "center" }}>
               {/* CUSTOMER NAV */}
               {user?.role === "customer" && (
                 <>
@@ -109,7 +116,7 @@ function MainLayout() {
                     Appointments
                   </NavLink>
                   <NavLink to="/customer/salon-review" style={navLinkStyle}>
-                    Make a Review
+                    Review
                   </NavLink>
                 </>
               )}
@@ -121,13 +128,13 @@ function MainLayout() {
                     Dashboard
                   </NavLink>
                   <NavLink to="/business/manage-services" style={navLinkStyle}>
-                    Manage Services
+                    Services
                   </NavLink>
                   <NavLink to="/business/approve-workers" style={navLinkStyle}>
-                    Approve Workers
+                    Employees
                   </NavLink>
                   <NavLink to="/business/reply-reviews" style={navLinkStyle}>
-                    Reply Reviews
+                    Reviews
                   </NavLink>
                   <NavLink to="/business/revenue" style={navLinkStyle}>
                     Revenue
@@ -148,10 +155,7 @@ function MainLayout() {
                     Dashboard
                   </NavLink>
                   <NavLink to="/employee/manage-availability" style={navLinkStyle}>
-                    Manage Availability
-                  </NavLink>
-                  <NavLink to="/employee/appointments-today" style={navLinkStyle}>
-                    Today's Appointments
+                    Availability
                   </NavLink>
                   <NavLink to="/employee/prev-appointments" style={navLinkStyle}>
                     Appointments
@@ -159,18 +163,30 @@ function MainLayout() {
                 </>
               )}
 
-              {/* WORKER NAV */}
+              {/* ADMIN NAV */}
               {user?.role === "admin" && (
                 <>
                   <NavLink to="/admin/home" style={navLinkStyle}>
                     Dashboard
+                  </NavLink>
+                  <NavLink to="/admin/appointments" style={navLinkStyle}>
+                    Appointments
+                  </NavLink>
+                  <NavLink to="/admin/demographics" style={navLinkStyle}>
+                    Demographics
+                  </NavLink>
+                  <NavLink to="/admin/engagement" style={navLinkStyle}>
+                    Engagement
+                  </NavLink>
+                  <NavLink to="/admin/rewards" style={navLinkStyle}>
+                    Rewards
                   </NavLink>
                 </>
               )}
             </nav>
 
             {/* Cart + Account Buttons */}
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", flexShrink: 0 }}>
               {user?.role === "customer" && (
                 <NavLink to="/customer/cart">
                   <img
@@ -237,16 +253,36 @@ function MainLayout() {
                       </div>
                     </div>
                     <div style={{ padding: 12, display: "grid", gap: 8 }}>
-                      <button style={accBtnStyle}>Profile</button>
-                      <button style={accBtnStyle}>Transactions</button>
-                      {user?.role === "customer" ? (
-                      <NavLink to="/customer/settings" style={{ ...accBtnStyle, display: "block" }} onClick={() => setOpen(false)}>
-                          Settings
-                        </NavLink>
-                      ) : (
-                        <button style={accBtnStyle}>Settings</button>
+                      {user?.role !== "admin" && (
+                        <>
+                          {user?.role === "employee" && (
+                            <NavLink
+                              to="/employee/profile"
+                              style={{
+                                ...accBtnStyle,
+                                display: "block",
+                                textDecoration: "none",
+                                color: "#372C2E",
+                              }}
+                              onClick={() => setOpen(false)}
+                            >
+                              Profile
+                            </NavLink>
+                          )}
+
+                          {user?.role === "customer" && (
+                            <NavLink
+                              to="/customer/settings"
+                              style={{ ...accBtnStyle, display: "block" }}
+                              onClick={() => setOpen(false)}
+                            >
+                              Settings
+                            </NavLink>
+                          )}
+                        </>
                       )}
-                    <button onClick={signOut} style={{ ...accBtnStyle, color: "#B00020" }}>
+
+                      <button onClick={signOut} style={{ ...accBtnStyle, color: "#B00020" }}>
                         Sign out
                       </button>
                     </div>
@@ -289,6 +325,7 @@ export default function App() {
               <Route path="cart" element={<Cart />} />
               <Route path="prev-appointments" element={<CustomerAppointments />} />
               <Route path="salon-review" element={<SalonReview />} />
+              <Route path="worker/:employeeId" element={<CustomerWorkerProfile />} />
 
             </Route>
 
@@ -308,16 +345,21 @@ export default function App() {
 
             {/* WORKER GROUP */}
             <Route path="/employee" element={<RequireRole allow={["employee"]} />}>
-              <Route path="home" element={<WorkerDashboard />} />
+              <Route path="home" element={<AppointmentsToday />} />
               <Route path="manage-availability" element={<ManageAvailability />} />
-              <Route path="appointments-today" element={<AppointmentsToday />} />
               <Route path="prev-appointments" element={<WorkerAppointments />} />
               <Route path="appointment/:appointmentId" element={<WorkerAppointment />} />
+              <Route path="profile" element={<WorkerProfile />} />
             </Route>
 
             {/* ADMIN GROUP */}
             <Route path="/admin" element={<RequireRole allow={["admin"]} />}>
               <Route path="home" element={<Dashboard />} />
+              <Route path="engagement" element={<Engagement />} />
+              <Route path="rewards" element={<Rewards />} />
+              <Route path="revenue" element={<Revenue />} />
+              <Route path="appointments" element={<Appointments />} />
+              <Route path="demographics" element={<Demographics />} />
             </Route>
           </Route>
         </Route>
