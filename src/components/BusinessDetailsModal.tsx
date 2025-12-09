@@ -292,7 +292,22 @@ export default function BusinessDetailsModal({
           {tabs.map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab as any)}
+              onClick={async() => {setActiveTab(tab as any);
+                try {
+                        await fetch(`${backendBase}/api/visit-history/product-views`, {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json"
+                          },
+                          credentials: "include",
+                          body: JSON.stringify({ bid: businessId})
+                        }) ;
+                      } catch (err) {
+                        console.error("Failed to increment salon views", err);
+                      }
+                    }
+                
+              }
               style={{
                 padding: "12px 24px",
                 border: "none",

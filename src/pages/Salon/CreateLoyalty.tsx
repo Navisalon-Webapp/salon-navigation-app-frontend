@@ -45,6 +45,7 @@ const CreateLoyalty: React.FC<Props> = () => {
   const [programType, setProgramType] = useState("appts_thresh");
   const [rewardType, setRewardType] = useState("is_discount");
   const [rewardValue, setRewardValue] = useState("");
+  const [description, setDescription] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [programs, setPrograms] = useState<Program[]>([]);
@@ -115,6 +116,7 @@ const CreateLoyalty: React.FC<Props> = () => {
       prog_type: programType,
       reward_type: rewardType,
       rwd_value: rwdVal,
+      description: description,
     };
 
     setBusy(true);
@@ -307,6 +309,16 @@ const CreateLoyalty: React.FC<Props> = () => {
             value={rewardValue}
             onChange={(e) => handleRewardValueChange(e.target.value)}
             style={inputStyle}
+          />
+
+          <input
+            type="text"
+            placeholder="Loyalty program description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            style={inputStyle}
+            min={0}
+            step="0.01"
           />
 
           <div>

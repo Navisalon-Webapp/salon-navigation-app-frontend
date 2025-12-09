@@ -9,6 +9,7 @@ type Salon = {
   city?: string;
   state?: string;
   zip_code?: string;
+  year_est?: string;
 };
 
 type Product = {
@@ -103,6 +104,7 @@ export default function BusinessDashboard() {
   const [editCity, setEditCity] = useState("");
   const [editState, setEditState] = useState("");
   const [editZip, setEditZip] = useState("");
+  const [editYearEst, setEditYearEst] = useState("");
   const [editStatus, setEditStatus] = useState(false);
 
   const [newName, setNewName] = useState("");
@@ -134,6 +136,7 @@ export default function BusinessDashboard() {
           setEditCity(salonData.city || "");
           setEditState(salonData.state || "");
           setEditZip(salonData.zip_code || "");
+          setEditYearEst(salonData.year_est || "");
           setEditStatus(salonData.status);
         }
 
@@ -169,6 +172,7 @@ export default function BusinessDashboard() {
       city: editCity,
       state: editState,
       zip_code: editZip,
+      year_est: editYearEst,
       status: editStatus,
     };
 
@@ -183,6 +187,7 @@ export default function BusinessDashboard() {
           city: editCity,
           state: editState,
           zip_code: editZip,
+          year_est: editYearEst,
           status: editStatus,
         }),
       });
@@ -283,30 +288,6 @@ export default function BusinessDashboard() {
     }
   }
 
-  async function simulateCustomerPurchase(pid: number | undefined, quantity = 1) {
-    if (!pid) return;
-
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/products/${pid}/purchase`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quantity }),
-      });
-
-      if (res.ok) {
-        const result = await res.json();
-        if (result.status === "success" && result.product) {
-          setProducts((prev) => 
-            prev.map((p) => (p.pid === pid ? { ...p, stock: result.product.stock } : p))
-          );
-        }
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }
-
   async function handleDeleteProduct(pid: number | undefined) {
     if (!pid) return;
     
@@ -362,6 +343,10 @@ export default function BusinessDashboard() {
             <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <span style={{ color: "rgba(255,255,255,0.85)", fontSize: 13 }}>ZIP</span>
               <input value={editZip} onChange={(e) => setEditZip(e.target.value)} style={inputStyle} />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <span style={{ color: "rgba(255,255,255,0.85)", fontSize: 13 }}>Est. Year</span>
+              <input value={editYearEst} onChange={(e) => setEditYearEst(e.target.value)} style={inputStyle} />
             </label>
           </div>
           <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 12 }}>
@@ -518,9 +503,6 @@ export default function BusinessDashboard() {
                       </button>
                       <button onClick={() => handleUpdateStock(p.pid, Math.max(0, p.stock - 1))} style={buttonGhost}>
                         - Stock
-                      </button>
-                      <button onClick={() => simulateCustomerPurchase(p.pid, 1)} style={buttonGhost}>
-                        Simulate Purchase
                       </button>
                       <button 
                         onClick={() => handleDeleteProduct(p.pid)} 
