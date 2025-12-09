@@ -181,9 +181,6 @@ function MainLayout() {
                   <NavLink to="/admin/rewards" style={navLinkStyle}>
                     Rewards
                   </NavLink>
-                  <NavLink to="/admin/revenue" style={navLinkStyle}>
-                    Revenue
-                  </NavLink>
                 </>
               )}
             </nav>

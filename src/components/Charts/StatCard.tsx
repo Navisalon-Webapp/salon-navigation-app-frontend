@@ -1,13 +1,14 @@
-import React from "react";
+import {forwardRef} from "react";
 
 interface StatCardProps {
   title: string;
   value: string | number;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value }) => {
+const StatCard = forwardRef<HTMLDivElement, StatCardProps>( ({ title, value }, ref) => {
   return (
     <div
+      ref={ref}
       style={{
         backgroundColor: "#563727",
         color: "#FFFFFF",
@@ -25,6 +26,6 @@ const StatCard: React.FC<StatCardProps> = ({ title, value }) => {
       <div style={{ opacity: 0.8, textAlign:"center", marginTop: "0.25rem" }}>{title}</div>
     </div>
   );
-};
+});
 
 export default StatCard;

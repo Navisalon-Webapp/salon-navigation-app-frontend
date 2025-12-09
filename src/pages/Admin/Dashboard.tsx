@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import StatCard from "../../components/Charts/StatCard";
 import LineChart from "../../components/Charts/LineChart";
 import BarChart from "../../components/Charts/BarChart";
+import ReportButton from "../../components/ReportButton";
 
 type Salon = {
   id: string;
@@ -10,6 +11,13 @@ type Salon = {
 };
 
 const Dashboard: React.FC = () => {
+  const activeRef = useRef<HTMLDivElement>(null);
+  const savedRef = useRef<HTMLDivElement>(null);
+  const totalRevRef = useRef<HTMLDivElement>(null);
+  const ageRef = useRef<HTMLDivElement>(null);
+  const apptRef = useRef<HTMLDivElement>(null);
+  const revRef = useRef<HTMLDivElement>(null);
+
   const [salons, setSalons] = useState<Salon[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -101,7 +109,7 @@ const Dashboard: React.FC = () => {
       }
 
       if (rev_data.status === "success") {
-        set_rev_labels(rev_data.revenue_data);
+        set_rev_labels(rev_data.revenue_labels);
         set_rev_data(rev_data.revenue_data);
       }
 
@@ -114,6 +122,15 @@ const Dashboard: React.FC = () => {
     loadPendingSalons();
     fetch_metrics();
   }, []);
+
+  const reportItems = [
+    {id: "active", label: "Total Active Users", ref: activeRef},
+    {id: "saved", label: "Total Amount Saved by Users", ref: savedRef},
+    {id: "tot_rev", label: "Total Platform Revenue", ref: totalRevRef},
+    {id: "age", label: "Client Age Distribution", ref: ageRef},
+    {id: "appts", label: "Appointment Scheduling Frequency", ref: apptRef},
+    {id: "revenue", label: "Platform Revenue Trend", ref: revRef}
+  ]
 
   const handleApprove = async (id: string) => {
     const w = salons.find((x) => x.id === id);
@@ -165,7 +182,7 @@ const Dashboard: React.FC = () => {
 
         {/* List */}
         <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
+          style={{ display: "flex", flexDirection: "column", gap: "0.75rem" , marginBottom:"1.5rem"}}
         >
           {loading && (
             <div
@@ -254,31 +271,42 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* ---------------- Dashboard Section ---------------- */}
-        <h2
-          style={{
-            marginTop: "3rem",
-            fontSize: "1.8rem",
-            textAlign: "center",
-            marginBottom: "1.5rem",
-            fontWeight: 600,
-            color: "#FFFFFF",
-          }}
-        >
-          Admin Dashboard
-        </h2>
+        {/* Heading */}
+        <div style={{ position: "relative", display: "flex", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+        <div>
+            <h2 style={{
+                position: "absolute",
+                left: "50%",
+                transform: "translateX(-50%)",
+                fontSize: "1.8rem",
+                textAlign: "center",
+                marginBottom: "1.5rem",
+                fontWeight: 600,
+                color: "#FFFFFF",
+                }}>
+                Admin Dashboard
+            </h2>
+        </div>
+        <div style={{
+            flex: 1,
+            display: "flex",
+            justifyContent: "flex-end"
+        }}>
+            <ReportButton items={reportItems}></ReportButton></div>
+        </div>
 
         {/* Cards */}
         <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-          <StatCard title="Total active users" value={tot_active} />
-          <StatCard title="Total saved" value={tot_saved} />
-          <StatCard title="Total revenue" value={tot_rev} />
+          <StatCard ref={activeRef} title="Total active users" value={tot_active} />
+          <StatCard ref={savedRef} title="Total saved" value={tot_saved} />
+          <StatCard ref={totalRevRef} title="Total revenue" value={tot_rev} />
         </div>
 
         {/* Charts */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "2rem" }}>
-            <BarChart labels={age_labels} data={age_data} title="Client age distribution" />
-            <LineChart labels={appt_labels} data={appt_data} title="Appointments this year" />
-            <LineChart labels={rev_labels} data={rev_data} title="Revenue for last year" />
+        <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginBottom: "2rem" }}>
+            <BarChart ref={ageRef} labels={age_labels} data={age_data} title="Client age distribution" />
+            <LineChart ref={apptRef} labels={appt_labels} data={appt_data} title="Appointments this year" />
+            <LineChart ref={revRef} labels={rev_labels} data={rev_data} title="Revenue for last year" />
         </div>
       </div>
 

@@ -11,13 +11,16 @@ interface Salon {
   state: string;
   country: string;
   zip_code: string;
+  services: string;
+  categories: string;
 }
 
 interface Worker {
   employee_id: number;
   employee_first_name: string;
   employee_last_name: string;
-  expertise: string;
+  services: string;
+  categories: string;
   business_name: string;
   business_id: number;
   street: string;
@@ -25,6 +28,11 @@ interface Worker {
   state: string;
   country: string;
   zip_code: string;
+}
+
+interface ServiceCategory {
+  cat_id: number;
+  name: string;
 }
 
 type Mode = "salons" | "workers";
@@ -44,8 +52,19 @@ export default function Browse() {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsBusinessId, setDetailsBusinessId] = useState<number | null>(null);
   const [detailsBusinessName, setDetailsBusinessName] = useState("");
+  const [categories, setCategories] = useState<ServiceCategory[]>([]);
 
   const backendBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+  useEffect(() => {
+    fetch(`${backendBase}/api/client/service-categories`, {
+      credentials: "include",
+    })
+      .then(res => res.json())
+      .then(data => setCategories(data))
+      .catch(err => console.error("Failed to load categories", err));
+  }, []);
+
 
   // --- Fetch all data depending on mode ---
   const fetchData = async () => {
@@ -77,6 +96,11 @@ export default function Browse() {
       // --- Apply client-side filters ---
       let filtered: (Salon | Worker)[] = data;
 
+      if (!Array.isArray(data)) {
+        console.error("Workers API did not return an array:", data);
+        throw new Error("Invalid response format from server");
+      }
+
       if (location.trim()) {
         filtered = filtered.filter((item: any) => {
           const loc = `${item.city || ""} ${item.state || ""} ${item.country || ""}`;
@@ -86,7 +110,15 @@ export default function Browse() {
 
       if (service.trim() && mode === "workers") {
         filtered = (filtered as Worker[]).filter((w) =>
-          w.expertise?.toLowerCase().includes(service.toLowerCase())
+          w.services?.toLowerCase().includes(service.toLowerCase()) ||
+          w.categories?.toLowerCase().includes(service.toLowerCase())
+        );
+      }
+
+      if (service.trim() && mode === "salons") {
+        filtered = (filtered as Salon[]).filter((s) =>
+          s.services?.toLowerCase().includes(service.toLowerCase()) ||
+          s.categories?.toLowerCase().includes(service.toLowerCase())
         );
       }
 
@@ -154,19 +186,18 @@ export default function Browse() {
           <option value="workers">Browse Workers</option>
         </select>
 
-        <input
-          type="text"
-          placeholder="Filter by service (e.g. haircut)"
+        <select
           value={service}
           onChange={(e) => setService(e.target.value)}
-          disabled={mode === "salons"}
-          style={{
-            padding: 8,
-            borderRadius: 6,
-            border: "1px solid #DE9E48",
-            color: "#372C2E",
-          }}
-        />
+          style={{ padding: 8, borderRadius: 6, border: "1px solid #DE9E48", color: "#372C2E" }}
+        >
+          <option value="">All Services</option>
+          {categories.map((c) => (
+            <option key={c.cat_id} value={c.name.toLowerCase()}>
+              {c.name}
+            </option>
+          ))}
+        </select>
 
         <input
           type="text"
@@ -268,12 +299,12 @@ export default function Browse() {
                 {(item as Salon | Worker).street}, {(item as Salon | Worker).city},{" "}
                 {(item as Salon | Worker).state}
               </p>
+              <p style={{ margin: "4px 0" }}>
+                Services: <b>{(item as Salon).services}</b>
+              </p>
 
               {mode === "workers" && (
                 <>
-                  <p style={{ margin: "4px 0" }}>
-                    Expertise: <b>{(item as Worker).expertise}</b>
-                  </p>
                   <p style={{ margin: "4px 0" }}>
                     Salon: {(item as Worker).business_name}
                   </p>
@@ -327,11 +358,25 @@ export default function Browse() {
                       borderRadius: 6,
                       cursor: "pointer",
                     }}
-                    onClick={() => {
+                    onClick={async () => {
                       setDetailsBusinessId((item as Salon).business_id);
                       setDetailsBusinessName((item as Salon).name);
                       setDetailsModalOpen(true);
-                    }}
+                      
+                      try {
+                        await fetch(`${backendBase}/api/visit-history/salon-views`, {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json"
+                          },
+                          credentials: "include",
+                          body: JSON.stringify({ bid: (item as Salon).business_id})
+                        }) ;
+                      } catch (err) {
+                        console.error("Failed to increment salon views", err);
+                      }
+                    }
+                  }
                   >
                     View Details
                   </button>

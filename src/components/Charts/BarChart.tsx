@@ -1,4 +1,4 @@
-import React from "react";
+import {forwardRef} from "react";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from "chart.js";
 
@@ -10,7 +10,7 @@ interface BarChartProps {
   title: string;
 }
 
-const BarChart: React.FC<BarChartProps> = ({ labels, data, title }) => {
+const BarChart = forwardRef<HTMLDivElement, BarChartProps>( ({ labels, data, title }, ref) => {
   const chartData = {
     labels,
     datasets: [
@@ -36,6 +36,7 @@ const BarChart: React.FC<BarChartProps> = ({ labels, data, title }) => {
 
   return(
     <div
+      ref={ref}
       style={{
         backgroundColor: "#563727",
         color: "#FFFFFF",
@@ -60,6 +61,6 @@ const BarChart: React.FC<BarChartProps> = ({ labels, data, title }) => {
       <Bar data={chartData} options={options} /></div>
     </div>
 );
-};
+});
 
 export default BarChart;

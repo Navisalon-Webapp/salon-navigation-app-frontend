@@ -7,7 +7,7 @@ type Appointment = {
   time: string; // e.g. "09:30 AM"
   client: string;
   service: string;
-  durationMins: number;
+  duration: number;
   notes?: string;
   status: "scheduled" | "checked-in" | "completed" | "cancelled";
 };
@@ -195,7 +195,7 @@ const AppointmentsToday: React.FC = () => {
                 <span style={badgeStyle(a.status)}>{a.status}</span>
               </div>
               <div style={{ marginTop: "0.35rem", fontSize: "0.95rem" }}>
-                {a.client} • {a.service} • {a.durationMins} mins
+                {a.client} • {a.service} • {a.duration} mins
               </div>
               {a.notes && (
                 <div style={{ marginTop: "0.35rem", opacity: 0.85 }}>

@@ -1,4 +1,4 @@
-import React from "react";
+import {forwardRef} from "react";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
@@ -10,7 +10,7 @@ interface PieChartProps {
   title: string;
 }
 
-const PieChart: React.FC<PieChartProps> = ({ labels, data, title }) => {
+const PieChart = forwardRef<HTMLDivElement, PieChartProps>( ({ labels, data, title }, ref) => {
   const chartData = {
     labels,
     datasets: [
@@ -32,6 +32,7 @@ const PieChart: React.FC<PieChartProps> = ({ labels, data, title }) => {
 
   return (
     <div 
+      ref={ref}
       style={{
         backgroundColor: "#563727",
         color: "#FFFFFF",
@@ -55,6 +56,6 @@ const PieChart: React.FC<PieChartProps> = ({ labels, data, title }) => {
           }}><Pie data={chartData} options={options} /></div>
     </div>
   );
-};
+});
 
 export default PieChart;

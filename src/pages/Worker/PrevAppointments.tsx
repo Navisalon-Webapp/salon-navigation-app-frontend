@@ -11,7 +11,6 @@ type AppointmentInfo = {
   client: string;
   service: string;
   durationMins: number;
-  notes?: string;
   status: string;
 };
 

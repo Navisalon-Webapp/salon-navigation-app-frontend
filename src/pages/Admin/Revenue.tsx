@@ -1,10 +1,19 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import StatCard from "../../components/Charts/StatCard";
 import LineChart from "../../components/Charts/LineChart";
 import BarChart from "../../components/Charts/BarChart";
 import PieChart from "../../components/Charts/PieChart";
+import ReportButton from "../../components/ReportButton";
 
 const Revenue: React.FC = () => {
+    const totRef = useRef<HTMLDivElement>(null);
+    const monthRef = useRef<HTMLDivElement>(null);
+    const yearRef = useRef<HTMLDivElement>(null);
+    const avgRef = useRef<HTMLDivElement>(null);
+    const trendRef = useRef<HTMLDivElement>(null);
+    const sourceRef = useRef<HTMLDivElement>(null);
+    const catRef = useRef<HTMLDivElement>(null);
+
     const [tot_revenue, set_tot_revenue] = useState('$0');
     const [last_month, set_last_month] = useState<number>(0);
     const [last_year, set_last_year] = useState<number>(0);
@@ -101,6 +110,16 @@ const Revenue: React.FC = () => {
         fetch_metrics();
     }, []);
 
+    const reportItems = [
+        {id: "totRev", label: "Total Platform Revenue", ref: totRef},
+        {id: "changeMonth", label: "Revenue Change From Last Month", ref: monthRef},
+        {id: "changeYear", label: "Revenue Change From Last Year", ref: yearRef},
+        {id: "avgRev", label: "Average Salon Monthly Revenue", ref: avgRef},
+        {id: "revTrend", label: "Platform Revenue Trend", ref: trendRef},
+        {id: "source", label: "Revenue Source Distribution", ref: sourceRef},
+        {id: "topCats", label: "Top Service Categories by Revenue", ref: catRef}
+    ]
+
     return (
     <div style={{ position: "relative"}}>
       {/* Background */}
@@ -118,31 +137,43 @@ const Revenue: React.FC = () => {
         <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
 
         {/* ---------------- Dashboard Section ---------------- */}
-        <h2
-            style={{
-            fontSize: "1.8rem",
-            textAlign: "center",
-            marginBottom: "1.5rem",
-            fontWeight: 600,
-            color: "#FFFFFF",
-            }}
-        >
-            Salon Revenue
-        </h2>
+        {/* Heading */}
+        <div style={{ position: "relative", display: "flex", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+            <div>
+                <h2 style={{
+                    position: "absolute",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    fontSize: "1.8rem",
+                    textAlign: "center",
+                    marginBottom: "1.5rem",
+                    fontWeight: 600,
+                    color: "#FFFFFF",
+                    }}>
+                    All Salon Revenue
+                </h2>
+            </div>
+            <div style={{
+                flex: 1,
+                display: "flex",
+                justifyContent: "flex-end"
+            }}>
+                <ReportButton items={reportItems}></ReportButton></div>
+            </div>
 
         {/* Cards */}
         <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-            <StatCard title="Total revenue" value={tot_revenue} />
-            <StatCard title="From last month" value={format_percent_change(last_month)} />
-            <StatCard title="From last year" value={format_percent_change(last_year)} />
-            <StatCard title="Average salon monthly revenue" value={avg_salon_revenue} />
+            <StatCard ref={totRef} title="Total revenue" value={tot_revenue} />
+            <StatCard ref={monthRef} title="From last month" value={format_percent_change(last_month)} />
+            <StatCard ref={yearRef} title="From last year" value={format_percent_change(last_year)} />
+            <StatCard ref={avgRef} title="Average salon monthly revenue" value={avg_salon_revenue} />
         </div>
 
         {/* Charts */}
         <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-            <LineChart labels={rev_labels} data={rev_data} title="Revenue for Last Year" />
-            <PieChart labels={src_labels} data={src_data} title="Revenue by Source" />
-            <BarChart labels={service_labels} data={service_data} title="Revenue by Service Category (Top 5)" />
+            <LineChart ref={trendRef} labels={rev_labels} data={rev_data} title="Revenue for Last Year" />
+            <PieChart ref={sourceRef} labels={src_labels} data={src_data} title="Revenue by Source" />
+            <BarChart ref={catRef} labels={service_labels} data={service_data} title="Revenue by Service Category (Top 5)" />
         </div>
         </div>
 

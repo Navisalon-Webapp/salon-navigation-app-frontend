@@ -1,10 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import StatCard from "../../components/Charts/StatCard";
 import LineChart from "../../components/Charts/LineChart";
 import BarChart from "../../components/Charts/BarChart";
 import PieChart from "../../components/Charts/PieChart";
+import ReportButton from "../../components/ReportButton";
 
 const Engagement: React.FC = () => {
+    const totActiveRef = useRef<HTMLDivElement>(null);
+    const exploreRef = useRef<HTMLDivElement>(null);
+    const salViewRef = useRef<HTMLDivElement>(null);
+    const prodViewRef = useRef<HTMLDivElement>(null);
+    const newUserRef = useRef<HTMLDivElement>(null);
+    const roleRef = useRef<HTMLDivElement>(null);
+    const activeRef = useRef<HTMLDivElement>(null);
+
     const [tot_active_users, set_tot_active_users] = useState('0');
     const [avg_salons_explored, set_avg_salons_explored] = useState('0');
     const [avg_salon_views, set_avg_salon_views] = useState('0');
@@ -93,6 +102,16 @@ const Engagement: React.FC = () => {
         fetch_metrics();
     }, []);
 
+    const reportItems = [
+        {id: "tot_act", label: "Total Active Users", ref: totActiveRef},
+        {id: "explore", label: "Average Salons Clients Explore", ref: exploreRef},
+        {id: "sal_visit", label: "Average Salon Page Visits by Clients", ref: salViewRef},
+        {id: "prod_visit", label: "Average Product Page Visits by Clients", ref: prodViewRef},
+        {id: "new_users", label: "New User Registration Trend", ref: newUserRef},
+        {id: "role", label: "Active User Role Distribution", ref: roleRef},
+        {id: "active", label: "Active User Trend", ref: activeRef}
+    ]
+
     return (
     <div style={{ position: "relative"}}>
       {/* Background */}
@@ -110,31 +129,43 @@ const Engagement: React.FC = () => {
         <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
 
         {/* ---------------- Dashboard Section ---------------- */}
-        <h2
-            style={{
-            fontSize: "1.8rem",
-            textAlign: "center",
-            marginBottom: "1.5rem",
-            fontWeight: 600,
-            color: "#FFFFFF",
-            }}
-        >
-            User Engagement
-        </h2>
+        {/* Heading */}
+        <div style={{ position: "relative", display: "flex", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+            <div>
+                <h2 style={{
+                    position: "absolute",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    fontSize: "1.8rem",
+                    textAlign: "center",
+                    marginBottom: "1.5rem",
+                    fontWeight: 600,
+                    color: "#FFFFFF",
+                    }}>
+                    User Engagement
+                </h2>
+            </div>
+            <div style={{
+                flex: 1,
+                display: "flex",
+                justifyContent: "flex-end"
+            }}>
+                <ReportButton items={reportItems}></ReportButton></div>
+            </div>
 
         {/* Cards */}
         <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-            <StatCard title="Total active users" value={tot_active_users} />
-            <StatCard title="Average salons client explore" value={avg_salons_explored} />
-            <StatCard title="Average salon views by clients" value={avg_salon_views} />
-            <StatCard title="Average product views by clients" value={avg_prod_views} />
+            <StatCard ref={totActiveRef} title="Total active users" value={tot_active_users} />
+            <StatCard ref={exploreRef} title="Average salons client explore" value={avg_salons_explored} />
+            <StatCard ref={salViewRef} title="Average salon views by clients" value={avg_salon_views} />
+            <StatCard ref={prodViewRef} title="Average product views by clients" value={avg_prod_views} />
         </div>
 
         {/* Charts */}
         <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-            <LineChart labels={reg_trend_labels} data={reg_trend_data} title="User Registration Trend" />
-            <PieChart labels={active_user_roles_labels} data={active_user_roles_data} title="Active User Roles" />
-            <LineChart labels={active_user_labels} data={active_user_data} title="Active User Trend" />
+            <LineChart ref={newUserRef} labels={reg_trend_labels} data={reg_trend_data} title="User Registration Trend" />
+            <PieChart ref={roleRef} labels={active_user_roles_labels} data={active_user_roles_data} title="Active User Roles" />
+            <LineChart ref={activeRef} labels={active_user_labels} data={active_user_data} title="Active User Trend" />
         </div>
         </div>
 

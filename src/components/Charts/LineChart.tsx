@@ -1,4 +1,4 @@
-import React from "react";
+import {forwardRef} from "react";
 import { Line } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend } from "chart.js";
 
@@ -10,7 +10,7 @@ interface LineChartProps {
   title: string;
 }
 
-const LineChart: React.FC<LineChartProps> = ({ labels, data, title }) => {
+const LineChart = forwardRef<HTMLDivElement, LineChartProps>( ({ labels, data, title }, ref) => {
   const chartData = {
     labels,
     datasets: [
@@ -38,6 +38,7 @@ const LineChart: React.FC<LineChartProps> = ({ labels, data, title }) => {
 
   return (
     <div
+      ref={ref}
       style={{
         backgroundColor: "#563727",
         color: "#FFFFFF",
@@ -63,6 +64,6 @@ const LineChart: React.FC<LineChartProps> = ({ labels, data, title }) => {
     </div>
     
 );
-};
+});
 
 export default LineChart;

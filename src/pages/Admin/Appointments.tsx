@@ -1,10 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import StatCard from "../../components/Charts/StatCard";
 import LineChart from "../../components/Charts/LineChart";
 import BarChart from "../../components/Charts/BarChart";
 import PieChart from "../../components/Charts/PieChart";
+import ReportButton from "../../components/ReportButton";
 
 const Appointments: React.FC = () => {
+    const reschedRef = useRef<HTMLDivElement>(null);
+    const cancelRef = useRef<HTMLDivElement>(null);
+    const noshowRef = useRef<HTMLDivElement>(null);
+    const apptCatRef = useRef<HTMLDivElement>(null);
+    const apptDayRef = useRef<HTMLDivElement>(null);
+    const apptTimeRef = useRef<HTMLDivElement>(null);
+    const apptTrendRef = useRef<HTMLDivElement>(null);
+
     const [resched_rate, set_resched_rate] = useState('0%');
     const [cancel_rate, set_cancel_rate] = useState('0%');
     const [no_show_rate, set_no_show_rate] = useState('0%');
@@ -102,6 +111,15 @@ const Appointments: React.FC = () => {
         fetch_metrics();
     }, []);
             
+    const reportItems = [
+        {id: "resched", label: "Appointment Reschedule Rate", ref: reschedRef},
+        {id: "cancel", label: "Appointment Cancellation Rate", ref: cancelRef},
+        {id: "no_show", label: "Appointment No Show Rate", ref: noshowRef},
+        {id: "appt_cat", label: "Appointments by Service Category", ref: apptCatRef},
+        {id: "appt_day", label: "Appointments by Day of Week", ref: apptDayRef},
+        {id: "appt_time", label: "Appointments by Time of Day", ref: apptTimeRef},
+        {id: "appt_trend", label: "Appointment Scheduling Frequency ", ref: apptTrendRef}
+    ]
 
     return (
     <div style={{ position: "relative"}}>
@@ -120,31 +138,45 @@ const Appointments: React.FC = () => {
         <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
 
         {/* ---------------- Dashboard Section ---------------- */}
-        <h2
-            style={{
-            fontSize: "1.8rem",
-            textAlign: "center",
-            marginBottom: "1.5rem",
-            fontWeight: 600,
-            color: "#FFFFFF",
-            }}
-        >
-            Appointment Trends
-        </h2>
+        {/* Heading */}
+        <div style={{ position: "relative", display: "flex", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+            <div>
+                <h2
+                    style={{
+                        position: "absolute",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        fontSize: "1.8rem",
+                        textAlign: "center",
+                        marginBottom: "1.5rem",
+                        fontWeight: 600,
+                        color: "#FFFFFF",
+                    }}
+                >
+                    Appointment Trends
+                </h2>
+            </div>
+            <div style={{
+                flex: 1,
+                display: "flex",
+                justifyContent: "flex-end"
+            }}>
+                <ReportButton items={reportItems}></ReportButton></div>
+            </div>
 
         {/* Cards */}
         <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-            <StatCard title="Reschedule rate" value={resched_rate} />
-            <StatCard title="Cancellation rate" value={cancel_rate} />
-            <StatCard title="No show rate" value={no_show_rate} />
+            <StatCard ref={reschedRef} title="Reschedule rate" value={resched_rate} />
+            <StatCard ref={cancelRef} title="Cancellation rate" value={cancel_rate} />
+            <StatCard ref={noshowRef} title="No show rate" value={no_show_rate} />
         </div>
 
         {/* Charts */}
         <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-            <PieChart labels={appt_cat_labels} data={appt_cat_data} title="Appointments by Service Category" />
-            <BarChart labels={appt_day_labels} data={appt_day_data} title="Appointments by Day of Week" />
-            <BarChart labels={appt_time_labels} data={appt_time_data} title="Appointments by Time of Day" />
-            <LineChart labels={appt_year_labels} data={appt_year_data} title="Appointments Scheduled Trend" />
+            <PieChart ref={apptCatRef} labels={appt_cat_labels} data={appt_cat_data} title="Appointments by Service Category" />
+            <BarChart ref={apptDayRef} labels={appt_day_labels} data={appt_day_data} title="Appointments by Day of Week" />
+            <BarChart ref={apptTimeRef} labels={appt_time_labels} data={appt_time_data} title="Appointments by Time of Day" />
+            <LineChart ref={apptTrendRef} labels={appt_year_labels} data={appt_year_data} title="Appointments Scheduled Trend" />
         </div>
         </div>
 

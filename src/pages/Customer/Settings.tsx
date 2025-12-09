@@ -1,5 +1,5 @@
 import EmailSubscriptions from "./EmailSubscriptions";
-import PaymentMethodForm from "./PaymentMethodForm";
+import PaymentMethodForm from "../../components/PaymentMethodForm";
 
 export default function CustomerSettings() {
   return (

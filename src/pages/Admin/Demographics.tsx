@@ -1,9 +1,17 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import StatCard from "../../components/Charts/StatCard";
 import BarChart from "../../components/Charts/BarChart";
 import PieChart from "../../components/Charts/PieChart";
+import ReportButton from "../../components/ReportButton";
 
 const Demographics: React.FC = () => {
+    const incomeRef = useRef<HTMLDivElement>(null);
+    const salonAgeRef = useRef<HTMLDivElement>(null);
+    const workerExpRef = useRef<HTMLDivElement>(null);
+    const genderRef = useRef<HTMLDivElement>(null);
+    const ageRef = useRef<HTMLDivElement>(null);
+    const industryRef = useRef<HTMLDivElement>(null);
+
     const [avg_income, set_avg_income] = useState('$0');
     const [avg_salon_age, set_avg_salon_age] = useState('0 years');
     const [avg_worker_exp, set_avg_worker_exp] = useState('0 years');
@@ -87,6 +95,16 @@ const Demographics: React.FC = () => {
 
         fetch_metrics();
     }, []);
+
+    const reportItems = [
+        { id: "income", label: "Average Client Income", ref: incomeRef },
+        { id: "salonAge", label: "Average Salon Age", ref: salonAgeRef },
+        { id: "workerExp", label: "Average Worker Experience", ref: workerExpRef },
+        { id: "gender", label: "Gender Distribution", ref: genderRef },
+        { id: "age", label: "Age Distribution", ref: ageRef },
+        { id: "industry", label: "Industry Distribution", ref: industryRef }
+    ];
+
     return (
     <div style={{ position: "relative"}}>
       {/* Background */}
@@ -104,30 +122,42 @@ const Demographics: React.FC = () => {
         <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
 
         {/* ---------------- Dashboard Section ---------------- */}
-        <h2
-            style={{
-            fontSize: "1.8rem",
-            textAlign: "center",
-            marginBottom: "1.5rem",
-            fontWeight: 600,
-            color: "#FFFFFF",
-            }}
-        >
-            User Demographics
-        </h2>
+        {/* Heading */}
+        <div style={{ position: "relative", display: "flex", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+            <div>
+                <h2 style={{
+                    position: "absolute",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    fontSize: "1.8rem",
+                    textAlign: "center",
+                    marginBottom: "1.5rem",
+                    fontWeight: 600,
+                    color: "#FFFFFF",
+                    }}>
+                    User Demographics
+                </h2>
+            </div>
+            <div style={{
+                flex: 1,
+                display: "flex",
+                justifyContent: "flex-end"
+            }}>
+                <ReportButton items={reportItems}></ReportButton></div>
+            </div>
 
         {/* Cards */}
         <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-            <StatCard title="Average client income" value={avg_income} />
-            <StatCard title="Average salon age" value={avg_salon_age} />
-            <StatCard title="Average worker experience" value={avg_worker_exp} />
+            <StatCard ref={incomeRef} title="Average client income" value={avg_income} />
+            <StatCard ref={salonAgeRef} title="Average salon age" value={avg_salon_age} />
+            <StatCard ref={workerExpRef}title="Average worker experience" value={avg_worker_exp} />
         </div>
 
         {/* Charts */}
         <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-            <PieChart labels={gender_labels} data={gender_data} title="Client Gender Distribution" />
-            <BarChart labels={age_labels} data={age_data} title="Client Age Distribution" />
-            <BarChart labels={ind_labels} data={ind_data} title="Client Industry Distribution (Top 5)" />
+            <PieChart ref={genderRef} labels={gender_labels} data={gender_data} title="Client Gender Distribution" />
+            <BarChart ref={ageRef} labels={age_labels} data={age_data} title="Client Age Distribution" />
+            <BarChart ref={industryRef} labels={ind_labels} data={ind_data} title="Client Industry Distribution (Top 5)" />
         </div>
         </div>
 

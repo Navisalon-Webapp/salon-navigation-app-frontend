@@ -1,10 +1,19 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import StatCard from "../../components/Charts/StatCard";
 import LineChart from "../../components/Charts/LineChart";
 import BarChart from "../../components/Charts/BarChart";
 import PieChart from "../../components/Charts/PieChart";
+import ReportButton from "../../components/ReportButton";
 
 const Rewards: React.FC = () => {
+    const actProgRef = useRef<HTMLDivElement>(null);
+    const partRef = useRef<HTMLDivElement>(null);
+    const avgRef = useRef<HTMLDivElement>(null);
+    const totRef = useRef<HTMLDivElement>(null);
+    const salonProgRef = useRef<HTMLDivElement>(null);
+    const progTypeRef = useRef<HTMLDivElement>(null);
+    const savedTrendRef = useRef<HTMLDivElement>(null);
+
     const [act_progs, set_act_progs] = useState('0');
     const [client_part, set_client_part] = useState('0%');
     const [avg_saved, set_avg_saved] = useState('$0');
@@ -99,6 +108,16 @@ const Rewards: React.FC = () => {
         fetch_metrics();
     }, []);
 
+    const reportItems = [
+        {id: "activeProgs", label: "Active Loyalty Programs", ref: actProgRef},
+        {id: "participation", label: "Client Loyalty Program Participation", ref: partRef},
+        {id: "avgSaved", label: "Average Client Savings", ref: avgRef},
+        {id: "totSaved", label: "Total Platform Savings", ref: totRef},
+        {id: "progSalons", label: "Loyalty Program Creation by Salon", ref: salonProgRef},
+        {id: "progType", label: "Loyalty Program Type Distribution", ref: progTypeRef},
+        {id: "savTrend", label: "Loyalty Saved Trend", ref: savedTrendRef}
+    ]
+
     return (
     <div style={{ position: "relative"}}>
       {/* Background */}
@@ -115,31 +134,44 @@ const Rewards: React.FC = () => {
       {/* Main content */}
         <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
 
-        <h2
-            style={{
-            fontSize: "1.8rem",
-            textAlign: "center",
-            marginBottom: "1.5rem",
-            fontWeight: 600,
-            color: "#FFFFFF",
-            }}
-        >
-            Loyalty Programs
-        </h2>
+        {/* ---------------- Dashboard Section ---------------- */}
+        {/* Heading */}
+        <div style={{ position: "relative", display: "flex", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+            <div>
+                <h2 style={{
+                    position: "absolute",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    fontSize: "1.8rem",
+                    textAlign: "center",
+                    marginBottom: "1.5rem",
+                    fontWeight: 600,
+                    color: "#FFFFFF",
+                    }}>
+                    Loyalty Programs
+                </h2>
+            </div>
+            <div style={{
+                flex: 1,
+                display: "flex",
+                justifyContent: "flex-end"
+            }}>
+                <ReportButton items={reportItems}></ReportButton></div>
+            </div>
 
         {/* Cards */}
         <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-            <StatCard title="Active loyalty programs" value={act_progs} />
-            <StatCard title="Client participation" value={client_part} />
-            <StatCard title="Saved on average" value={avg_saved} />
-            <StatCard title="Total savings" value={tot_savings} />
+            <StatCard ref={actProgRef} title="Active loyalty programs" value={act_progs} />
+            <StatCard ref={partRef} title="Client participation" value={client_part} />
+            <StatCard ref={avgRef} title="Saved on average" value={avg_saved} />
+            <StatCard ref={totRef} title="Total savings" value={tot_savings} />
         </div>
 
         {/* Charts */}
         <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginBottom: "2rem" }}> {/*auto-fit?*/}
-            <BarChart labels={progs_by_salon_labels} data={progs_by_salon_data} title="Loyalty Programs by Salon" />
-            <PieChart labels={prog_types_labels} data={prog_types_data} title="Loyalty Program Types" />
-            <LineChart labels={saved_labels} data={saved_data} title="Amount Saved Trend" />
+            <BarChart ref={salonProgRef} labels={progs_by_salon_labels} data={progs_by_salon_data} title="Loyalty Programs by Salon" />
+            <PieChart ref={progTypeRef} labels={prog_types_labels} data={prog_types_data} title="Loyalty Program Types" />
+            <LineChart ref={savedTrendRef} labels={saved_labels} data={saved_data} title="Amount Saved Trend" />
         </div>
         </div>
 

@@ -12,14 +12,14 @@ type Service = {
   sid: number;
   name: string;
   price: number;
-  durationMin: number;
+  duration: number;
 };
 
 type Worker = {
   employee_id: number;
   employee_first_name: string;
   employee_last_name: string;
-  expertise: string;
+  services: string;
 };
 
 export default function AppointmentModal({
@@ -93,7 +93,7 @@ export default function AppointmentModal({
     const selectedService = services.find(s => s.sid === serviceId);
     if (!selectedService) return;
     
-    fetch(`${backendBase}/api/employee/${selectedEmployeeId}/available-slots?date=${date}&duration=${selectedService.durationMin}`, {
+    fetch(`${backendBase}/api/employee/${selectedEmployeeId}/available-slots?date=${date}&duration=${selectedService.duration}`, {
       credentials: "include"
     })
       .then(async (res) => {
@@ -278,7 +278,7 @@ export default function AppointmentModal({
           <option value="">— Select worker —</option>
           {workers.map((w) => (
             <option key={w.employee_id} value={w.employee_id}>
-              {w.employee_first_name} {w.employee_last_name} - {w.expertise}
+              {w.employee_first_name} {w.employee_last_name} - {w.services}
             </option>
           ))}
         </select>
