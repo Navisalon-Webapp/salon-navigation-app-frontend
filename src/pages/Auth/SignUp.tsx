@@ -37,6 +37,8 @@ const NavisalonSignUp: React.FC = () => {
   const [serviceCats, setServiceCats] = useState<Array<{ cat_id: number; name: string }>>([]);
 
   useEffect(() => {
+    console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
+    console.log('API URL being used:', import.meta.env.VITE_API_URL || 'http://localhost:5000');
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/list-business`)
       .then((res) => res.json())
       .then((data) => setSalons(data))
