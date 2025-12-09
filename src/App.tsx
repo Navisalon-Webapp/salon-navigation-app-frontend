@@ -33,7 +33,6 @@ import OwnerAppointments from "./pages/Salon/PrevAppointments";
 
 
 // WORKER
-import WorkerDashboard from "./pages/Worker/Dashboard";
 import ManageAvailability from "./pages/Worker/ManageAvailability";
 import AppointmentsToday from "./pages/Worker/AppointmentsToday";
 import WorkerAppointments from "./pages/Worker/PrevAppointments";
@@ -152,9 +151,6 @@ function MainLayout() {
                   </NavLink>
                   <NavLink to="/employee/manage-availability" style={navLinkStyle}>
                     Availability
-                  </NavLink>
-                  <NavLink to="/employee/appointments-today" style={navLinkStyle}>
-                    Today's Appointments
                   </NavLink>
                   <NavLink to="/employee/prev-appointments" style={navLinkStyle}>
                     Appointments
@@ -337,9 +333,8 @@ export default function App() {
 
             {/* WORKER GROUP */}
             <Route path="/employee" element={<RequireRole allow={["employee"]} />}>
-              <Route path="home" element={<WorkerDashboard />} />
+              <Route path="home" element={<AppointmentsToday />} />
               <Route path="manage-availability" element={<ManageAvailability />} />
-              <Route path="appointments-today" element={<AppointmentsToday />} />
               <Route path="prev-appointments" element={<WorkerAppointments />} />
               <Route path="appointment/:appointmentId" element={<WorkerAppointment />} />
               <Route path="profile" element={<WorkerProfile />} />
