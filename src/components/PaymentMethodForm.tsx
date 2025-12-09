@@ -37,9 +37,7 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
-  const [fetching, setFetching] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [removingId, setRemovingId] = useState<number | null>(null);
   const [saveMethod, setSaveMethod] = useState(true);
   const [selectedMethodId, setSelectedMethodId] = useState<number | "new" | null>(null);
   const [applicablePromos, setApplicablePromos] = useState<any[]>([]);
@@ -67,7 +65,6 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
       setMethods([]);
       return;
     }
-    setFetching(true);
     try {
       const res = await fetch(`${API}/payment/${user.id}`, { credentials: "include" });
       if (res.ok) {
@@ -75,13 +72,10 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
         console.log("API Response for checkout modal:", data);
         setMethods(Array.isArray(data) ? data : []);
       } else {
-        console.log("API Response for checkout modal:", data);
         setMethods([]);
       }
     } catch {
       setMethods([]);
-    } finally {
-      setFetching(false);
     }
   }, [user]);
 
@@ -221,7 +215,11 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
   }
 
   async function handleCheckout() {
-    if (!selectedMethodId) return;
+    if (!selectedMethodId) {
+      setStatus("error");
+      setFeedback("Please select a payment method");
+      return;
+    }
 
     console.log("CHECKOUT PAYLOAD:", {
       payment_method_id: selectedMethodId,
@@ -229,25 +227,42 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
       is_product_purchase: isProductPurchase
     });
 
+    setLoading(true);
+    setStatus("idle");
+    setFeedback(null);
 
-    const res = await fetch(`${API}/transactions/checkout/`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        payment_method_id: selectedMethodId,
-        bid: bid,
-        is_product_purchase: true
-      })
-    });
+    try {
+      const res = await fetch(`${API}/transactions/checkout/`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          payment_method_id: selectedMethodId,
+          bid: bid,
+          is_product_purchase: true
+        })
+      });
 
-    const data = await res.json();
-
-    if (res.ok) {
-      // show success
-      onClose(); // modal closes
-    } else {
-      // show error
+      if (res.ok) {
+        setStatus("success");
+        setFeedback("Checkout successful!");
+        // Wait to show success message, then close and reload
+        setTimeout(() => {
+          onClose?.();
+          // Reload the page to refresh cart
+          window.location.reload();
+        }, 2000);
+      } else {
+        const errorData = await res.json();
+        setStatus("error");
+        setFeedback(errorData.message || "Checkout failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      setStatus("error");
+      setFeedback("Network error. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -321,7 +336,7 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
               <input
                 value={cardNumber}
                 onChange={(e) => {
-                  const type = detectCardType(e.target.value);
+                  const type = detectCardType(e.target.value) as "visa" | "mastercard" | "amex" | "discover" | "debit";
                   setCardType(type);
                   setCardNumber(e.target.value);
                   setStatus("idle");
@@ -573,8 +588,24 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
 )}
 
           {selectedMethodId !== null && (
-  <div style={{ display: "flex", flexDirection: "row", gap: 10, marginTop: 20 }}>
+  <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 20 }}>
     
+    {/* Feedback message for checkout */}
+    {feedback && (
+      <div style={{
+        padding: "12px",
+        borderRadius: 8,
+        textAlign: "center",
+        fontWeight: 600,
+        backgroundColor: status === "success" ? "#d4edda" : status === "error" ? "#f8d7da" : "#fff3cd",
+        color: status === "success" ? "#155724" : status === "error" ? "#721c24" : "#856404",
+        border: `1px solid ${status === "success" ? "#c3e6cb" : status === "error" ? "#f5c6cb" : "#ffeeba"}`
+      }}>
+        {feedback}
+      </div>
+    )}
+
+    <div style={{ display: "flex", flexDirection: "row", gap: 10 }}>
     <button
       style={{
         flex: 1,
@@ -584,13 +615,13 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
         border: "none",
         borderRadius: 10,
         fontWeight: 700,
-        cursor: "pointer",
+        cursor: loading ? "not-allowed" : "pointer",
+        opacity: loading ? 0.6 : 1,
       }}
-      onClick={
-        handleCheckout
-      }
+      onClick={handleCheckout}
+      disabled={loading}
     >
-      Checkout
+      {loading ? "Processing..." : "Checkout"}
     </button>
 
     <button
@@ -605,7 +636,7 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
     >
       Cancel
     </button>
-
+    </div>
   </div>
 )}
 

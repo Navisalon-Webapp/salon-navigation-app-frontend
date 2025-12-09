@@ -25,7 +25,7 @@ const PieChart = forwardRef<HTMLDivElement, PieChartProps>( ({ labels, data, tit
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "bottom", labels: { color: "#FFFFFF" } },
+      legend: { position: "bottom" as const, labels: { color: "#FFFFFF" } },
       tooltip: { enabled: true },
     },
   };

@@ -253,27 +253,24 @@ function MainLayout() {
                       </div>
                     </div>
                     <div style={{ padding: 12, display: "grid", gap: 8 }}>
-                      {user?.role === "employee" ? (
-                        <NavLink
-                          to="/employee/profile"
-                          style={{
-                            ...accBtnStyle,
-                            display: "block",
-                            textDecoration: "none",
-                            color: "#372C2E",
-                          }}
-                          onClick={() => setOpen(false)}
-                        >
-                          Profile
-                        </NavLink>
-                      ) : (
-                        <button style={accBtnStyle}>Profile</button>
-                      )}
-
-                      {user?.role !== "employee" && (
+                      {user?.role !== "admin" && (
                         <>
-                          <button style={accBtnStyle}>Transactions</button>
-                          {user?.role === "customer" ? (
+                          {user?.role === "employee" && (
+                            <NavLink
+                              to="/employee/profile"
+                              style={{
+                                ...accBtnStyle,
+                                display: "block",
+                                textDecoration: "none",
+                                color: "#372C2E",
+                              }}
+                              onClick={() => setOpen(false)}
+                            >
+                              Profile
+                            </NavLink>
+                          )}
+
+                          {user?.role === "customer" && (
                             <NavLink
                               to="/customer/settings"
                               style={{ ...accBtnStyle, display: "block" }}
@@ -281,8 +278,6 @@ function MainLayout() {
                             >
                               Settings
                             </NavLink>
-                          ) : (
-                            <button style={accBtnStyle}>Settings</button>
                           )}
                         </>
                       )}

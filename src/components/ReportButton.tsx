@@ -4,7 +4,7 @@ import ReportModal from "./ReportModal";
 export interface ReportItem {
   id: string;
   label: string;
-  ref: React.RefObject<HTMLDivElement>;
+  ref: React.RefObject<HTMLDivElement | null>;
 }
 
 const ReportButton: React.FC<{ items: ReportItem[] }> = ({ items }) => {

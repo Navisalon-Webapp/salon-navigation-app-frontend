@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import StatCard from "../../components/Charts/StatCard";
 import LineChart from "../../components/Charts/LineChart";
-import BarChart from "../../components/Charts/BarChart";
 import PieChart from "../../components/Charts/PieChart";
 import ReportButton from "../../components/ReportButton";
 

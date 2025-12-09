@@ -5,7 +5,7 @@ import html2canvas from "html2canvas";
 interface ReportItem {
   id: string;
   label: string;
-  ref: React.RefObject<HTMLDivElement>;
+  ref: React.RefObject<HTMLDivElement | null>;
 }
 
 interface Props {

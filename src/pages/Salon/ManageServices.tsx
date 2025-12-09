@@ -56,7 +56,7 @@ const buttonGhost: React.CSSProperties = {
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-async function loadInitialServices(_bid: number): Promise<Service[]> {
+async function loadInitialServices(): Promise<Service[]> {
   const res = await fetch(`${API_BASE}/services/`, {
     credentials: "include",
   });
@@ -80,7 +80,6 @@ const ManageServices: React.FC = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [employees, setEmployees] = useState<Worker[]>([]);
-  const [loadingError, setLoadingError] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([loadInitialServices(), loadCategories(), loadEmployees()])
@@ -91,7 +90,6 @@ const ManageServices: React.FC = () => {
       })
       .catch((err) => {
         console.error(err);
-        setLoadingError(err.message || String(err));
       });
   }, []);
 
@@ -110,7 +108,7 @@ const ManageServices: React.FC = () => {
   const [editName, setEditName] = useState("");
   const [editDuration, setEditDuration] = useState("");
   const [editPriceUsd, setEditPriceUsd] = useState("");
-  const [editCategoryId, setEditCategoryId] = useState(0);
+  const [editCategoryId, setEditCategoryId] = useState<number | "new">(0);
   const [editNewCategory, setEditNewCategory] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editWorkers, setEditWorkers] = useState<number[]>([]);
@@ -179,11 +177,11 @@ const ManageServices: React.FC = () => {
     if (!n || isNaN(d) || isNaN(p)) return alert("Please fill name, duration, price");
 
     const payload: any = { name: n, duration: d, priceUsd: p, description: editDescription };
-        if (editCategoryId > 0) {
+        if (typeof editCategoryId === "number" && editCategoryId > 0) {
       payload.cat_id = editCategoryId;
       const cat = categories.find(c => c.id === editCategoryId);
       if (cat) payload.category = cat.name;
-    } else if (editCategoryId === -1 && editNewCategory.trim()) {
+    } else if (editCategoryId === "new" && editNewCategory.trim()) {
       payload.category = editNewCategory.trim();
     } else {
       return alert("Please select a category or create a new one");
@@ -210,7 +208,7 @@ const ManageServices: React.FC = () => {
         name: n,
         duration: d,
         priceUsd: p,
-        category: (editCategoryId > 0) ? editNewCategory : (categories.find(c=>c.id===editCategoryId)?.name ?? s.category),
+        category: (editCategoryId === "new") ? editNewCategory : (typeof editCategoryId === "number" ? categories.find(c=>c.id===editCategoryId)?.name ?? s.category : s.category),
         description: editDescription,
         workers: editWorkers.map((eid) => {
                 const found = employees.find((e) => e.eid === eid);
@@ -372,7 +370,7 @@ const ManageServices: React.FC = () => {
                   style={inputStyle}
                 />
                 <div>
-                  <select value={editCategoryId as any} onChange={(e)=> {
+                  <select value={editCategoryId} onChange={(e)=> {
                     const val = e.target.value;
                     setEditCategoryId(val === "new" ? "new" : Number(val));
                   }} style={{ ...inputStyle, padding: "0.5rem" }}>
