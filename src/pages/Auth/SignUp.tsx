@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
-import CreatableSelect from "react-select/creatable";
 
 type UserRole = 'business' | 'customer' | 'employee';
 

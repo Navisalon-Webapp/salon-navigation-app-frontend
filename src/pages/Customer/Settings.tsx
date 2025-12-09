@@ -16,7 +16,7 @@ export default function CustomerSettings() {
       </section>
 
       <section>
-        <PaymentMethodForm />
+        <PaymentMethodForm bid={0} />
       </section>
     </div>
   );
