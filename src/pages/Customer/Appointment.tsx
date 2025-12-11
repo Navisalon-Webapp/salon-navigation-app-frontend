@@ -76,13 +76,13 @@ export default function AppointmentPage() {
   const [newCardYear, setNewCardYear] = useState("");
   const [newCardCvv, setNewCardCvv] = useState("");
   const [newCardType, setNewCardType] = useState("debit");
-  const addCardLabelStyle = { display: "flex", flexDirection: "column", gap: 4, width: "100%" };
+  const addCardLabelStyle = { display: "flex", flexDirection: "column" as const, gap: 4, width: "100%" };
   const addCardInputStyle = {
     padding: 8,
     borderRadius: 6,
     border: "1px solid #DE9E48",
     width: "100%",
-    boxSizing: "border-box",
+    boxSizing: "border-box" as const,
   };
 
   const fetchAppointment = async (aid: string) => {
