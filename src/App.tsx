@@ -30,6 +30,7 @@ import CreateLoyalty from "./pages/Salon/CreateLoyalty";
 import Marketing from "./pages/Salon/Marketing";
 import SalonRevenue from "./pages/Salon/SalonRevenue";
 import OwnerAppointments from "./pages/Salon/PrevAppointments";
+import OwnerAppointment from "./pages/Salon/Appointment";
 
 
 // WORKER
@@ -340,6 +341,7 @@ export default function App() {
               <Route path="reply-reviews" element={<OwnerReplyReview />} />
               <Route path="revenue" element={<SalonRevenue />} />
               <Route path="appointments" element={<OwnerAppointments />} />
+              <Route path="appointment/:appointmentId" element={<OwnerAppointment />} />
 
             </Route>
 
