@@ -137,7 +137,7 @@ export default function OwnerAppointments() {
                 {futureAppointments.map((appt) => (
                   <div
                     key={appt.id}
-                    onClick={() => navigate(`/salon/appointment/${appt.id}`)}
+                    onClick={() => navigate(`/business/appointment/${appt.id}`)}
                     style={{ cursor: 'pointer' }}
                   >
                     <Appt
@@ -146,6 +146,7 @@ export default function OwnerAppointments() {
                       time={appt.time}
                       date={appt.date}
                       theme="dark"
+                      disableModal
                     />
                   </div>
                 ))}
@@ -173,7 +174,7 @@ export default function OwnerAppointments() {
                 {pastAppointments.map((appt) => (
                   <div
                     key={appt.id}
-                    onClick={() => navigate(`/salon/appointment/${appt.id}`)}
+                    onClick={() => navigate(`/business/appointment/${appt.id}`)}
                     style={{ cursor: 'pointer' }}
                   >
                     <Appt
@@ -182,6 +183,7 @@ export default function OwnerAppointments() {
                       time={appt.time}
                       date={appt.date}
                       theme="dark"
+                      disableModal
                     />
                   </div>
                 ))}

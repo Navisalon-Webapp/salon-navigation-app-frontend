@@ -3,15 +3,28 @@ import Modal from "react-modal";
 import AppointmentNotes from './AppointmentNotes';
 import { usePaymentInputs } from 'react-payment-inputs';
 
-function Appt(props: any){
+type AppointmentCardProps = {
+    name: string;
+    salon: string;
+    time: string;
+    date: string;
+    theme?: "light" | "dark";
+    disableModal?: boolean; // skip built-in modals when the card navigates elsewhere
+};
+
+function Appt({
+    name,
+    salon,
+    time,
+    date,
+    theme = "light",
+    disableModal = false,
+}: AppointmentCardProps){
     const [modalOneOpen, setOneOpen] = React.useState(false);
     const [modalTwoOpen, setTwoOpen] = React.useState(false);
     const [modalThreeOpen, setThreeOpen] = React.useState(false);
-    const [date, setDate] = React.useState("");
+    const [rescheduleDate, setRescheduleDate] = React.useState("");
     const { meta, getCardNumberProps, getExpiryDateProps, getCVCProps } = usePaymentInputs();
-    
-
-    const theme = props.theme || "light";
 
     function openOne() {
         setOneOpen(true);
@@ -62,8 +75,18 @@ function Appt(props: any){
     }
 
     const today = new Date();
-    const inputDate = (props.date).split("/").reverse().join("");
-    const apptdate = new Date(+inputDate.slice(0, 4),+inputDate.slice(6, 8)-1,+inputDate.slice(4, 6), +(props.time).split(":")[0], ((props.time).split(":")[1]).substring(0,2), 0);
+    const inputDate = (date).split("/").reverse().join("");
+    const timeParts = time.split(":");
+    const hour = Number(timeParts[0]) || 0;
+    const minute = timeParts[1] ? Number(timeParts[1].substring(0, 2)) || 0 : 0;
+    const apptdate = new Date(
+        +inputDate.slice(0, 4),
+        +inputDate.slice(6, 8) - 1,
+        +inputDate.slice(4, 6),
+        hour,
+        minute,
+        0
+    );
     const isFuture = today <= apptdate;
     const isPaid = false; //get from backend
    
@@ -107,16 +130,18 @@ function Appt(props: any){
         }
       `}</style>
         <br/>
-        <button id='cards' onClick={openOne}>
+        <button id='cards' type="button" onClick={disableModal ? undefined : openOne}>
             <div>
-                <span className='left'>{props.time} <br/>
-                {props.date}</span>
-                <span className='right'>{props.name}
+                <span className='left'>{time} <br/>
+                {date}</span>
+                <span className='right'>{name}
                 <br/>
-                {props.salon}</span>
+                {salon}</span>
             </div>
         </button>
         <br/>
+        {!disableModal && (
+        <>
         <Modal isOpen={modalOneOpen} onRequestClose={closeModal} contentLabel="Appointment Modal"
             style={{
                 overlay: {
@@ -156,9 +181,9 @@ function Appt(props: any){
                 fontWeight: 600,
             }} 
             onClick={closeModal}>Close</button>
-        <span style={{fontSize: '2.5em', color: '#DE9E48'}}>{props.salon}</span><br/>
-        <span style={{fontSize: '1.5em', padding: '10px'}}>{props.date}</span> 
-        <span style={{fontSize: '1.5em', padding: '10px'}}>{props.time}</span> <br/><br></br>
+        <span style={{fontSize: '2.5em', color: '#DE9E48'}}>{salon}</span><br/>
+        <span style={{fontSize: '1.5em', padding: '10px'}}>{date}</span> 
+        <span style={{fontSize: '1.5em', padding: '10px'}}>{time}</span> <br/><br></br>
         {isFuture && <button 
             style={{
                 float: 'right',
@@ -242,12 +267,12 @@ function Appt(props: any){
         <label>Date</label>
         <input
           type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
+                    value={rescheduleDate}
+                    onChange={(e) => setRescheduleDate(e.target.value)}
           //disabled={!selectedEmployeeId}
         />
 
-        {/*{selectedEmployeeId && date && (
+                {/*{selectedEmployeeId && rescheduleDate && (
           <>
             <label>Available Time Slots</label>
             <select
@@ -315,7 +340,8 @@ function Appt(props: any){
             {meta.isTouched && meta.error && <span>Error: {meta.error}</span>}
             <button onClick={pay}>Pay</button>
         </Modal>
-
+        </>
+        )}
         </div>
     );
 }

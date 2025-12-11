@@ -10,6 +10,7 @@ type Salon = {
   state?: string;
   zip_code?: string;
   year_est?: string;
+  deposit_rate?: number;
 };
 
 type Product = {
@@ -98,6 +99,9 @@ export default function BusinessDashboard() {
   const [salon, setSalon] = useState<Salon | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [depositRate, setDepositRate] = useState<number | "">("");
+  const [depositSaving, setDepositSaving] = useState(false);
+  const [depositError, setDepositError] = useState<string | null>(null);
 
   const [editName, setEditName] = useState("");
   const [editStreet, setEditStreet] = useState("");
@@ -138,6 +142,11 @@ export default function BusinessDashboard() {
           setEditZip(salonData.zip_code || "");
           setEditYearEst(salonData.year_est || "");
           setEditStatus(salonData.status);
+          setDepositRate(
+            typeof salonData.deposit_rate === "number"
+              ? Number((salonData.deposit_rate * 100).toFixed(0))
+              : ""
+          );
         }
 
         const prodRes = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/products`, {
@@ -200,6 +209,56 @@ export default function BusinessDashboard() {
       }
     } catch (error) {
       alert("Error saving salon details");
+    }
+  }
+
+  async function handleSaveDepositRate() {
+    setDepositError(null);
+    const parsed = depositRate === "" ? null : Number(depositRate);
+    if (parsed === null || Number.isNaN(parsed)) {
+      setDepositError("Enter a percentage between 0 and 100");
+      return;
+    }
+    if (parsed < 0 || parsed > 100) {
+      setDepositError("Deposit percentage must be between 0 and 100");
+      return;
+    }
+
+    setDepositSaving(true);
+    try {
+      const payload = { deposit_rate: parsed / 100 };
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/business/set-deposit`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        try {
+          const data = JSON.parse(text);
+          throw new Error(data?.message || "Failed to update deposit rate");
+        } catch (parseErr) {
+          throw new Error("Failed to update deposit rate");
+        }
+      }
+
+      const data = await res.json();
+      setSalon((prev) =>
+        prev
+          ? {
+              ...prev,
+              deposit_rate: data?.deposit_rate ?? payload.deposit_rate,
+            }
+          : prev
+      );
+      setDepositRate(Number((payload.deposit_rate * 100).toFixed(0)));
+    } catch (err: any) {
+      console.error("Deposit update failed", err);
+      setDepositError(err.message || "Failed to update deposit rate");
+    } finally {
+      setDepositSaving(false);
     }
   }
 
@@ -354,6 +413,40 @@ export default function BusinessDashboard() {
               Save Salon Details
             </button>
           </div>
+        </section>
+
+        <section style={{ marginTop: 20, ...cardStyle }}>
+          <h3 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Deposit Settings</h3>
+          <p style={{ marginTop: 0, color: "rgba(255,255,255,0.7)", fontSize: 14 }}>
+            Choose the deposit percentage customers must pay up front for an appointment.
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={depositRate}
+              onChange={(e) => setDepositRate(e.target.value === "" ? "" : Number(e.target.value))}
+              style={{ ...inputStyle, width: 120 }}
+              placeholder="Deposit %"
+            />
+            <span style={{ color: "rgba(255,255,255,0.8)" }}>%</span>
+            <button
+              onClick={handleSaveDepositRate}
+              style={{ ...buttonPrimary, opacity: depositSaving ? 0.6 : 1 }}
+              disabled={depositSaving}
+            >
+              {depositSaving ? "Saving..." : "Save Deposit Rate"}
+            </button>
+          </div>
+          {depositError && (
+            <div style={{ marginTop: 8, color: "#ffb4a2" }}>{depositError}</div>
+          )}
+          {salon?.deposit_rate !== undefined && (
+            <div style={{ marginTop: 8, color: "rgba(255,255,255,0.75)", fontSize: 13 }}>
+              Current deposit: {(salon.deposit_rate * 100).toFixed(0)}%
+            </div>
+          )}
         </section>
 
         <section style={{ marginTop: 20, ...cardStyle }}>

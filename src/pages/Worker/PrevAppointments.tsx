@@ -147,6 +147,7 @@ export default function WorkerAppointments() {
                       time={appt.time}
                       date={appt.date}
                       theme="dark"
+                      disableModal
                     />
                   </div>
                 ))}
@@ -186,6 +187,7 @@ export default function WorkerAppointments() {
                       time={appt.time}
                       date={appt.date}
                       theme="dark"
+                      disableModal
                     />
                   </div>
                 ))}
