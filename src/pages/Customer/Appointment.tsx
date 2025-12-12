@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import AppointmentNotes from "../../components/AppointmentNotes";
 import BeforeAfterImages from "../../components/BeforeAfterImages";
 import { useAuth } from "../../auth/AuthContext";
+import AppointmentModal from "../../components/appointment_modal";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -76,6 +77,7 @@ export default function AppointmentPage() {
   const [newCardYear, setNewCardYear] = useState("");
   const [newCardCvv, setNewCardCvv] = useState("");
   const [newCardType, setNewCardType] = useState("debit");
+  const [modalOpen, setModalOpen] = useState(false);
   const addCardLabelStyle = { display: "flex", flexDirection: "column" as const, gap: 4, width: "100%" };
   const addCardInputStyle = {
     padding: 8,
@@ -250,8 +252,36 @@ export default function AppointmentPage() {
     } finally {
       setSavingCard(false);
     }
-  };
 
+  };
+  var isFuture;
+  try{
+    const today = new Date();
+    const inputDate = (appointmentInfo?.date || "").split("/").reverse().join("");
+    const timeParts = (appointmentInfo?.time || "").time.split(":");
+    const hour = Number(timeParts[0]) || 0;
+    const minute = timeParts[1] ? Number(timeParts[1].substring(0, 2)) || 0 : 0;
+    const apptdate = new Date(
+        +inputDate.slice(0, 4),
+        +inputDate.slice(6, 8) - 1,
+        +inputDate.slice(4, 6),
+        hour,
+        minute,
+        0
+    );
+    isFuture = today <= apptdate;
+  }catch{
+    isFuture = false;
+  }
+  const cancelAppt = async () => {
+    const userconfirmation = confirm("Are you sure you want to cancel your appointment?")
+    if(userconfirmation){
+          //call to backend
+    }
+  };
+  const fetchData = async () => {
+    alert("Appointment rescheduled (add backend)")
+  };
   return (
     <div
       style={{
@@ -372,7 +402,39 @@ export default function AppointmentPage() {
               </div>
             </div>
           </div>
-
+          {isFuture && <button 
+            style={{
+                float: 'right',
+                margin: '0.5rem',
+                padding: '0.5rem 1rem',
+                backgroundColor: '#D62828',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontWeight: 600,
+            }} 
+            onClick={cancelAppt}>Cancel</button>}
+        {isFuture && <button 
+            style={{
+                float: 'right',
+                margin: '0.5rem',
+                padding: '0.5rem 1rem',
+                backgroundColor: '#DE9E48',
+                color: '#372C2E',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontWeight: 600,
+            }} 
+            onClick={() => {setModalOpen(true)}}>Reschedule</button>}
+          {<AppointmentModal
+                    open={modalOpen}
+                    onClose={() => setModalOpen(false)}
+                    businessId={appointmentInfo.business_id}
+                    employeeId={appointmentInfo.employee_id}
+                    onSuccess={fetchData}
+                  />}
           {appointmentInfo.payments && (
             <div
               style={{
