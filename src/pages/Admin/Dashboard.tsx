@@ -10,6 +10,12 @@ type Salon = {
   email: string;
 };
 
+type Admin = {
+  id: string;
+  name: string;
+  email: string;
+};
+
 const Dashboard: React.FC = () => {
   const activeRef = useRef<HTMLDivElement>(null);
   const savedRef = useRef<HTMLDivElement>(null);
@@ -20,6 +26,8 @@ const Dashboard: React.FC = () => {
 
   const [salons, setSalons] = useState<Salon[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+
+   const [admins, setAdmins] = useState<Admin[]>([]);
 
   const [tot_active, set_tot_active] = useState('0');
   const [tot_saved, set_tot_saved] = useState('$0');
@@ -45,6 +53,20 @@ const Dashboard: React.FC = () => {
       setSalons(data);
     } catch (e) {
       console.error("Failed to load pending salons", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const loadPendingAdmins = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/pending`, {
+        credentials: "include"
+      }); // CHANGE BACKEND ROUTE
+      const data = await res.json();
+      setAdmins(data); 
+    } catch (e) {
+      console.error("Failed to load pending admininstrators", e);
     } finally {
       setLoading(false);
     }
@@ -120,6 +142,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadPendingSalons();
+    loadPendingAdmins();
     fetch_metrics();
   }, []);
 
@@ -150,6 +173,25 @@ const Dashboard: React.FC = () => {
       credentials: "include"
     });
     setSalons((list) => list.filter((x) => x.id !== id));
+  };
+  const handleApproveAdm = async (id: string) => {
+    const w = admins.find((x) => x.id === id);
+    console.log("Approve admin", w);
+    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/${id}/approve`, {
+      method: "POST",
+      credentials: "include"
+    }); //CHANGE BACKEND ROUTE
+    setAdmins((list) => list.filter((x) => x.id !== id));
+  };
+
+  const handleRejectAdm = async (id: string) => {
+    const w = admins.find((x) => x.id === id);
+    console.log("Reject admin", w);
+    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/${id}/reject`, {
+      method: "POST",
+      credentials: "include"
+    }); //CHANGE BACKEND ROUTE
+    setAdmins((list) => list.filter((x) => x.id !== id));
   };
 
   return (
@@ -253,6 +295,108 @@ const Dashboard: React.FC = () => {
                   </button>
                   <button
                     onClick={() => handleReject(w.id)}
+                    style={{
+                      padding: "0.6rem 1rem",
+                      fontWeight: 600,
+                      borderRadius: "0.5rem",
+                      backgroundColor: "transparent",
+                      color: "#FFFFFF",
+                      border: "1px solid #7A431D",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+        </div>
+        {/* ADMIN APPROVALS */}
+        <h1
+          style={{
+            fontSize: "1.875rem",
+            fontWeight: 600,
+            textAlign: "center",
+            color: "#FFFFFF",
+            marginBottom: "1.5rem",
+          }}
+        >
+          Approve Administrators
+        </h1>
+
+        {/* List */}
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: "0.75rem" , marginBottom:"1.5rem"}}
+        >
+          {loading && (
+            <div
+              style={{
+                backgroundColor: "#563727",
+                border: "1px solid #7A431D",
+                borderRadius: "0.5rem",
+                padding: "1rem",
+                color: "#FFFFFF",
+                textAlign: "center",
+              }}
+            >
+              Loading pending requests...
+            </div>
+          )}
+
+          {!loading && admins.length === 0 && (
+            <div
+              style={{
+                backgroundColor: "#563727",
+                border: "1px solid #7A431D",
+                borderRadius: "0.5rem",
+                padding: "1rem",
+                color: "#FFFFFF",
+                textAlign: "center",
+              }}
+            >
+              No pending requests.
+            </div>
+          )}
+
+          {!loading &&
+            admins.map((w) => (
+              <div
+                key={w.id}
+                style={{
+                  backgroundColor: "#563727",
+                  border: "1px solid #7A431D",
+                  borderRadius: "0.5rem",
+                  padding: "1rem",
+                  color: "#FFFFFF",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "1rem",
+                  flexWrap: "wrap",
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: "1.1rem" }}>{w.name}</div>
+                  <div style={{ opacity: 0.8 }}>{w.email}</div>
+                </div>
+
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <button
+                    onClick={() => handleApproveAdm(w.id)}
+                    style={{
+                      padding: "0.6rem 1rem",
+                      fontWeight: 600,
+                      borderRadius: "0.5rem",
+                      backgroundColor: "#DE9E48",
+                      color: "#372C2E",
+                      border: "none",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleRejectAdm(w.id)}
                     style={{
                       padding: "0.6rem 1rem",
                       fontWeight: 600,
