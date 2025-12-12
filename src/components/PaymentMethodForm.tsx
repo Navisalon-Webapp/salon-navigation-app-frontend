@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import visa from "../assets/visa.png";
 import mastercard from "../assets/mastercard.png";
@@ -17,7 +17,7 @@ type PaymentMethod = {
 };
 
 interface AppliedDiscount {
-  id: number;
+  id: number | string;
   name: string;
   amount: number;
 }
@@ -42,6 +42,77 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
   const [selectedMethodId, setSelectedMethodId] = useState<number | "new" | null>(null);
   const [applicablePromos, setApplicablePromos] = useState<any[]>([]);
   const [applicableRewards, setApplicableRewards] = useState<any[]>([]);
+  const [loyaltyBalance, setLoyaltyBalance] = useState(0);
+  const [pointValue, setPointValue] = useState(0.1);
+  const [pointsToRedeem, setPointsToRedeem] = useState(0);
+
+  const manualDiscount = useMemo(() => {
+    const raw = pointsToRedeem * pointValue;
+    if (!Number.isFinite(raw) || raw < 0) {
+      return 0;
+    }
+    return Number(raw.toFixed(2));
+  }, [pointsToRedeem, pointValue]);
+
+  const maxRedeemablePoints = useMemo(() => {
+    const balanceCap = Math.floor(Math.max(loyaltyBalance, 0));
+    if (!Number.isFinite(balanceCap) || balanceCap <= 0) {
+      return 0;
+    }
+    if (pointValue <= 0) {
+      return balanceCap;
+    }
+    const totalCap = Math.floor(Math.max(total, 0) / pointValue);
+    if (!Number.isFinite(totalCap)) {
+      return balanceCap;
+    }
+    return Math.max(0, Math.min(balanceCap, totalCap));
+  }, [loyaltyBalance, pointValue, total]);
+
+  useEffect(() => {
+    setPointsToRedeem((prev) => Math.min(prev, maxRedeemablePoints));
+  }, [maxRedeemablePoints]);
+
+  const handleRedeemChange = useCallback(
+    (value: string) => {
+      const parsed = Number.parseInt(value, 10);
+      if (Number.isNaN(parsed) || parsed < 0) {
+        setPointsToRedeem(0);
+        return;
+      }
+      setPointsToRedeem(Math.min(parsed, maxRedeemablePoints));
+    },
+    [maxRedeemablePoints]
+  );
+
+  const displayDiscounts = useMemo(() => {
+    const base = appliedDiscounts || [];
+    if (manualDiscount > 0) {
+      return [
+        ...base,
+        {
+          id: "loyalty-points",
+          name: `Redeem ${pointsToRedeem} points`,
+          amount: manualDiscount,
+        },
+      ];
+    }
+    return base;
+  }, [appliedDiscounts, manualDiscount, pointsToRedeem]);
+
+  const adjustedTotal = useMemo(() => {
+    const remaining = total - manualDiscount;
+    return remaining > 0 ? remaining.toFixed(2) : "0.00";
+  }, [total, manualDiscount]);
+
+  const shouldShowDiscountPanel = useMemo(() => {
+    return (
+      applicablePromos.length > 0 ||
+      applicableRewards.length > 0 ||
+      loyaltyBalance > 0 ||
+      manualDiscount > 0
+    );
+  }, [applicablePromos.length, applicableRewards.length, loyaltyBalance, manualDiscount]);
 
   function detectCardType(num: string): string {
     const clean = num.replace(/\D/g, "");
@@ -87,25 +158,37 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
   async function fetchDiscounts() {
     if (!user || !bid) return;
 
-    const res = await fetch(`${API}/transactions/details?is_product_purchase=true&bid=${bid}`, {
+    const purchaseQuery = isProductPurchase ? "true" : "false";
+    const res = await fetch(`${API}/transactions/details?is_product_purchase=${purchaseQuery}&bid=${bid}`, {
       credentials: "include"
     });
 
     if (res.ok) {
       const data = await res.json();
-      setApplicablePromos(data.promotions);
-      setApplicableRewards(data.loyalty_progs);
-      setSubtotal(data.subtotal || 0);
-      setTax(data.tax || 0);
-      setTotal(data.total || 0);
+      const newSubtotal = Number(data.subtotal ?? 0);
+      const newTax = Number(data.tax ?? 0);
+      const newTotal = Number(data.total ?? 0);
+      const newBalance = Number(data.loyalty_balance ?? 0);
+      const newPointValue = Number(data.loyalty_point_value ?? 0.1);
+
+      setApplicablePromos(Array.isArray(data.promotions) ? data.promotions : []);
+      setApplicableRewards(Array.isArray(data.loyalty_progs) ? data.loyalty_progs : []);
+      setSubtotal(Number.isFinite(newSubtotal) ? newSubtotal : 0);
+      setTax(Number.isFinite(newTax) ? newTax : 0);
+      setTotal(Number.isFinite(newTotal) ? newTotal : 0);
+      setLoyaltyBalance(Number.isFinite(newBalance) ? newBalance : 0);
+      setPointValue(Number.isFinite(newPointValue) && newPointValue > 0 ? newPointValue : 0.1);
+      setPointsToRedeem((prev) => Math.min(prev, Math.floor(Math.max(Number.isFinite(newBalance) ? newBalance : 0, 0))));
       setAppliedDiscounts([
-        ...(data.promotions || []).map((p: any) => ({
+        ...(Array.isArray(data.promotions) ? data.promotions : []).map((p: any, idx: number) => ({
+          id: p.promo_id ?? `promo-${idx}`,
           name: p.title || p.description || "Promotion",
-          amount: p.rwd_value
+          amount: Number(p.rwd_value ?? 0)
         })),
-        ...(data.loyalty_progs || []).map((r: any) => ({
+        ...(Array.isArray(data.loyalty_progs) ? data.loyalty_progs : []).map((r: any, idx: number) => ({
+          id: r.rwd_id ?? `reward-${idx}`,
           name: r.title || r.description || "Reward",
-          amount: r.rwd_value
+          amount: Number(r.rwd_value ?? 0)
         }))
       ]);
     } else {
@@ -115,6 +198,8 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
       setTax(0);
       setTotal(0);
       setAppliedDiscounts([]);
+      setLoyaltyBalance(0);
+      setPointsToRedeem(0);
     }
   }
 
@@ -215,17 +300,21 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
   }
 
   async function handleCheckout() {
-    if (!selectedMethodId) {
+    if (!selectedMethodId || selectedMethodId === "new" || typeof selectedMethodId !== "number") {
       setStatus("error");
       setFeedback("Please select a payment method");
       return;
     }
 
-    console.log("CHECKOUT PAYLOAD:", {
+    const sanitizedPoints = Math.max(0, Math.min(pointsToRedeem, maxRedeemablePoints));
+    const payload = {
       payment_method_id: selectedMethodId,
       bid,
-      is_product_purchase: isProductPurchase
-    });
+      is_product_purchase: Boolean(isProductPurchase),
+      loyalty_points_to_redeem: sanitizedPoints
+    };
+
+    console.log("CHECKOUT PAYLOAD:", payload);
 
     setLoading(true);
     setStatus("idle");
@@ -236,11 +325,7 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          payment_method_id: selectedMethodId,
-          bid: bid,
-          is_product_purchase: true
-        })
+        body: JSON.stringify(payload)
       });
 
       if (res.ok) {
@@ -513,7 +598,7 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
               </label>
             );
           })}
-          {(applicablePromos.length > 0 || applicableRewards.length > 0) && (
+            {shouldShowDiscountPanel && (
   <div className="discount-box" style={{ padding: 16, backgroundColor: "#f9f9f9", borderRadius: 12, marginTop: 20 }}>
     {applicablePromos.length > 0 && (
       <div style={{ marginBottom: 16 }}>
@@ -559,29 +644,101 @@ export default function PaymentMethodForm({ onSelectMethod, onClose, bid, isProd
       </div>
     )}
 
+    <div style={{
+      marginBottom: 16,
+      padding: 16,
+      background: "#FFFFFF",
+      borderRadius: 10,
+      border: "1px solid #ddd"
+    }}>
+      <h3 style={{ marginTop: 0 }}>Redeem Loyalty Points</h3>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 14 }}>
+        <span>Available balance: <strong>{Math.floor(loyaltyBalance)}</strong> pts</span>
+        <span>Conversion: 1 pt = ${pointValue.toFixed(2)}</span>
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginTop: 12 }}>
+        <input
+          type="number"
+          min={0}
+          max={maxRedeemablePoints}
+          value={pointsToRedeem}
+          onChange={(e) => handleRedeemChange(e.target.value)}
+          disabled={loyaltyBalance <= 0 || pointValue <= 0}
+          style={{
+            padding: "8px 10px",
+            borderRadius: 8,
+            border: "1px solid #ccc",
+            width: 120
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => setPointsToRedeem(maxRedeemablePoints)}
+          disabled={maxRedeemablePoints <= 0}
+          style={{
+            padding: "8px 14px",
+            borderRadius: 8,
+            border: "1px solid #DE9E48",
+            background: maxRedeemablePoints > 0 ? "#FFF2DE" : "#F3F3F3",
+            color: "#372C2E",
+            cursor: maxRedeemablePoints > 0 ? "pointer" : "not-allowed",
+            fontWeight: 600
+          }}
+        >
+          Use Max
+        </button>
+        <button
+          type="button"
+          onClick={() => setPointsToRedeem(0)}
+          style={{
+            padding: "8px 14px",
+            borderRadius: 8,
+            border: "1px solid #ccc",
+            background: "#FFFFFF",
+            color: "#372C2E",
+            cursor: "pointer"
+          }}
+        >
+          Clear
+        </button>
+      </div>
+      <div style={{ marginTop: 10, fontWeight: 600, color: "#372C2E" }}>
+        Instant discount: ${manualDiscount.toFixed(2)}
+      </div>
+      {maxRedeemablePoints < Math.floor(loyaltyBalance) && pointValue > 0 && (
+        <div style={{ marginTop: 8, fontSize: 12, color: "#6B6B6B" }}>
+          Limited to keep total above $0.00 for this checkout.
+        </div>
+      )}
+    </div>
+
     <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #ddd" }}>
       <h4>Transaction Total</h4>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
         <span>Subtotal:</span>
-        <span>${subtotal}</span>
+        <span>${Number.isFinite(subtotal) ? subtotal.toFixed(2) : "0.00"}</span>
       </div>
-      {appliedDiscounts && appliedDiscounts.length > 0 && (
+      {displayDiscounts.length > 0 && (
         <div style={{ marginTop: 8 }}>
-          {appliedDiscounts.map(d => (
-            <div key={d.id} style={{ display: "flex", justifyContent: "space-between", color: "#C23B22" }}>
-              <span>{d.name}</span>
-              <span>- ${d.amount}</span>
-            </div>
-          ))}
+          {displayDiscounts.map((d) => {
+            const amountValue = Number(d.amount ?? 0);
+            const formattedAmount = Number.isFinite(amountValue) ? amountValue.toFixed(2) : "0.00";
+            return (
+              <div key={d.id} style={{ display: "flex", justifyContent: "space-between", color: "#C23B22" }}>
+                <span>{d.name}</span>
+                <span>- ${formattedAmount}</span>
+              </div>
+            );
+          })}
         </div>
       )}
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
         <span>Tax (6.125%):</span>
-        <span>${tax}</span>
+        <span>${Number.isFinite(tax) ? tax.toFixed(2) : "0.00"}</span>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: 18 }}>
         <span>Total:</span>
-        <span>${total}</span>
+        <span>${adjustedTotal}</span>
       </div>
     </div>
   </div>

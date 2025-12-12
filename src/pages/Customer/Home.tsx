@@ -7,6 +7,7 @@ type Salon = {
   bid: number;
   name: string;
   points: number;
+  progress?: number;
   goal: number;
   address?: string;
   programType?: string | null;
@@ -61,7 +62,22 @@ export default function Home() {
 
       if (response.ok) {
         const data = await response.json();
-        setSalons(Array.isArray(data) ? data : []);
+        const normalized = (Array.isArray(data) ? data : []).map((item: any) => {
+          const goalRaw = Number(item?.goal ?? 0);
+          const pointsRaw = Number(item?.points ?? 0);
+          const progressRaw = Number(
+            item?.progress ?? (item?.programType === "points_thresh" ? item?.points ?? 0 : 0)
+          );
+          const rewardValueRaw = Number(item?.rewardValue ?? 0);
+          return {
+            ...item,
+            points: Number.isFinite(pointsRaw) ? pointsRaw : 0,
+            progress: Number.isFinite(progressRaw) ? progressRaw : 0,
+            goal: Number.isFinite(goalRaw) ? goalRaw : 0,
+            rewardValue: Number.isFinite(rewardValueRaw) ? rewardValueRaw : item?.rewardValue ?? null,
+          } as Salon;
+        });
+        setSalons(normalized);
       } else {
         console.error("Failed to fetch loyalty points");
         setSalons([]);
@@ -139,13 +155,69 @@ export default function Home() {
     fetchAppointments();
   }, []);
 
-  const topSalon = salons.length > 0 
-    ? salons.reduce((max, salon) => salon.points > max.points ? salon : max, salons[0])
-    : null;
+  const getGoalValue = (salon: Salon | null): number => {
+    if (!salon) {
+      return 0;
+    }
+    if (salon.goal && salon.goal > 0) {
+      return salon.goal;
+    }
+    if (salon.programType === "points_thresh") {
+      const balance = salon.points ?? 0;
+      return Math.max(salon.goal || 0, balance, 100);
+    }
+    return 1;
+  };
 
-  const currentPoints = topSalon?.points || 0;
-  const goalPoints = topSalon?.goal || 100;
+  const getProgressValue = (salon: Salon | null): number => {
+    if (!salon) {
+      return 0;
+    }
+    if (salon.programType === "points_thresh") {
+      return salon.points ?? 0;
+    }
+    const baseProgress = salon.progress ?? 0;
+    const rewardRequirement = Number(salon.rewardValue ?? 0);
+    const available = salon.points ?? 0;
+    const isBonusReward = (salon.rewardType ?? "").toLowerCase() === "bonus points";
+    if (isBonusReward && rewardRequirement > 0 && available >= rewardRequirement) {
+      return getGoalValue(salon);
+    }
+    return baseProgress;
+  };
+
+  const getCompletionRatio = (salon: Salon | null): number => {
+    if (!salon) {
+      return 0;
+    }
+    const goalValue = getGoalValue(salon);
+    if (!goalValue || goalValue <= 0) {
+      return 0;
+    }
+    const progressValue = getProgressValue(salon);
+    return Math.min(Math.max(progressValue / goalValue, 0), 1);
+  };
+
+  const topSalon = salons.reduce<Salon | null>((best, salon) => {
+    if (!best) {
+      return salon;
+    }
+    const candidateRatio = getCompletionRatio(salon);
+    const bestRatio = getCompletionRatio(best);
+    if (candidateRatio > bestRatio) {
+      return salon;
+    }
+    if (candidateRatio === bestRatio) {
+      return getProgressValue(salon) > getProgressValue(best) ? salon : best;
+    }
+    return best;
+  }, null);
+
+  const rawProgress = getProgressValue(topSalon);
+  const goalProgress = getGoalValue(topSalon);
+  const currentProgress = goalProgress > 0 ? Math.min(rawProgress, goalProgress) : rawProgress;
   const topProgramType = topSalon?.programType;
+  const availablePoints = topSalon?.points ?? 0;
 
   return (
     <div
@@ -244,10 +316,11 @@ export default function Home() {
             style={{ all: "unset", cursor: "pointer" }}
           >
             <RewardRing 
-              current={currentPoints} 
-              goal={goalPoints}
+              current={currentProgress} 
+              goal={goalProgress}
               salonName={topSalon?.name || "Salon"}
               programType={topProgramType}
+              pointsBalance={availablePoints}
             />
           </button>
         )}
