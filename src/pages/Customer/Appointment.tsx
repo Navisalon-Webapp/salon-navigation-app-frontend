@@ -258,7 +258,7 @@ export default function AppointmentPage() {
   try{
     const today = new Date();
     const inputDate = (appointmentInfo?.date || "").split("/").reverse().join("");
-    const timeParts = (appointmentInfo?.time || "").time.split(":");
+    const timeParts = (appointmentInfo?.time || "").split(":");
     const hour = Number(timeParts[0]) || 0;
     const minute = timeParts[1] ? Number(timeParts[1].substring(0, 2)) || 0 : 0;
     const apptdate = new Date(
