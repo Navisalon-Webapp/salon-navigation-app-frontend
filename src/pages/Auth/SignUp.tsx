@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
 
-type UserRole = 'business' | 'customer' | 'employee';
+type UserRole = 'business' | 'customer' | 'employee' | 'admin';
 
 const NavisalonSignUp: React.FC = () => {
   const [selectedRole, setSelectedRole] = useState<UserRole>('customer');
@@ -105,6 +105,9 @@ const NavisalonSignUp: React.FC = () => {
     }
     if (selectedRole === "employee") {
       Object.assign(payload, { service, serviceCat, startYear, salonName });
+    }
+    if (selectedRole === "admin") {
+      Object.assign(payload, { phoneNumber });
     }
 
     console.log("Signup attempted with:", payload);
@@ -312,6 +315,18 @@ const NavisalonSignUp: React.FC = () => {
               />
           </>
         );
+        case 'admin':
+        return (
+          <>
+            <input
+              type="tel"
+              placeholder="Phone Number"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              style={inputStyle}
+            />
+          </>
+        );
     }
   };
 
@@ -391,6 +406,22 @@ const NavisalonSignUp: React.FC = () => {
           >
             Worker
           </button>
+           <button
+            onClick={() => setSelectedRole('admin')}
+            style={{
+              flex: 1,
+              padding: '0.75rem',
+              fontWeight: 600,
+              backgroundColor: selectedRole === 'admin' ? '#DE9E48' : '#563727',
+              color: selectedRole === 'admin' ? '#372C2E' : '#FFFFFF',
+              border: '1px solid #7A431D',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              fontSize: '0.875rem'
+            }}
+          >
+            Administrator
+          </button>
         </div>
 
         {/* Sign Up Form */}
@@ -402,7 +433,7 @@ const NavisalonSignUp: React.FC = () => {
             color: '#FFFFFF',
             marginBottom: '2rem'
           }}>
-            Sign Up as {selectedRole === 'business' ? 'Salon Owner' : selectedRole === 'customer' ? 'Customer' : 'Employee'}
+            Sign Up as {selectedRole === 'business' ? 'Salon Owner' : selectedRole === 'customer' ? 'Customer' :  selectedRole === 'employee' ? 'Employee' : 'Administrator'}
           </h1>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

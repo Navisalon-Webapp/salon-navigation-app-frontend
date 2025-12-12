@@ -1,23 +1,25 @@
 //import React from 'react';
 //import { useNavigate } from 'react-router-dom';
 //import "../../index.css";
-//import Admin from "../../components/DashboardCard";
+//import Admin from "../components/DashboardCard";
+import { Bar } from "react-chartjs-2";
+import 'chart.js/auto'; 
 
 
 
-export default function Loyalty(){
+export default function Uptime(){
   //replace info  with call to backend
   //name is name of worker
-   
-// const _infob = [{
-//   title:"Platform Uptime",
-//   xaxis: "Day",
-//   yaxis: 'Uptime (percent)',
-//   xdata: ["Mon", "Tues", "Wed", "Thurs", "Fri"],
-//   ydata: [100, , 99.7, 99.8, 99.9, 99.6],
-//   period:'week',
-//   page:"./Uptime",
-// }];
+    
+const infob = {
+ 
+  title:"Site Uptime",
+  xaxis: "Day",
+  yaxis: 'Returning Customers',
+  xdata: ["Mon", "Tues", "Wed", "Thurs", "Fri"],
+  ydata: [1, 2, 3, 4, 3, 5],
+  period:'week',
+};
 //backend call for x axis, y axis, dataset, time period AND put chart type in there
 // can map BUT need to separate line vs bar charts
 //const linecharts, const barcharts --> get info separate backend calls
@@ -32,17 +34,71 @@ export default function Loyalty(){
 // - user engagement - average time spent on page (daily/weekly/monthly) line graph LINE
 //create button for daily weekly monthly on admin card --> redoes backend call? --> maybe think about this later --> LATER???? for now do one solid thing and put it in there commented out to discuss with backend
 //
-   
-    //const barcharts = infob.map(item => <Admin chart={"line"} xlabel={item.xaxis} ylabel={item.yaxis} xdata={item.xdata} ydata={item.ydata} time={item.period} />);
+    const downTimes = 0; //add route from backend
+    const responseTime = 0;
+    //const barcharts = infob.map(item => <Admin chart={"bar"} xlabel={item.xaxis} ylabel={item.yaxis} xdata={item.xdata} ydata={item.ydata} time={item.period} />);
+const data = {
+  labels: infob.xdata,
+  datasets: [{
+    label: infob.title,
+    data: infob.ydata,
+    backgroundColor: 'rgba(222, 157, 72, 0.2)',
+    borderColor: 'rgb(222, 158, 72)',
+    borderWidth: 1
+  }]
+};
+function handleTime(e : any){
+  e.preventDefault();
+  const form = e.target.value;
+  console.log(form)
+}
     return (
         <div>
             <h1>
                 Uptime
             </h1>
             <br/>
+            <div>
+            <span style={{
+              fontSize: "1.875rem", 
+            fontWeight: 600,
+            marginBottom: "1.5rem", 
+            float: "left"}}>{downTimes}</span>
+            <span style={{fontSize: "1.875rem", 
+            fontWeight: 300,
+            marginBottom: "1.5rem", marginLeft: "0.5rem", 
+            float: "left"}}>times down in the last 24 hours</span>
             
+            <span style={{fontSize: "1.875rem", 
+            fontWeight: 300,
+            marginBottom: "1.5rem", marginLeft: "0.5rem", 
+            float: "right"}}> page response time</span>
+            <span style={{fontSize: "1.875rem", 
+            fontWeight: 600,
+            marginBottom: "1.5rem", 
+            float: "right"}}>{responseTime}</span>
+            </div>
+          
             <br/>
-            {/* <div>{barcharts}</div> */}
+            <br/>
+            <div style={{ width: "100%", float: "right" }}>
+            <select style={{ float: "right",
+      padding: "5px 5px",
+      border: "1px solid #DE9E48",
+      borderRadius: 8,
+      fontSize: 14,
+      background: "#FFF",
+      color: "#372C2E", }} defaultValue="week" onChange={handleTime}> 
+                  <option value="hour">Last hour</option>
+                  <option value="day">Last 24 hours</option>
+                  <option value="week">Last week</option>
+                  <option value="month">Last month</option>
+                  <option value="year">Last year</option>
+                  <option value="alltime">All time</option>
+            </select>
+            </div>
+            <br />
+            <div><Bar data={data}></Bar></div>
             <br/>
         </div>
 
