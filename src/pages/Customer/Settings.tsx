@@ -1,5 +1,5 @@
 import EmailSubscriptions from "./EmailSubscriptions";
-import PaymentMethodForm from "./PaymentMethodForm";
+import PaymentMethodForm from "../../components/PaymentMethodForm";
 
 export default function CustomerSettings() {
   return (
@@ -16,7 +16,7 @@ export default function CustomerSettings() {
       </section>
 
       <section>
-        <PaymentMethodForm />
+        <PaymentMethodForm bid={0} />
       </section>
     </div>
   );

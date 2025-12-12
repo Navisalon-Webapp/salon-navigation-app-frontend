@@ -9,13 +9,15 @@ type Worker = {
 
 const ApproveWorkers: React.FC = () => {
   const [workers, setWorkers] = useState<Worker[]>([]);
+  const [approvedWorkers, setApprovedWorkers] = useState<Worker[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingApproved, setLoadingApproved] = useState<boolean>(false);
 
   // Simple loader with mock data for now
   const loadPendingWorkers = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/worker/pending/`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/worker/pending/`, {
         credentials: "include"
       });
 
@@ -28,14 +30,34 @@ const ApproveWorkers: React.FC = () => {
     }
   };
 
+  const loadApprovedWorkers = async () => {
+    setLoadingApproved(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/worker/approved`, {
+        credentials: "include"
+      });
+
+      const data = await res.json();
+      setApprovedWorkers(data);
+    } catch (e) {
+      console.error("Failed to load pending workers", e);
+    } finally {
+      setLoadingApproved(false);
+    }
+  };
+
   useEffect(() => {
     loadPendingWorkers();
+  }, []);
+
+  useEffect(() => {
+    loadApprovedWorkers();
   }, []);
 
   const handleApprove = async (id: string) => {
     const w = workers.find((x) => x.id === id);
     console.log("Approve worker", w);
-    await fetch(`http://localhost:5000/worker/${id}/approve`, {
+    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/worker/${id}/approve`, {
       method: "POST",
       credentials: "include"
     });
@@ -45,7 +67,7 @@ const ApproveWorkers: React.FC = () => {
   const handleReject = async (id: string) => {
     const w = workers.find((x) => x.id === id);
     console.log("Reject worker", w);
-    await fetch(`http://localhost:5000/worker/${id}/reject`, {
+    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/worker/${id}/reject`, {
       method: "POST",
       credentials: "include"
     });
@@ -73,7 +95,7 @@ const ApproveWorkers: React.FC = () => {
             marginBottom: "1.5rem",
           }}
         >
-          Approve Workers
+          Pending
         </h1>
 
         {/* List */}
@@ -171,6 +193,87 @@ const ApproveWorkers: React.FC = () => {
                 </div>
               </div>
             ))}
+        </div>
+
+        <h1
+          style={{
+            fontSize: "1.875rem",
+            fontWeight: 600,
+            textAlign: "center",
+            color: "#FFFFFF",
+            marginBottom: "1.5rem",
+            marginTop: "1.5rem"
+          }}
+        >
+          Employees
+        </h1>
+        
+        {/* List */}
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
+        >
+          {loadingApproved && (
+            <div
+              style={{
+                backgroundColor: "#563727",
+                border: "1px solid #7A431D",
+                borderRadius: "0.5rem",
+                padding: "1rem",
+                color: "#FFFFFF",
+                textAlign: "center",
+              }}
+            >
+              Loading employees...
+            </div>
+          )}
+
+          {!loadingApproved && approvedWorkers.length === 0 && (
+            <div
+              style={{
+                backgroundColor: "#563727",
+                border: "1px solid #7A431D",
+                borderRadius: "0.5rem",
+                padding: "1rem",
+                color: "#FFFFFF",
+                textAlign: "center",
+              }}
+            >
+              No approved employees.
+            </div>
+          )}
+
+          {!loadingApproved &&
+            approvedWorkers.map((w) => (
+              <div
+                key={w.id}
+                style={{
+                  backgroundColor: "#563727",
+                  border: "1px solid #7A431D",
+                  borderRadius: "0.5rem",
+                  padding: "1rem",
+                  color: "#FFFFFF",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "1rem",
+                  flexWrap: "wrap",
+                }}
+              >
+
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: "1.1rem" }}>
+                    {w.name}
+                  </div>
+                  <div style={{ opacity: 0.9 }}>{w.email}</div>
+                  {w.specialty && (
+                    <div style={{ fontSize: "0.9rem", opacity: 0.9 }}>
+                      {w.specialty}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          
         </div>
 
         <div

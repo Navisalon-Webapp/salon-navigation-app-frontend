@@ -9,6 +9,10 @@ const NavisalonSignUp: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [birthDate, setBirthDate] = useState<string>('');
+  const [gender, setGender] = useState<string>('');
+  const [industry, setIndustry] = useState<string>('');
+  const [income, setIncome] = useState<string>('');
   const [salonName, setSalonName] = useState<string>('');
   const [salonAddress, setSalonAddress] = useState<string>('');
   const [salonCity, setSalonCity] = useState<string>('');
@@ -17,20 +21,43 @@ const NavisalonSignUp: React.FC = () => {
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
-  const [specialty, setSpecialty] = useState<string>('');
+  const [service, setService] = useState<string>('');
+  const [serviceCat, setServiceCat] = useState<string>('');
+  const [startYear, setStartYear] = useState<string>('');
   const [salonZipCode, setSalonZipCode] = useState<string>('');
+  const [salonEstYear, setSalonEstYear] = useState<string>('');
 
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
 
+  const [industries, setIndustries] = useState<Array<{ ind_id: number; name: string }>>([]);
   const [salons, setSalons] = useState<Array<{ bid: number; name: string }>>([]);
+  const [services, setServices] = useState<Array<{ sid: number; name: string }>>([]);
+  const [serviceCats, setServiceCats] = useState<Array<{ cat_id: number; name: string }>>([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/list-business')
+    console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
+    console.log('API URL being used:', import.meta.env.VITE_API_URL || 'http://localhost:5000');
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/list-business`)
       .then((res) => res.json())
       .then((data) => setSalons(data))
       .catch(() => setSalons([]));
+
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/list-services`)
+      .then((res) => res.json())
+      .then((data) => setServices(data))
+      .catch(() => setServices([]));
+
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/list-service-categories`)
+      .then((res) => res.json())
+      .then((data) => setServiceCats(data))
+      .catch(() => setServiceCats([]));
+
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/list-industries`)
+      .then((res) => res.json())
+      .then((data) => setIndustries(data))
+      .catch(() => setIndustries([]));
   }, []);
 
   const inputStyle = {
@@ -52,23 +79,32 @@ const NavisalonSignUp: React.FC = () => {
       role: selectedRole,
       firstName,
       lastName,
+      phoneNumber,
       email,
       password,
       confirmPassword, // must be present & match
     };
+    if (selectedRole === "customer") {
+      Object.assign(payload, {
+        birthDate,
+        gender,
+        industry,
+        income
+    });
+  }
     if (selectedRole === "business") {
       Object.assign(payload, {
-        phoneNumber,
         salonName,
         salonAddress,
         salonCity,
         salonState,
         salonCountry,
         salonZipCode,
+        salonEstYear
       });
     }
     if (selectedRole === "employee") {
-      Object.assign(payload, { phoneNumber, specialty, salonName });
+      Object.assign(payload, { service, serviceCat, startYear, salonName });
     }
     if (selectedRole === "admin") {
       Object.assign(payload, { phoneNumber });
@@ -78,7 +114,7 @@ const NavisalonSignUp: React.FC = () => {
 
     try {
       const res = await axios.post(
-        `http://localhost:5000/${selectedRole}/signup`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/${selectedRole}/signup`,
         payload,
         { headers: { "Content-Type": "application/json" } }
       );
@@ -160,13 +196,59 @@ const NavisalonSignUp: React.FC = () => {
                 onChange={(e) => setSalonZipCode(e.target.value)}
                 style={inputStyle}
               />
+            <input
+                type="tel"
+                placeholder="Salon Year Opened"
+                value={salonEstYear}
+                onChange={(e) => setSalonEstYear(e.target.value)}
+                style={inputStyle}
+              />
           </>
         );
       
       case 'customer':
         return (
           <>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <input
+              type="date"
+              placeholder="Birthdate"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+              style={inputStyle}
+            />
+            <input
+              type="tel"
+              placeholder="Income"
+              value={income}
+              onChange={(e) => setIncome(e.target.value)}
+              style={inputStyle}
+            />
+            <select
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              style={inputStyle}
+            >
+              <option value="">Select Gender</option>
+              <option key={"male"} value={"male"}>{"Male"}</option>
+              <option key={"female"} value={"female"}>{"Female"}</option>
+              <option key={"nonbinary"} value={"nonbinary"}>{"Nonbinary"}</option>
+              <option key={"other"} value={"other"}>{"Other"}</option>
+            </select>
+            <select
+              value={industry}
+              onChange={(e) => setIndustry(e.target.value)}
+              style={inputStyle}
+            >
+              <option value="">Select Industry</option>
+                {industries.map((s) => (
+                  <option key={s.ind_id} value={s.ind_id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+          </div>
+          <input
               type="tel"
               placeholder="Phone Number"
               value={phoneNumber}
@@ -181,32 +263,56 @@ const NavisalonSignUp: React.FC = () => {
           <>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <input
+                type="text"
+                placeholder="Start Year"
+                value={startYear}
+                onChange={(e) => setStartYear(e.target.value)}
+                style={inputStyle}
+              />
+              <select
+                value={salonName}
+                onChange={(e) => setSalonName(e.target.value)}
+                style={inputStyle}
+              >
+                <option value="">Select Salon</option>
+                  {salons.map((s) => (
+                    <option key={s.bid} value={s.name}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              <select
+                value={serviceCat}
+                onChange={(e) => setServiceCat(e.target.value)}
+                style={inputStyle}
+              >
+                <option value="">Select Service Category</option>
+                  {serviceCats.map((s) => (
+                    <option key={s.cat_id} value={s.cat_id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              <select
+                value={service}
+                onChange={(e) => setService(e.target.value)}
+                style={inputStyle}
+              >
+                <option value="">Select Service</option>
+                  {services.map((s) => (
+                    <option key={s.sid} value={s.name}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+            </div>
+            <input
                 type="tel"
                 placeholder="Phone Number"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 style={inputStyle}
               />
-              <input
-                type="text"
-                placeholder="Specialty"
-                value={specialty}
-                onChange={(e) => setSpecialty(e.target.value)}
-                style={inputStyle}
-              />
-            </div>
-            <select
-              value={salonName}
-              onChange={(e) => setSalonName(e.target.value)}
-              style={inputStyle}
-            >
-              <option value="">Select Salon</option>
-                {salons.map((s) => (
-                  <option key={s.bid} value={s.name}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
           </>
         );
         case 'admin':

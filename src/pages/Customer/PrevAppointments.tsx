@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Appt from '../../components/AppointmentCard';
 
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 interface Appointment {
   appointment_id: number;
@@ -135,6 +135,7 @@ export default function CustomerAppointments(){
                       salon={item.service_name}
                       time={formatTime(item.start_time)}
                       date={formatDate(item.start_time)}
+                      disableModal
                     />
                   </div>
                 ))}
@@ -171,6 +172,7 @@ export default function CustomerAppointments(){
                       salon={item.service_name}
                       time={formatTime(item.start_time)}
                       date={formatDate(item.start_time)}
+                      disableModal
                     />
                   </div>
                 ))}

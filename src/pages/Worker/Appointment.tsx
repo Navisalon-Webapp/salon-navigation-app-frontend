@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import AppointmentNotes from "../../components/AppointmentNotes";
 import BeforeAfterImages from "../../components/BeforeAfterImages";
 
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 interface AppointmentInfo {
   id: number;
@@ -35,6 +35,7 @@ interface AppointmentInfo {
 
 export default function WorkerAppointmentPage() {
   const { appointmentId } = useParams<{ appointmentId: string }>();
+  const navigate = useNavigate();
   const [appointmentInfo, setAppointmentInfo] = useState<AppointmentInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -104,6 +105,23 @@ export default function WorkerAppointmentPage() {
         >
           Appointment Details
         </h1>
+
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          style={{
+            padding: "8px 14px",
+            borderRadius: 8,
+            border: "1px solid #DE9E48",
+            background: "transparent",
+            color: "#DE9E48",
+            fontWeight: 600,
+            cursor: "pointer",
+            marginBottom: 20,
+          }}
+        >
+          ← Back to appointments
+        </button>
 
       {loading && (
         <div style={{ color: "#FFFFFF", padding: "2rem" }}>

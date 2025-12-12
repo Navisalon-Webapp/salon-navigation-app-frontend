@@ -1,8 +1,8 @@
 //import '..src/index.css';
 import { useNavigate } from 'react-router-dom';
-import 'chart.js/auto';
-import { Bar } from 'react-chartjs-2';
-import { Line } from 'react-chartjs-2';
+// import 'chart.js/auto';
+// import { Bar } from 'react-chartjs-2';
+// import { Line } from 'react-chartjs-2';
 //<Chart type='line' data={chartData} />
 
 /*
@@ -33,23 +33,23 @@ import { Line } from 'react-chartjs-2';
 
 function Admin(props:any){
     const navigate = useNavigate()
-    var bar = false
-    var line = false
-    if(props.chart=="bar"){
-        bar = true
-    }else if (props.chart=="line"){
-        line = true
-    }
-   const data = {
-            labels: props.xdata,
-            datasets: [
-                {
-                    label: props.ylabel,
-                    data: props.ydata,
-                    borderWidth: 0.5,
-                },
-            ],
-        };
+    // var _bar = false
+    // var _line = false
+    // if(props.chart=="bar"){
+    //     _bar = true
+    // }else if (props.chart=="line"){
+    //     _line = true
+    // }
+   // const _data = {
+   //         labels: props.xdata,
+   //         datasets: [
+   //             {
+   //                 label: props.ylabel,
+   //                 data: props.ydata,
+   //                 borderWidth: 0.5,
+   //             },
+   //         ],
+   //     };
         
     const admredirect = () => {
         navigate(props.page)
@@ -96,8 +96,8 @@ function Admin(props:any){
         <br/>
         <button id='cards' onClick={admredirect}>
             <div>
-             {bar && <Bar data={data}/>}             
-             {line && <Line data={data}/>}
+             {/* {bar && <Bar data={data}/>}             
+             {line && <Line data={data}/>} */}
             </div>
         </button>
         <br/>

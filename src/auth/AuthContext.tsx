@@ -1,16 +1,22 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 export type Role = "customer" | "business" | "employee" | "admin";
-export type User = { id: string; name: string; role: Role } | null;
+export type User = {
+  id: string;
+  name: string;
+  role: Role;
+  employeeId?: string | null;
+} | null;
 
 type AuthCtx = {
   user: User;
+  loading: boolean;
   signIn: (u: NonNullable<User>) => void;
   signOut: () => void;
 };
 
 const AuthContext = createContext<AuthCtx | undefined>(undefined);
-const API = "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User>(null);
@@ -27,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             id: String(data.User_ID),
             name: `${data["first name"]} ${data["last name"]}`.trim(),
             role: data.role,
+            employeeId: data.employee_id ? String(data.employee_id) : undefined,
           });
         } else {
           setUser(null);
@@ -39,7 +46,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
-  const signIn = (u: NonNullable<User>) => setUser(u);
+  const signIn = (u: NonNullable<User>) => {
+    setUser(u);
+
+    void (async () => {
+      try {
+        const res = await fetch(`${API}/user-session`, { method: "GET", credentials: "include" });
+        if (!res.ok) return;
+
+        const data = await res.json();
+        setUser({
+          id: String(data.User_ID),
+          name: `${data["first name"]} ${data["last name"]}`.trim(),
+          role: data.role,
+          employeeId: data.employee_id ? String(data.employee_id) : undefined,
+        });
+      } catch {
+        // best effort; keep previously provided auth state
+      }
+    })();
+  };
 
   const signOut = async () => {
     try {

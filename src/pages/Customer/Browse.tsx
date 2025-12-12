@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import AppointmentModal from "../../components/appointment_modal";
 import BusinessDetailsModal from "../../components/BusinessDetailsModal";
 
@@ -10,13 +11,16 @@ interface Salon {
   state: string;
   country: string;
   zip_code: string;
+  services: string;
+  categories: string;
 }
 
 interface Worker {
   employee_id: number;
   employee_first_name: string;
   employee_last_name: string;
-  expertise: string;
+  services: string;
+  categories: string;
   business_name: string;
   business_id: number;
   street: string;
@@ -26,9 +30,15 @@ interface Worker {
   zip_code: string;
 }
 
+interface ServiceCategory {
+  cat_id: number;
+  name: string;
+}
+
 type Mode = "salons" | "workers";
 
 export default function Browse() {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>("salons");
   const [results, setResults] = useState<Salon[] | Worker[]>([]);
   const [service, setService] = useState("");
@@ -42,8 +52,19 @@ export default function Browse() {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [detailsBusinessId, setDetailsBusinessId] = useState<number | null>(null);
   const [detailsBusinessName, setDetailsBusinessName] = useState("");
+  const [categories, setCategories] = useState<ServiceCategory[]>([]);
 
-  const backendBase = "http://localhost:5000";
+  const backendBase = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+  useEffect(() => {
+    fetch(`${backendBase}/api/client/service-categories`, {
+      credentials: "include",
+    })
+      .then(res => res.json())
+      .then(data => setCategories(data))
+      .catch(err => console.error("Failed to load categories", err));
+  }, []);
+
 
   // --- Fetch all data depending on mode ---
   const fetchData = async () => {
@@ -73,7 +94,12 @@ export default function Browse() {
       const data = JSON.parse(text) as Salon[] | Worker[];
 
       // --- Apply client-side filters ---
-      let filtered = data;
+      let filtered: (Salon | Worker)[] = data;
+
+      if (!Array.isArray(data)) {
+        console.error("Workers API did not return an array:", data);
+        throw new Error("Invalid response format from server");
+      }
 
       if (location.trim()) {
         filtered = filtered.filter((item: any) => {
@@ -84,7 +110,15 @@ export default function Browse() {
 
       if (service.trim() && mode === "workers") {
         filtered = (filtered as Worker[]).filter((w) =>
-          w.expertise?.toLowerCase().includes(service.toLowerCase())
+          w.services?.toLowerCase().includes(service.toLowerCase()) ||
+          w.categories?.toLowerCase().includes(service.toLowerCase())
+        );
+      }
+
+      if (service.trim() && mode === "salons") {
+        filtered = (filtered as Salon[]).filter((s) =>
+          s.services?.toLowerCase().includes(service.toLowerCase()) ||
+          s.categories?.toLowerCase().includes(service.toLowerCase())
         );
       }
 
@@ -100,7 +134,7 @@ export default function Browse() {
         });
       }
 
-      setResults(filtered);
+      setResults(filtered as Salon[] | Worker[]);
     } catch (err: any) {
       console.error("Error fetching data:", err);
       setError(err.message || "Unknown error");
@@ -152,19 +186,18 @@ export default function Browse() {
           <option value="workers">Browse Workers</option>
         </select>
 
-        <input
-          type="text"
-          placeholder="Filter by service (e.g. haircut)"
+        <select
           value={service}
           onChange={(e) => setService(e.target.value)}
-          disabled={mode === "salons"}
-          style={{
-            padding: 8,
-            borderRadius: 6,
-            border: "1px solid #DE9E48",
-            color: "#372C2E",
-          }}
-        />
+          style={{ padding: 8, borderRadius: 6, border: "1px solid #DE9E48", color: "#372C2E" }}
+        >
+          <option value="">All Services</option>
+          {categories.map((c) => (
+            <option key={c.cat_id} value={c.name.toLowerCase()}>
+              {c.name}
+            </option>
+          ))}
+        </select>
 
         <input
           type="text"
@@ -238,22 +271,40 @@ export default function Browse() {
               }}
             >
               <h3 style={{ marginTop: 0 }}>
-                {mode === "salons"
-                  ? (item as Salon).name
-                  : `${(item as Worker).employee_first_name} ${
-                      (item as Worker).employee_last_name
-                    }`}
+                {mode === "salons" ? (
+                  (item as Salon).name
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate(`/customer/worker/${(item as Worker).employee_id}`)
+                    }
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      margin: 0,
+                      color: "#DE9E48",
+                      cursor: "pointer",
+                      fontSize: "inherit",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {(item as Worker).employee_first_name} {" "}
+                    {(item as Worker).employee_last_name}
+                  </button>
+                )}
               </h3>
               <p style={{ margin: "4px 0" }}>
                 {(item as Salon | Worker).street}, {(item as Salon | Worker).city},{" "}
                 {(item as Salon | Worker).state}
               </p>
+              <p style={{ margin: "4px 0" }}>
+                Services: <b>{(item as Salon).services}</b>
+              </p>
 
               {mode === "workers" && (
                 <>
-                  <p style={{ margin: "4px 0" }}>
-                    Expertise: <b>{(item as Worker).expertise}</b>
-                  </p>
                   <p style={{ margin: "4px 0" }}>
                     Salon: {(item as Worker).business_name}
                   </p>
@@ -278,6 +329,24 @@ export default function Browse() {
                 >
                   Schedule Appointment
                 </button>
+
+                {mode === "workers" && (
+                  <button
+                    style={{
+                      backgroundColor: "#563727",
+                      border: "none",
+                      color: "#FFFFFF",
+                      padding: "8px 12px",
+                      borderRadius: 6,
+                      cursor: "pointer",
+                    }}
+                    onClick={() =>
+                      navigate(`/customer/worker/${(item as Worker).employee_id}`)
+                    }
+                  >
+                    View Profile
+                  </button>
+                )}
                 
                 {mode === "salons" && (
                   <button
@@ -289,11 +358,25 @@ export default function Browse() {
                       borderRadius: 6,
                       cursor: "pointer",
                     }}
-                    onClick={() => {
+                    onClick={async () => {
                       setDetailsBusinessId((item as Salon).business_id);
                       setDetailsBusinessName((item as Salon).name);
                       setDetailsModalOpen(true);
-                    }}
+                      
+                      try {
+                        await fetch(`${backendBase}/api/visit-history/salon-views`, {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json"
+                          },
+                          credentials: "include",
+                          body: JSON.stringify({ bid: (item as Salon).business_id})
+                        }) ;
+                      } catch (err) {
+                        console.error("Failed to increment salon views", err);
+                      }
+                    }
+                  }
                   >
                     View Details
                   </button>

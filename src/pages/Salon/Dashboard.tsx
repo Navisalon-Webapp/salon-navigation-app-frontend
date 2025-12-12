@@ -9,6 +9,8 @@ type Salon = {
   city?: string;
   state?: string;
   zip_code?: string;
+  year_est?: string;
+  deposit_rate?: number;
 };
 
 type Product = {
@@ -97,12 +99,16 @@ export default function BusinessDashboard() {
   const [salon, setSalon] = useState<Salon | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [depositRate, setDepositRate] = useState<number | "">("");
+  const [depositSaving, setDepositSaving] = useState(false);
+  const [depositError, setDepositError] = useState<string | null>(null);
 
   const [editName, setEditName] = useState("");
   const [editStreet, setEditStreet] = useState("");
   const [editCity, setEditCity] = useState("");
   const [editState, setEditState] = useState("");
   const [editZip, setEditZip] = useState("");
+  const [editYearEst, setEditYearEst] = useState("");
   const [editStatus, setEditStatus] = useState(false);
 
   const [newName, setNewName] = useState("");
@@ -117,7 +123,7 @@ export default function BusinessDashboard() {
       setLoading(true);
       
       try {
-        const salonRes = await fetch("http://localhost:5000/owner/salon", {
+        const salonRes = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/salon`, {
           method: "GET",
           credentials: "include",
           headers: {
@@ -134,10 +140,16 @@ export default function BusinessDashboard() {
           setEditCity(salonData.city || "");
           setEditState(salonData.state || "");
           setEditZip(salonData.zip_code || "");
+          setEditYearEst(salonData.year_est || "");
           setEditStatus(salonData.status);
+          setDepositRate(
+            typeof salonData.deposit_rate === "number"
+              ? Number((salonData.deposit_rate * 100).toFixed(0))
+              : ""
+          );
         }
 
-        const prodRes = await fetch("http://localhost:5000/owner/products", {
+        const prodRes = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/products`, {
           method: "GET",
           credentials: "include",
           headers: {
@@ -169,11 +181,12 @@ export default function BusinessDashboard() {
       city: editCity,
       state: editState,
       zip_code: editZip,
+      year_est: editYearEst,
       status: editStatus,
     };
 
     try {
-      const res = await fetch("http://localhost:5000/owner/manage-details", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/manage-details`, {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -183,6 +196,7 @@ export default function BusinessDashboard() {
           city: editCity,
           state: editState,
           zip_code: editZip,
+          year_est: editYearEst,
           status: editStatus,
         }),
       });
@@ -195,6 +209,56 @@ export default function BusinessDashboard() {
       }
     } catch (error) {
       alert("Error saving salon details");
+    }
+  }
+
+  async function handleSaveDepositRate() {
+    setDepositError(null);
+    const parsed = depositRate === "" ? null : Number(depositRate);
+    if (parsed === null || Number.isNaN(parsed)) {
+      setDepositError("Enter a percentage between 0 and 100");
+      return;
+    }
+    if (parsed < 0 || parsed > 100) {
+      setDepositError("Deposit percentage must be between 0 and 100");
+      return;
+    }
+
+    setDepositSaving(true);
+    try {
+      const payload = { deposit_rate: parsed / 100 };
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/business/set-deposit`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        try {
+          const data = JSON.parse(text);
+          throw new Error(data?.message || "Failed to update deposit rate");
+        } catch (parseErr) {
+          throw new Error("Failed to update deposit rate");
+        }
+      }
+
+      const data = await res.json();
+      setSalon((prev) =>
+        prev
+          ? {
+              ...prev,
+              deposit_rate: data?.deposit_rate ?? payload.deposit_rate,
+            }
+          : prev
+      );
+      setDepositRate(Number((payload.deposit_rate * 100).toFixed(0)));
+    } catch (err: any) {
+      console.error("Deposit update failed", err);
+      setDepositError(err.message || "Failed to update deposit rate");
+    } finally {
+      setDepositSaving(false);
     }
   }
 
@@ -211,7 +275,7 @@ export default function BusinessDashboard() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/owner/products", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/products`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -272,7 +336,7 @@ export default function BusinessDashboard() {
     setProducts((prev) => prev.map((p) => (p.pid === pid ? { ...p, stock: newStockValue } : p)));
 
     try {
-      await fetch(`http://localhost:5000/owner/products/${pid}`, {
+      await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/products/${pid}`, {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -283,37 +347,13 @@ export default function BusinessDashboard() {
     }
   }
 
-  async function simulateCustomerPurchase(pid: number | undefined, quantity = 1) {
-    if (!pid) return;
-
-    try {
-      const res = await fetch(`http://localhost:5000/owner/products/${pid}/purchase`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quantity }),
-      });
-
-      if (res.ok) {
-        const result = await res.json();
-        if (result.status === "success" && result.product) {
-          setProducts((prev) => 
-            prev.map((p) => (p.pid === pid ? { ...p, stock: result.product.stock } : p))
-          );
-        }
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }
-
   async function handleDeleteProduct(pid: number | undefined) {
     if (!pid) return;
     
     if (!confirm("Are you sure you want to delete this product?")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/owner/products/${pid}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/owner/products/${pid}`, {
         method: "DELETE",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -363,12 +403,50 @@ export default function BusinessDashboard() {
               <span style={{ color: "rgba(255,255,255,0.85)", fontSize: 13 }}>ZIP</span>
               <input value={editZip} onChange={(e) => setEditZip(e.target.value)} style={inputStyle} />
             </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <span style={{ color: "rgba(255,255,255,0.85)", fontSize: 13 }}>Est. Year</span>
+              <input value={editYearEst} onChange={(e) => setEditYearEst(e.target.value)} style={inputStyle} />
+            </label>
           </div>
           <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 12 }}>
             <button onClick={handleSaveSalon} style={buttonPrimary}>
               Save Salon Details
             </button>
           </div>
+        </section>
+
+        <section style={{ marginTop: 20, ...cardStyle }}>
+          <h3 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Deposit Settings</h3>
+          <p style={{ marginTop: 0, color: "rgba(255,255,255,0.7)", fontSize: 14 }}>
+            Choose the deposit percentage customers must pay up front for an appointment.
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={depositRate}
+              onChange={(e) => setDepositRate(e.target.value === "" ? "" : Number(e.target.value))}
+              style={{ ...inputStyle, width: 120 }}
+              placeholder="Deposit %"
+            />
+            <span style={{ color: "rgba(255,255,255,0.8)" }}>%</span>
+            <button
+              onClick={handleSaveDepositRate}
+              style={{ ...buttonPrimary, opacity: depositSaving ? 0.6 : 1 }}
+              disabled={depositSaving}
+            >
+              {depositSaving ? "Saving..." : "Save Deposit Rate"}
+            </button>
+          </div>
+          {depositError && (
+            <div style={{ marginTop: 8, color: "#ffb4a2" }}>{depositError}</div>
+          )}
+          {salon?.deposit_rate !== undefined && (
+            <div style={{ marginTop: 8, color: "rgba(255,255,255,0.75)", fontSize: 13 }}>
+              Current deposit: {(salon.deposit_rate * 100).toFixed(0)}%
+            </div>
+          )}
         </section>
 
         <section style={{ marginTop: 20, ...cardStyle }}>
@@ -518,9 +596,6 @@ export default function BusinessDashboard() {
                       </button>
                       <button onClick={() => handleUpdateStock(p.pid, Math.max(0, p.stock - 1))} style={buttonGhost}>
                         - Stock
-                      </button>
-                      <button onClick={() => simulateCustomerPurchase(p.pid, 1)} style={buttonGhost}>
-                        Simulate Purchase
                       </button>
                       <button 
                         onClick={() => handleDeleteProduct(p.pid)} 

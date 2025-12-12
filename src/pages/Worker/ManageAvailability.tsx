@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-const API = "http://localhost:5000";
-type DayKey = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+type DayKey = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
 
 type DayAvailability = {
   enabled: boolean;
@@ -10,7 +10,7 @@ type DayAvailability = {
 
 type WeeklyAvailability = Record<DayKey, DayAvailability>;
 
-const days: DayKey[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const days: DayKey[] = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
 const defaultDay: DayAvailability = {
   enabled: false,

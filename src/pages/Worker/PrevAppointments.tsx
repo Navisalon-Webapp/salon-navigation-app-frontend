@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Appt from '../../components/AppointmentCard';
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 type AppointmentInfo = {
   id: string;
@@ -11,7 +11,6 @@ type AppointmentInfo = {
   client: string;
   service: string;
   durationMins: number;
-  notes?: string;
   status: string;
 };
 
@@ -148,6 +147,7 @@ export default function WorkerAppointments() {
                       time={appt.time}
                       date={appt.date}
                       theme="dark"
+                      disableModal
                     />
                   </div>
                 ))}
@@ -187,6 +187,7 @@ export default function WorkerAppointments() {
                       time={appt.time}
                       date={appt.date}
                       theme="dark"
+                      disableModal
                     />
                   </div>
                 ))}
