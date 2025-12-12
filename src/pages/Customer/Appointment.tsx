@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AppointmentNotes from "../../components/AppointmentNotes";
 import BeforeAfterImages from "../../components/BeforeAfterImages";
@@ -78,6 +78,7 @@ export default function AppointmentPage() {
   const [newCardCvv, setNewCardCvv] = useState("");
   const [newCardType, setNewCardType] = useState("debit");
   const [modalOpen, setModalOpen] = useState(false);
+  const isFuture = useRef(false);
   const addCardLabelStyle = { display: "flex", flexDirection: "column" as const, gap: 4, width: "100%" };
   const addCardInputStyle = {
     padding: 8,
@@ -86,7 +87,24 @@ export default function AppointmentPage() {
     width: "100%",
     boxSizing: "border-box" as const,
   };
-
+  try{
+    const today = new Date();
+    const inputDate = (appointmentInfo?.date || "").split("/").reverse().join("");
+    const timeParts = (appointmentInfo?.time || "").split(":");
+    const hour = Number(timeParts[0]) || 0;
+    const minute = timeParts[1] ? Number(timeParts[1].substring(0, 2)) || 0 : 0;
+    const apptdate = new Date(
+        +inputDate.slice(0, 4),
+        +inputDate.slice(6, 8) - 1,
+        +inputDate.slice(4, 6),
+        hour,
+        minute,
+        0
+    );
+    isFuture.current = today <= apptdate;
+  }catch{
+    isFuture.current = false;
+  }
   const fetchAppointment = async (aid: string) => {
     setLoading(true);
     setError("");
@@ -254,25 +272,7 @@ export default function AppointmentPage() {
     }
 
   };
-  var isFuture;
-  try{
-    const today = new Date();
-    const inputDate = (appointmentInfo?.date || "").split("/").reverse().join("");
-    const timeParts = (appointmentInfo?.time || "").split(":");
-    const hour = Number(timeParts[0]) || 0;
-    const minute = timeParts[1] ? Number(timeParts[1].substring(0, 2)) || 0 : 0;
-    const apptdate = new Date(
-        +inputDate.slice(0, 4),
-        +inputDate.slice(6, 8) - 1,
-        +inputDate.slice(4, 6),
-        hour,
-        minute,
-        0
-    );
-    isFuture = today <= apptdate;
-  }catch{
-    isFuture = false;
-  }
+  
   const cancelAppt = async () => {
     const userconfirmation = confirm("Are you sure you want to cancel your appointment?")
     if(userconfirmation){
@@ -400,9 +400,10 @@ export default function AppointmentPage() {
                   {appointmentInfo.date} • {appointmentInfo.time}
                 </div>
               </div>
-            </div>
-          </div>
-          {isFuture && <button 
+              <div></div>
+              <div style={{ float: "right"}}>
+                
+              {isFuture && <button 
             style={{
                 float: 'right',
                 margin: '0.5rem',
@@ -435,6 +436,11 @@ export default function AppointmentPage() {
                     employeeId={appointmentInfo.employee_id}
                     onSuccess={fetchData}
                   />}
+              </div>
+            </div>
+            
+          </div>
+
           {appointmentInfo.payments && (
             <div
               style={{
