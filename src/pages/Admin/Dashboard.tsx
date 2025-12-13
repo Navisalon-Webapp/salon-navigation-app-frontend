@@ -60,9 +60,9 @@ const Dashboard: React.FC = () => {
   const loadPendingAdmins = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/pending`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/admin/pending`, {
         credentials: "include"
-      }); // CHANGE BACKEND ROUTE
+      }); 
       const data = await res.json();
       setAdmins(data); 
     } catch (e) {
@@ -177,20 +177,20 @@ const Dashboard: React.FC = () => {
   const handleApproveAdm = async (id: string) => {
     const w = admins.find((x) => x.id === id);
     console.log("Approve admin", w);
-    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/${id}/approve`, {
+    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/admin/${id}/approve`, {
       method: "POST",
       credentials: "include"
-    }); //CHANGE BACKEND ROUTE
+    }); 
     setAdmins((list) => list.filter((x) => x.id !== id));
   };
 
   const handleRejectAdm = async (id: string) => {
     const w = admins.find((x) => x.id === id);
     console.log("Reject admin", w);
-    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/${id}/reject`, {
+    await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/admin/${id}/reject`, {
       method: "POST",
       credentials: "include"
-    }); //CHANGE BACKEND ROUTE
+    }); 
     setAdmins((list) => list.filter((x) => x.id !== id));
   };
 
