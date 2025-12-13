@@ -6,6 +6,7 @@ type Props = {
   businessId: number;
   employeeId?: number | null;
   onSuccess?: () => void;
+  appointmentId?: number | null;
 };
 
 type Service = {
@@ -28,6 +29,7 @@ export default function AppointmentModal({
   businessId,
   employeeId = null,
   onSuccess,
+  appointmentId = null,
 }: Props) {
   const [services, setServices] = useState<Service[]>([]);
   const [workers, setWorkers] = useState<Worker[]>([]);
@@ -144,7 +146,16 @@ export default function AppointmentModal({
         eid: selectedEmployeeId
       };
 
-      const res = await fetch(`${backendBase}/api/client/create-appointment`, {
+      // If we have an appointmentId, this is a reschedule operation
+      const endpoint = appointmentId 
+        ? `${backendBase}/api/client/reschedule-appointment`
+        : `${backendBase}/api/client/create-appointment`;
+      
+      if (appointmentId) {
+        payload.old_aid = appointmentId;
+      }
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -166,7 +177,7 @@ export default function AppointmentModal({
 
       onSuccess?.();
       onClose();
-      alert("Appointment scheduled successfully.");
+      alert(appointmentId ? "Appointment rescheduled successfully." : "Appointment scheduled successfully.");
     } catch (e: any) {
       console.error("Create appointment error:", e);
       setError(e.message || "Unknown error creating appointment");

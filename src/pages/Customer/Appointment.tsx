@@ -434,6 +434,7 @@ export default function AppointmentPage() {
                     onClose={() => setModalOpen(false)}
                     businessId={appointmentInfo.business_id}
                     employeeId={appointmentInfo.employee_id}
+                    appointmentId={appointmentInfo.id}
                     onSuccess={fetchData}
                   />}
               </div>
