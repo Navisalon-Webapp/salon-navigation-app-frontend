@@ -1,18 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 type Salon = {
   id: string;
   bid: number;
   name: string;
   points: number;
+  progress?: number;
   goal: number;
   address?: string;
   programType?: string | null;
   rewardType?: string | null;
   rewardValue?: number | null;
 };
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const defaultSalons: Salon[] = [];
 
@@ -51,7 +50,6 @@ export default function RewardsPopup({
   open,
   onClose,
   salons,
-  onRedeemed,
 }: {
   open: boolean;
   onClose: () => void;
@@ -59,9 +57,6 @@ export default function RewardsPopup({
   onRedeemed?: () => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [busySalonId, setBusySalonId] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const salonList = Array.isArray(salons) ? salons : defaultSalons;
   const hasSalons = salonList.length > 0;
@@ -72,74 +67,13 @@ export default function RewardsPopup({
 
   useEffect(() => {
     if (open) {
-      setFeedback(null);
-      setError(null);
-      setBusySalonId(null);
+      // No-op hook preserved to reset future stateful additions when dialog opens.
     }
   }, [open]);
 
   if (!open) {
     return null;
   }
-
-  const handleRedeem = async (salon: Salon) => {
-    if (salon.points <= 0) {
-      setError("You don't have any points to redeem with this salon yet.");
-      return;
-    }
-
-    const descriptor = getProgramUnits(salon.programType);
-    const suggested = salon.goal > 0 ? Math.min(salon.points, salon.goal) : salon.points;
-    const promptValue = window.prompt(
-      `Redeem points at ${salon.name}. You currently have ${formatWithUnits(salon.points, descriptor)}.\n\nEnter how many points to redeem:`,
-      String(Math.max(1, suggested))
-    );
-
-    if (promptValue === null) {
-      return;
-    }
-
-    const parsed = Number.parseInt(promptValue, 10);
-    if (Number.isNaN(parsed) || parsed <= 0) {
-      setError("Please enter a valid positive number of points to redeem.");
-      return;
-    }
-    if (parsed > salon.points) {
-      setError("You cannot redeem more points than you currently have.");
-      return;
-    }
-
-    setBusySalonId(salon.id);
-    setError(null);
-    setFeedback(null);
-    try {
-      const res = await fetch(`${API_BASE}/api/loyalty/redeem`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bid: salon.bid, points: parsed }),
-      });
-
-      const payload = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        const message = payload?.message ?? "Unable to redeem points right now.";
-        setError(message);
-        return;
-      }
-
-      const discount = payload?.data?.discount ?? 0;
-      setFeedback(`Redeemed ${parsed} points for a $${Number(discount).toFixed(2)} discount.`);
-      if (onRedeemed) {
-        onRedeemed();
-      }
-    } catch (err) {
-      console.error("Failed to redeem loyalty points", err);
-      setError("Unable to redeem points right now. Please try again later.");
-    } finally {
-      setBusySalonId(null);
-    }
-  };
 
   const programLabel = (programType?: string | null) => {
     switch (programType) {
@@ -212,36 +146,6 @@ export default function RewardsPopup({
         </div>
 
         <div style={{ padding: 20 }}>
-          {feedback && (
-            <div
-              style={{
-                background: "rgba(61, 156, 75, 0.1)",
-                border: "1px solid rgba(61, 156, 75, 0.45)",
-                color: "#245530",
-                borderRadius: 8,
-                padding: "10px 12px",
-                marginBottom: 16,
-              }}
-            >
-              {feedback}
-            </div>
-          )}
-
-          {error && (
-            <div
-              style={{
-                background: "rgba(176, 0, 32, 0.12)",
-                border: "1px solid rgba(176, 0, 32, 0.55)",
-                color: "#8C1C13",
-                borderRadius: 8,
-                padding: "10px 12px",
-                marginBottom: 16,
-              }}
-            >
-              {error}
-            </div>
-          )}
-
           {hasSalons ? (
             <>
               <div
@@ -264,7 +168,7 @@ export default function RewardsPopup({
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "1.4fr 0.6fr 0.6fr 0.9fr",
+                  gridTemplateColumns: "1.6fr 0.7fr 0.7fr",
                   gap: 12,
                   alignItems: "stretch",
                 }}
@@ -272,7 +176,6 @@ export default function RewardsPopup({
                 <div style={{ fontSize: 12, opacity: 0.7 }}>Salon</div>
                 <div style={{ fontSize: 12, opacity: 0.7, textAlign: "right" }}>Progress</div>
                 <div style={{ fontSize: 12, opacity: 0.7, textAlign: "right" }}>Goal</div>
-                <div style={{ fontSize: 12, opacity: 0.7, textAlign: "center" }}>Actions</div>
 
                 {salonList.map((s: Salon) => {
                   const displayReward = (() => {
@@ -287,8 +190,21 @@ export default function RewardsPopup({
                   })();
 
                   const descriptor = getProgramUnits(s.programType);
-                  const progressText = `${formatValue(s.points)} / ${formatValue(s.goal)} ${descriptor.plural}`;
-                  const goalText = formatWithUnits(s.goal, descriptor);
+                  const rawProgress = s.programType === "points_thresh" ? s.points : s.progress ?? 0;
+                  const effectiveGoal = s.goal && s.goal > 0
+                    ? s.goal
+                    : s.programType === "points_thresh"
+                      ? Math.max(s.goal || 0, s.points ?? 0, 100)
+                      : 1;
+                  const isBonusReward = String(s.rewardType ?? "").toLowerCase() === "bonus points";
+                  const rewardRequirement = Number(s.rewardValue ?? 0);
+                  const available = s.points ?? 0;
+                  const bonusReady = isBonusReward && rewardRequirement > 0 && available >= rewardRequirement;
+                  const baseProgress = Math.min(Math.max(rawProgress, 0), effectiveGoal);
+                  const clampedProgress = bonusReady ? effectiveGoal : baseProgress;
+                  const progressText = `${formatValue(clampedProgress)} / ${formatValue(effectiveGoal)} ${descriptor.plural}`;
+                  const goalText = formatWithUnits(effectiveGoal, descriptor);
+                  const availablePoints = formatValue(Math.max(s.points ?? 0, 0));
 
                   return (
                     <React.Fragment key={s.id ?? `${s.bid}`}>
@@ -307,31 +223,12 @@ export default function RewardsPopup({
                           {programLabel(s.programType)} · {s.rewardType ?? "Reward"}
                           {displayReward}
                         </div>
+                        <div style={{ fontSize: 12, color: "#563727", opacity: 0.8 }}>
+                          Available points: {availablePoints}
+                        </div>
                       </div>
                       <div style={{ textAlign: "right", fontWeight: 700 }}>{progressText}</div>
                       <div style={{ textAlign: "right", opacity: 0.8 }}>{goalText}</div>
-                      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                        <button
-                          type="button"
-                          onClick={() => handleRedeem(s)}
-                          disabled={busySalonId === s.id || s.points <= 0}
-                          style={{
-                            background: s.points > 0 ? "#DE9E48" : "#BFBFBF",
-                            color: "#372C2E",
-                            border: "none",
-                            borderRadius: 8,
-                            padding: "6px 12px",
-                            fontWeight: 600,
-                            cursor:
-                              busySalonId === s.id ? "wait" : s.points <= 0 ? "not-allowed" : "pointer",
-                            minWidth: 90,
-                            opacity: busySalonId === s.id || s.points <= 0 ? 0.7 : 1,
-                          }}
-                          title={s.points <= 0 ? "No points available to redeem" : undefined}
-                        >
-                          {busySalonId === s.id ? "Processing..." : "Redeem"}
-                        </button>
-                      </div>
                     </React.Fragment>
                   );
                 })}

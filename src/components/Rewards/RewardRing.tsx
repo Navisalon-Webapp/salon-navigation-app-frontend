@@ -36,11 +36,13 @@ export default function RewardRing({
   goal,
   salonName = "Salon",
   programType,
+  pointsBalance,
 }: {
   current: number;
   goal: number;
   salonName?: string;
   programType?: string | null;
+  pointsBalance?: number;
 }) {
   const clamped = Math.max(0, Math.min(current, goal));
   const pct = goal ? clamped / goal : 0;
@@ -55,6 +57,9 @@ export default function RewardRing({
   const remainingLabel = remaining > 0 ? `${formatWithUnits(remaining, descriptor)} remaining` : "Reward ready!";
   const remainingWord = remaining === 1 ? descriptor.singular : descriptor.plural;
   const remainingValue = formatValue(remaining);
+  const normalizedBalance = typeof pointsBalance === "number" && Number.isFinite(pointsBalance)
+    ? Math.max(pointsBalance, 0)
+    : null;
 
   return (
     <div
@@ -120,6 +125,11 @@ export default function RewardRing({
         {progressLabel}
       </div>
       <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>{remainingLabel}</div>
+      {normalizedBalance !== null && (
+        <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>
+          Available points: {formatValue(normalizedBalance)}
+        </div>
+      )}
     </div>
   );
 }
