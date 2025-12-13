@@ -152,7 +152,7 @@ export default function AppointmentModal({
         : `${backendBase}/api/client/create-appointment`;
       
       if (appointmentId) {
-        payload.old_aid = appointmentId;
+        payload.aid = appointmentId;
       }
 
       const res = await fetch(endpoint, {
@@ -177,7 +177,6 @@ export default function AppointmentModal({
 
       onSuccess?.();
       onClose();
-      alert(appointmentId ? "Appointment rescheduled successfully." : "Appointment scheduled successfully.");
     } catch (e: any) {
       console.error("Create appointment error:", e);
       setError(e.message || "Unknown error creating appointment");

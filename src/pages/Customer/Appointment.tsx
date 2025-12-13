@@ -276,7 +276,24 @@ export default function AppointmentPage() {
   const cancelAppt = async () => {
     const userconfirmation = confirm("Are you sure you want to cancel your appointment?")
     if(userconfirmation){
-          //call to backend
+      try {
+        const res = await fetch(`${API}/api/user/cancel-appt`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ aid: appointmentInfo?.id }),
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.error || errorData.message || "Failed to cancel appointment");
+        }
+
+        alert("Appointment cancelled successfully");
+        navigate("/customer/prev-appointments");
+      } catch (err: any) {
+        alert(err.message || "Failed to cancel appointment");
+      }
     }
   };
   const fetchData = async () => {
