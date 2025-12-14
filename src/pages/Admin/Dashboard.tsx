@@ -188,7 +188,7 @@ const Dashboard: React.FC = () => {
     const w = admins.find((x) => x.id === id);
     console.log("Reject admin", w);
     await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/admin/admin/${id}/reject`, {
-      method: "POST",
+      method: "DELETE",
       credentials: "include"
     }); 
     setAdmins((list) => list.filter((x) => x.id !== id));
